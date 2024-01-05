@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace SunAuto.UniversalLogging;
+namespace SunAuto.Logging;
 
 public class Logger(IConfiguration configuration) :
     ILogger
