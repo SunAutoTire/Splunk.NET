@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging.Configuration;
 
 namespace SunAuto.Logging;
 
-public static class Extensions
+public static class StartupExtensions
 {
-    public static ILoggingBuilder AddUniversalLogging(this ILoggingBuilder builder)
+    public static ILoggingBuilder AddLogging(this ILoggingBuilder builder)
     {
         builder.AddConfiguration();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
@@ -17,9 +17,9 @@ public static class Extensions
         return builder;
     }
 
-    public static ILoggingBuilder AddUniversalLogger(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
+    public static ILoggingBuilder AddLogger(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
     {
-        builder.AddUniversalLogging();
+        builder.AddLogging();
         builder.Services.Configure(configure);
 
         return builder;
