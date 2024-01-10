@@ -10,5 +10,5 @@ public sealed class LoggerProvider(IStorage storage, IConfiguration configuratio
 {
     public ILogger CreateLogger(string categoryName) => new Logger(storage, configuration);
 
-    public void Dispose() => throw new NotImplementedException();
+    public void Dispose() { }
 }
