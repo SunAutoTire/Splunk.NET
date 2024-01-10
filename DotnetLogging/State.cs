@@ -1,14 +1,9 @@
 ﻿namespace SunAuto.Logging;
 
-public class State : IDisposable
+public class State(object state) : IDisposable
 {
     private bool disposedValue;
-    private object state;
-
-    public State(object state)
-    {
-        this.state = state;
-    }
+    private readonly object state = state;
 
     protected virtual void Dispose(bool disposing)
     {

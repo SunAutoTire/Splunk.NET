@@ -17,7 +17,7 @@ public static class StartupExtensions
         return builder;
     }
 
-    public static ILoggingBuilder AddLogger(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
+    public static ILoggingBuilder AddLogging(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
     {
         builder.AddLogging();
         builder.Services.Configure(configure);

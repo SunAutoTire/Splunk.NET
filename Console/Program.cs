@@ -1,15 +1,20 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿
+// See https://aka.ms/new-console-template for more information
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SunAuto.UniversalLogging;
+using SunAuto.Logging;
+using SunAuto.Logging.Common;
+using SunAuto.Logging.FileStorage;
 
-// See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
 
 var builder = Host.CreateApplicationBuilder(args);
 
+builder.Services.AddSingleton<IStorage, Storage>(options=>new Storage("log.log"));
+
 builder.Logging.ClearProviders();
-builder.Logging.AddUniversalLogging();
+builder.Logging.AddLogging();
 
 using var host = builder.Build();
 
