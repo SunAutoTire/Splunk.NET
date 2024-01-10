@@ -6,7 +6,26 @@
 		<Nullable>enable</Nullable>
 		<AssemblyName>SunAuto.Logging</AssemblyName>
 		<RootNamespace>SunAuto.Logging</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Universal Logging by Sun Auto</Title>
+		<Description>A .NET client (SDK) for the Sun Auto Universal Logging system.</Description>
+		<Copyright>Copyright © 2024 Sun Auto Tire &amp; Service</Copyright>
+		<Authors>Daniel Przybylski</Authors>
+		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
+		<Version>1.0.0-preview-00</Version>
+		<PackageProjectUrl>https://bitbucket.org/sunauto/logging/src</PackageProjectUrl>
+		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<RepositoryUrl>https://bitbucket.org/sunauto/logging/src</RepositoryUrl>
+		<PackageTags>Logging, Azure Storage</PackageTags>
+		<PackageReleaseNotes>Initial creation</PackageReleaseNotes>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="LICENSE.txt" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
@@ -16,6 +35,21 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\Common\Common.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="LICENSE.txt">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="readme.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	  <None Update="Sun-Auto-Icon.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 </Project>

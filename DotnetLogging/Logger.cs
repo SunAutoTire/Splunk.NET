@@ -4,12 +4,13 @@ using SunAuto.Logging.Common;
 
 namespace SunAuto.Logging;
 
-public class Logger(IStorage log, IConfiguration configuration) : ILogger
+public class Logger(IConfiguration configuration, IStorage? log) : ILogger
 {
-    readonly IStorage Storage = log;
+    readonly IStorage? Storage = log;
 
     readonly LogLevel DefaultLevel = configuration.GetValue<string>("Logging:SunAuto:LogLevel:Default").ToLogLevel();
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => new State(state);
+
+    public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
     public bool IsEnabled(LogLevel logLevel) => logLevel >= DefaultLevel;
 
@@ -19,7 +20,7 @@ public class Logger(IStorage log, IConfiguration configuration) : ILogger
         {
             try
             {
-                Storage.Add(logLevel,eventId,state,exception,formatter);
+                Storage?.Add(logLevel, eventId, state, exception, formatter);
             }
             finally
             {

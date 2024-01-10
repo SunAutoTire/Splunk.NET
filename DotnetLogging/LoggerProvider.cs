@@ -5,10 +5,10 @@ using SunAuto.Logging.Common;
 namespace SunAuto.Logging;
 
 [ProviderAlias("SunAuto")]
-public sealed class LoggerProvider(IStorage storage, IConfiguration configuration) :
+public sealed class LoggerProvider(IConfiguration configuration, IStorage? storage = null) :
     ILoggerProvider
 {
-    public ILogger CreateLogger(string categoryName) => new Logger(storage, configuration);
+    public ILogger CreateLogger(string categoryName) => new Logger(configuration, storage);
 
     public void Dispose() { }
 }
