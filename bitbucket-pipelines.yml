@@ -1,8 +1,8 @@
 #  Template publish .NET Core package to nuget.org
 
 #  This template allows you to publish your .NET Core package to nuget.org.
-#  The workflow allows running tests, code linting and security scans on feature branches (as well as master).
-#  The .NET Core package will be validated and published after the code is merged to master.
+#  The workflow allows running tests, code linting and security scans on feature branches (as well as main).
+#  The .NET Core package will be validated and published after the code is merged to main.
 
 # Prerequisites: $NUGET_SECRET_API_KEY setup as deployment variables.
 
@@ -39,7 +39,7 @@ pipelines:
             artifacts:
               - linter-reports/**
   branches:
-    master:
+    main:
     - parallel:
         - step:
             name: Build and Test
