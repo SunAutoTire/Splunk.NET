@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SunAuto.Logging.Common;
 
 namespace SunAuto.Logging;
 
-public class Logger(IConfiguration configuration) :
-    ILogger
+public class Logger(IStorage log, IConfiguration configuration) : ILogger
 {
-    const string Name = "SunAuto";
+    readonly IStorage Storage = log;
 
     readonly LogLevel DefaultLevel = configuration.GetValue<string>("Logging:SunAuto:LogLevel:Default").ToLogLevel();
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => new State(state);
@@ -17,35 +17,12 @@ public class Logger(IConfiguration configuration) :
     {
         if (IsEnabled(logLevel))
         {
-            var originalColor = Console.ForegroundColor;
-
             try
             {
-                var color = logLevel switch
-                {
-                    LogLevel.Trace => ConsoleColor.Cyan,
-                    LogLevel.Debug => ConsoleColor.Green,
-                    LogLevel.Information => ConsoleColor.White,
-                    LogLevel.Warning => ConsoleColor.Yellow,
-                    LogLevel.Error => ConsoleColor.DarkRed,
-                    LogLevel.Critical => ConsoleColor.Red,
-                    //LogLevel.None
-                    _ => ConsoleColor.Gray
-                };
-
-                Console.ForegroundColor = color;
-                Console.WriteLine($"[{eventId.Id,2}: {logLevel,-12}]");
-
-                Console.ForegroundColor = originalColor;
-                Console.Write($"     {Name} - ");
-
-                Console.ForegroundColor = color;
-                Console.Write($"{formatter(state, exception)}");
+                Storage.Add(logLevel,eventId,state,exception,formatter);
             }
             finally
             {
-                Console.ForegroundColor = originalColor;
-                Console.WriteLine();
             }
         }
     }
