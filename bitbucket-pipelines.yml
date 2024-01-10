@@ -1,0 +1,71 @@
+#  Template publish .NET Core package to nuget.org
+
+#  This template allows you to publish your .NET Core package to nuget.org.
+#  The workflow allows running tests, code linting and security scans on feature branches (as well as master).
+#  The .NET Core package will be validated and published after the code is merged to master.
+
+# Prerequisites: $NUGET_SECRET_API_KEY setup as deployment variables.
+
+# To run your pipeline on a Windows machine, create a self-hosted Windows runner.
+# For instructions on setting up a Windows runner, see https://support.atlassian.com/bitbucket-cloud/docs/set-up-runners-for-windows/
+
+image: mcr.microsoft.com/dotnet/core/sdk:3.1
+
+pipelines:
+  default:
+    - parallel:
+        - step:
+            name: Build and Test
+            caches:
+              - dotnetcore
+            script:
+              - export SOLUTION_NAME=LoggingAll
+              - export CONFIGURATION=Release
+              - REPORTS_PATH=./test-reports/build_${BITBUCKET_BUILD_NUMBER}
+              - dotnet restore ${SOLUTION_NAME}.sln
+              - dotnet build --no-restore ${SOLUTION_NAME}.sln --configuration ${CONFIGURATION}
+              - dotnet test --no-build ${SOLUTION_NAME}.sln --test-adapter-path:. --logger:"junit;LogFilePath=$REPORTS_PATH/junit.xml"
+        - step:
+            name: Lint the dotnetcore package
+            caches:
+              - dotnetcore
+            script:
+              - export SOLUTION_NAME=LoggingAll
+              - REPORTS_PATH=linter-reports
+              - dotnet new tool-manifest
+              - dotnet tool install JetBrains.ReSharper.GlobalTools
+              - dotnet tool restore
+              - dotnet jb inspectcode ${SOLUTION_NAME}.sln --output="${REPORTS_PATH}/jb-${BITBUCKET_BUILD_NUMBER}.xml"
+            artifacts:
+              - linter-reports/**
+  branches:
+    master:
+    - parallel:
+        - step:
+            name: Build and Test
+            caches:
+              - dotnetcore
+            script:
+              - export SOLUTION_NAME=LoggingAll
+              - export export CONFIGURATION=Release
+              - REPORTS_PATH=./test-reports/build_${BITBUCKET_BUILD_NUMBER}
+              - dotnet restore ${SOLUTION_NAME}.sln
+              - dotnet build --no-restore ${SOLUTION_NAME}.sln --configuration ${CONFIGURATION}
+              - dotnet test --no-build ${SOLUTION_NAME}.sln --test-adapter-path:. --logger:"junit;LogFilePath=$REPORTS_PATH/junit.xml"
+        - step:
+            name: Security Scan
+            script:
+              # Run a security scan for sensitive data.
+              # See more security tools at https://bitbucket.org/product/features/pipelines/integrations?&category=security
+              - pipe: atlassian/git-secrets-scan:0.5.1
+    - step:
+        name: Deploy to Production
+        deployment: Production
+        script:
+          - export SOLUTION_NAME=LoggingAll
+          - export RELEASES_DIR="./releases"
+          - export NUPKG_VERSION=1.0.${BITBUCKET_BUILD_NUMBER}
+          # create nuget package
+          - dotnet pack ${SOLUTION_NAME}.sln --output ${RELEASES_DIR} --configuration Release -p:Version=${NUPKG_VERSION}
+          # publish package to nuget.org
+          - dotnet nuget push ${RELEASES_DIR}/HelloPipes.${NUPKG_VERSION}.nupkg --api-key ${FEEDZ_IO_SECRET_API_KEY} --source https://f.feedz.io/sun-auto/application-development/nuget/index.json
