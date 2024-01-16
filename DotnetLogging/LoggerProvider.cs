@@ -8,7 +8,7 @@ namespace SunAuto.Logging;
 public sealed class LoggerProvider(IConfiguration configuration, IStorage? storage = null) :
     ILoggerProvider
 {
-    public ILogger CreateLogger(string categoryName) => new Logger(configuration, storage);
+    public ILogger CreateLogger(string categoryName) => new Logger(configuration);
 
     public void Dispose() { }
 }

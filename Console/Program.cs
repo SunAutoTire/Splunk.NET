@@ -4,14 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SunAuto.Logging;
-using SunAuto.Logging.Common;
 using SunAuto.Logging.FileStorage;
 
 Console.WriteLine("Hello, World!");
 
 var builder = Host.CreateApplicationBuilder(args);
-
-builder.Services.AddSingleton<IStorage, Storage>(options=>new Storage("log.log"));
 
 builder.Logging.ClearProviders();
 builder.Logging.AddLogging();
@@ -28,7 +25,7 @@ logger.LogTrace(5, "== 120.");                    // Not logged
 logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe}?", "Maybe not");
 logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
 
-var storage = new Storage("log.log");
+var storage = new Storage("..\\..\\..\\SunAuto.log");
 
 var check = storage.List();
 
