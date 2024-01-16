@@ -9,11 +9,11 @@
 
   <ItemGroup>
 	  <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+	  <PackageReference Include="SunAuto.Logging" Version="1.0.0-preview-06" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\DotnetLogging\DotnetLogging.csproj" />
-    <ProjectReference Include="..\FileStorage\FileStorage.csproj" />
   </ItemGroup>
 
   <ItemGroup>

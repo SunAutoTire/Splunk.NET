@@ -8,6 +8,8 @@ using SunAuto.Logging.FileStorage;
 
 Console.WriteLine("Hello, World!");
 
+Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
+
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging.ClearProviders();

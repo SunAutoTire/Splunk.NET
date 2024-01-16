@@ -1,0 +1,1 @@
+﻿dotnet nuget push ".\bin\debug\SunAuto.Logging.1.0.0-preview-05.nupkg" -s SunAutoAzDevOps --interactive --api-key az

@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging.Common;
 
 namespace SunAuto.Logging;
 
