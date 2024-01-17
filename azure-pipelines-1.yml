@@ -13,26 +13,50 @@ steps:
 - script: echo Hello, world!
   displayName: 'Run a one-line script'
 
-- task: NuGetCommand@2
+# - task: NuGetCommand@2
+#   name: Restore
+#   inputs:
+#     command: 'restore'
+#     restoreSolution: '**/*All.sln'
+#     feedsToUse: 'select'
+#     vstsFeed: 'd678bcf5-2503-42bb-b505-dd53a0081d3f/fa996d31-77ec-485a-ab34-ecf8c67ade69'
+
+# - task: NuGetCommand@2
+#   name: Pack
+#   inputs:
+#     command: 'pack'
+#     packagesToPack: '**/DotnetLogging.csproj'
+#     versioningScheme: 'off'
+#     buildProperties: 'Configuration=Release'
+
+# - task: NuGetCommand@2
+#   name: Push
+#   inputs:
+#     command: 'push'
+#     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+#     nuGetFeedType: 'internal'
+#     publishVstsFeed: 'd678bcf5-2503-42bb-b505-dd53a0081d3f/fa996d31-77ec-485a-ab34-ecf8c67ade69'
+#     allowPackageConflicts: true
+
+- task: DotNetCoreCLI@2
   name: Restore
   inputs:
     command: 'restore'
-    restoreSolution: '**/*All.sln'
+    projects: '**/DotnetLogging.csproj'
     feedsToUse: 'select'
     vstsFeed: 'd678bcf5-2503-42bb-b505-dd53a0081d3f/fa996d31-77ec-485a-ab34-ecf8c67ade69'
 
-- task: NuGetCommand@2
-  name: Pack
+- task: DotNetCoreCLI@2
   inputs:
     command: 'pack'
-    packagesToPack: '**/DotnetLogging.csproj'
-    packDestination: '$(Build.ArtifactStagingDirectory)'
-
-- task: NuGetCommand@2
-  name: Push
+    packagesToPack: '**/*.csproj'
+    versioningScheme: 'off'
+    configuration: 'release'
+    
+- task: DotNetCoreCLI@2
   inputs:
     command: 'push'
-    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg;!$(Build.ArtifactStagingDirectory)/**/*.symbols.nupkg'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
     nuGetFeedType: 'internal'
     publishVstsFeed: 'd678bcf5-2503-42bb-b505-dd53a0081d3f/fa996d31-77ec-485a-ab34-ecf8c67ade69'
-    allowPackageConflicts: true
+    
