@@ -26,7 +26,6 @@ steps:
     packagesToPack: '**/DotnetLogging.csproj'
     configuration: 'Release'
     versioningScheme: 'off'
-    buildProperties: 'TargetFrameworks=net8.0'
     
 - task: DotNetCoreCLI@2
   name: Push
