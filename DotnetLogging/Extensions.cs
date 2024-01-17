@@ -19,7 +19,7 @@ public static class Extensions
         const string errormessage = "Valid log level must be configured \"Trace\"\r\n\"Debug\"\r\n\"Information\"\r\n\"Warning\"\r\n\"Error\",\r\n\"Critical\",\r\n\"None\"";
 
         if (string.IsNullOrWhiteSpace(levelValue))
-            throw new ArgumentNullException(nameof(levelValue), errormessage);
+            throw new ArgumentException(errormessage, nameof(levelValue));
         else
             return levelValue switch
             {
@@ -30,7 +30,7 @@ public static class Extensions
                 "Error" => LogLevel.Error,
                 "Critical" => LogLevel.Critical,
                 "None" => LogLevel.None,
-                _ => throw new ArgumentException(errormessage, nameof(levelValue)),
+                _ => throw new ArgumentOutOfRangeException(nameof(levelValue), errormessage),
             };
     }
 
@@ -39,7 +39,12 @@ public static class Extensions
     /// </summary>
     /// <param name="value">Value containing at least an integer value delimited with a colon (:) and a optionally a string value as well.</param>
     /// <returns></returns>
-    public static EventId ToEventId(this string value) {
+    public static EventId ToEventId(this string value)
+    {
         var values = value.Split(':');
-        return new EventId(Int32.Parse(values[0]), values[1]); }
+        var name = values.Length > 1 ? values[1] : null;
+        name = String.IsNullOrWhiteSpace(name) ? null : name;
+
+        return new EventId(Int32.Parse(values[0]), name);
+    }
 }

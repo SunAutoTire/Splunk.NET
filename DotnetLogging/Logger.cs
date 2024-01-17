@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace SunAuto.Logging;
 
@@ -24,7 +25,38 @@ public class Logger(IConfiguration configuration) : ILogger
         return Storage;
     }
 
-    readonly LogLevel DefaultLevel = configuration.GetValue<string>("Logging:SunAuto:LogLevel:Default").ToLogLevel();
+    readonly LogLevel DefaultLevel = GetLogLevel(configuration);
+
+    private static LogLevel GetLogLevel(IConfiguration configuration)
+    {
+        try
+        {
+            return configuration.GetValue<string>("Logging:SunAuto:LogLevel:Default").ToLogLevel();
+        }
+        catch (ArgumentException ex)
+        {
+            throw new InvalidOperationException(GetMessage(), ex);
+        }
+    }
+
+    private static string GetMessage()
+    {
+        var output = new StringBuilder();
+
+        output.AppendLine("SunAuto.Logging requires the following JSON to be added to the \"Logging\" object in the appsettings.json");
+        output.AppendLine("e.g.,");
+        output.AppendLine();
+
+        output.AppendLine(" \"SunAuto\": {");
+        output.AppendLine("   \"LogLevel\": {");
+        output.AppendLine("     \"Default\": \"Trace\",");
+        output.AppendLine("     \"Microsoft.Hosting\": \"Trace\"");
+        output.AppendLine("   }");
+        output.AppendLine(" },");
+        output.AppendLine();
+
+        return output.ToString();
+    }
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 
