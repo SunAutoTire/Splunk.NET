@@ -26,13 +26,13 @@ steps:
     projects: '**/DotnetLogging.csproj'
     configuration: 'Release'
  
-- task: DotNetCoreCLI@2
-  name: Pack
-  inputs:
-    command: 'pack'
-    packagesToPack: '**/DotnetLogging.csproj'
-    versioningScheme: 'off'
-    configuration: 'Release'
+# - task: DotNetCoreCLI@2
+#   name: Pack
+#   inputs:
+#     command: 'pack'
+#     packagesToPack: '**/DotnetLogging.csproj'
+#     versioningScheme: 'off'
+#     configuration: 'Release'
 
 - task: DotNetCoreCLI@2
   name: Push
