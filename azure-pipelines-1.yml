@@ -33,7 +33,7 @@ steps:
 #     packagesToPack: '**/DotnetLogging.csproj'
 #     versioningScheme: 'off'
 #     configuration: 'Release'
-- task: NuGetAuthenticate@1
+
 
 - task: DotNetCoreCLI@2
   name: Push
