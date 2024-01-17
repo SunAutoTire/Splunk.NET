@@ -12,7 +12,7 @@ Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Logging.ClearProviders();
+//builder.Logging.ClearProviders();
 builder.Logging.AddLogging();
 
 using var host = builder.Build();
