@@ -38,6 +38,6 @@ steps:
     command: 'push'
     packagesToPush: '**/*.nupkg'
     nuGetFeedType: 'internal'
-    publishVstsFeed: 'd678bcf5-2503-42bb-b505-dd53a0081d3f/fa996d31-77ec-485a-ab34-ecf8c67ade69'
+    publishVstsFeed: '6074c033-a73a-4acc-b238-58eec6c81c92'
     
     
