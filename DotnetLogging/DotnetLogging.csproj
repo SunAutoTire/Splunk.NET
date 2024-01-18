@@ -12,20 +12,27 @@
 		<Copyright>Copyright © 2024 Sun Auto Tire &amp; Service</Copyright>
 		<Authors>Daniel Przybylski</Authors>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
-		<Version>1.0.0-preview-08</Version>
+		<Version>1.0.0-preview-10</Version>
 		<PackageProjectUrl>https://bitbucket.org/sunauto/logging/src</PackageProjectUrl>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://bitbucket.org/sunauto/logging/src</RepositoryUrl>
-		<PackageTags>Logging, Azure Storage</PackageTags>
-		<PackageReleaseNotes>Initial creation</PackageReleaseNotes>
+		<PackageTags>Logging, Azure Storage, File Storage</PackageTags>
+		<PackageReleaseNotes>Full CI/CD only supporting local enviroment file logging.</PackageReleaseNotes>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
 	<ItemGroup>
 	  <EmbeddedResource Include="LICENSE.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="..\readme.md">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
 	</ItemGroup>
 
 	<ItemGroup>
