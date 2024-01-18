@@ -1,2 +1,0 @@
-﻿# Sun Auto Universal Logging
-
