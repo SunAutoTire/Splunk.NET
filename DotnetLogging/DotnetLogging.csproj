@@ -11,9 +11,10 @@
 		<Description>A .NET client (SDK) for the Sun Auto Universal Logging system.</Description>
 		<Copyright>Copyright © 2024 Sun Auto Tire &amp; Service</Copyright>
 		<Authors>Daniel Przybylski</Authors>
+		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
-		<Version>1.0.0-preview-11</Version>
-		<PackageProjectUrl>https://bitbucket.org/sunauto/logging/src</PackageProjectUrl>
+		<Version>1.0.0-preview-13</Version>
+		<PackageProjectUrl>https://dev.azure.com/SunAuto/Pipelines/_artifacts/feed/SunAuto/NuGet/SunAuto.Logging</PackageProjectUrl>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
@@ -25,19 +26,19 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="ConfigurationExMessage.txt" />
+		<None Remove="ConfigurationExMessage.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EmbeddedResource Include="ConfigurationExMessage.txt" />
-	  <EmbeddedResource Include="LICENSE.txt" />
+		<EmbeddedResource Include="ConfigurationExMessage.txt" />
+		<EmbeddedResource Include="LICENSE.txt" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="..\readme.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+		<None Include="..\readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -45,25 +46,22 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
+		<PackageReference Include="SunAuto.Support" Version="1.0.0-preview-00" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Support\Support.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Update="LICENSE.txt">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
-	  <None Update="readme.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
-	  <None Update="Sun-Auto-Icon.png">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+		<None Update="LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="Sun-Auto-Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
 	</ItemGroup>
 
 </Project>
