@@ -32,12 +32,11 @@ steps:
     command: 'test'
     projects: '**/Test.csproj'
     
-- task: DotNetCoreCLI@2
-  name: Push
+- task: NuGetCommand@2
+  displayName: 'NuGet push'
   inputs:
-    command: 'push'
-    packagesToPush: '**/*.nupkg'
-    nuGetFeedType: 'internal'
-    publishVstsFeed: '6074c033-a73a-4acc-b238-58eec6c81c92'
-    
-    
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
+    command: push
+    feedsToUse: 'select'
+    publishVstsFeed: 'feedname'
+    allowPackageConflicts: true
