@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using SunAuto.Extensions;
 
 namespace SunAuto.Logging;
 
@@ -35,28 +36,29 @@ public class Logger(IConfiguration configuration) : ILogger
         }
         catch (ArgumentException ex)
         {
-            throw new InvalidOperationException(GetMessage(), ex);
+            var message = typeof(Logger).GetEmbeddedResource("SunAuto.Logging.ConfigurationExMessage.txt");
+            throw new InvalidOperationException(message, ex);
         }
     }
 
-    private static string GetMessage()
-    {
-        var output = new StringBuilder();
+    //private static string GetMessage()
+    //{
+    //    var output = new StringBuilder();
 
-        output.AppendLine("SunAuto.Logging requires the following JSON to be added to the \"Logging\" object in the appsettings.json");
-        output.AppendLine("e.g.,");
-        output.AppendLine();
+    //    output.AppendLine("SunAuto.Logging requires the following JSON to be added to the \"Logging\" object in the appsettings.json");
+    //    output.AppendLine("e.g.,");
+    //    output.AppendLine();
 
-        output.AppendLine(" \"SunAuto\": {");
-        output.AppendLine("   \"LogLevel\": {");
-        output.AppendLine("     \"Default\": \"Trace\",");
-        output.AppendLine("     \"Microsoft.Hosting\": \"Trace\"");
-        output.AppendLine("   }");
-        output.AppendLine(" },");
-        output.AppendLine();
+    //    output.AppendLine(" \"SunAuto\": {");
+    //    output.AppendLine("   \"LogLevel\": {");
+    //    output.AppendLine("     \"Default\": \"Trace\",");
+    //    output.AppendLine("     \"Microsoft.Hosting\": \"Trace\"");
+    //    output.AppendLine("   }");
+    //    output.AppendLine(" },");
+    //    output.AppendLine();
 
-        return output.ToString();
-    }
+    //    return output.ToString();
+    //}
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 

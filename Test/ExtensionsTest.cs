@@ -19,12 +19,14 @@ public class ExtensionsTest
         Assert.Equal(logLevel, result);
     }
 
+    const string Valid = "Valid log level must be configured";
+
     [Theory(DisplayName = "ToLogLevel - Exception handling")]
-    [InlineData(null, typeof(ArgumentException), "Valid log level must be configured")]
-    [InlineData("", typeof(ArgumentException), "Valid log level must be configured")]
-    [InlineData("  \t", typeof(ArgumentException), "Valid log level must be configured")]
-    [InlineData("Fart", typeof(ArgumentOutOfRangeException), "Valid log level must be configured")]
-    [InlineData("Smell", typeof(ArgumentOutOfRangeException), "Valid log level must be configured")]
+    [InlineData(null, typeof(ArgumentException), Valid)]
+    [InlineData("", typeof(ArgumentException), Valid)]
+    [InlineData("  \t", typeof(ArgumentException), Valid)]
+    [InlineData("Fart", typeof(ArgumentOutOfRangeException), Valid)]
+    [InlineData("Smell", typeof(ArgumentOutOfRangeException), Valid)]
     public void Test1(string? value, Type exception, string messageStart)
     {
         var thrown = Assert.ThrowsAny<Exception>(() => value.ToLogLevel());
@@ -34,10 +36,10 @@ public class ExtensionsTest
     }
 
     [Theory(DisplayName = "ToEventId - Parsing")]
-    [InlineData("5:", 5, null, null)]
-    [InlineData("5:Smell",5,"Smell",null)]
-    [InlineData("5", 5, null, null)]
-    public void Test2(string value, int id, string? name, Type exception)
+    [InlineData("5:", 5, null)]
+    [InlineData("5:Smell", 5, "Smell")]
+    [InlineData("5", 5, null)]
+    public void Test2(string value, int id, string? name)
     {
         var result = value.ToEventId();
 

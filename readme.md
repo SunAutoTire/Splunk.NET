@@ -1,5 +1,5 @@
 
-![Sun Auto Tire & Service](https://white-meadow-0b97e2410.4.azurestaticapps.net/SunAutoLogoBRsm.png)
+![Sun Auto Tire & Service](https://white-meadow-0b97e2410.4.azurestaticapps.net/SunAutoLogoBR.png)
 
 # Universal Logging
 
@@ -47,7 +47,7 @@ In the start-up program file, add the following lines:
  builder.Logging.AddLogging();
  ```
 
- Use the `ClearProviders()` method only if you don't want any other loggers used.
+Use the `ClearProviders()` method only if you don't want any other loggers used.
 
 #### Use the Logger
 
@@ -73,6 +73,8 @@ An npm package which can allow React applications to log to Azure Data Storage.
 ## PowerShell Logger
 
 A .NET-based cmdlet allowing PowerShell scripts to log to Azure Data Storage.
+
+> This feature is on hold until it can be determined that there is long term support (LTS) for powershell cmdlet development in .NET >=8.0.
 
 ## Log Viewer
 

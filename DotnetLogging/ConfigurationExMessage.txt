@@ -1,0 +1,9 @@
+SunAuto.Logging requires the following JSON to be added to the "Logging" object in the appsettings.json
+e.g.,
+
+ "SunAuto": {
+   "LogLevel": {
+     "Default": "Trace",
+     "Microsoft.Hosting": "Trace"
+   }
+ },

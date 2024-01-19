@@ -25,6 +25,11 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <None Remove="ConfigurationExMessage.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="ConfigurationExMessage.txt" />
 	  <EmbeddedResource Include="LICENSE.txt" />
 	</ItemGroup>
 
@@ -40,6 +45,10 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Support\Support.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
