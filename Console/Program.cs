@@ -3,10 +3,11 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SunAuto.Development.Console;
 using SunAuto.Logging;
 using SunAuto.Logging.FileStorage;
 
-Console.WriteLine("Hello, World!");
+var _ = new Welcome(roll: true);
 
 Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
 
