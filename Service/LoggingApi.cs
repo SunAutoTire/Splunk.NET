@@ -1,15 +1,23 @@
+using Azure.Storage.Queues;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Net;
 using System.Text.Json;
+using ILogClient = SunAuto.Logging.Api.Services.LoggingStorage.ILogger;
 
 namespace SunAuto.Logging.Api;
 
-public class LoggingApi
+public class LoggingApi(QueueClient queue, ILogClient logClient, ILoggerFactory loggerFactory)
 {
+    readonly QueueClient QueueClient = queue;
+    readonly ILogClient LogClient = logClient;
+    readonly string ApplicationName = "UniversalLogging";
+    readonly string Environment = "Development";
+    readonly ILogger<LogQueue> _logger = loggerFactory.CreateLogger<LogQueue>();
+
     [Function("LoggerItem")]
-    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "api/{application:alpha?}/{environment:alpha?}/{level:alpha?}")] HttpRequestData req,
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{environment:alpha?}/{level:alpha?}")] HttpRequestData req,
                                 string? application,
                                 string? environment,
                                 string? level,
@@ -25,20 +33,20 @@ public class LoggingApi
                 //    break;
                 case "POST":
                     var body = req.Body;
-                    Create(application, environment, level, body);
+                    await CreateAsync(application, level, body);
                     break;
                 //case "DELETE":
                 default:
                     throw new NotImplementedException();
             }
 
-            var message = String.Format($"Category: {category}, ID: {id}");
+            //var message = String.Format($"Category: {category}, ID: {id}");
             var response = req.CreateResponse(HttpStatusCode.OK);
             response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
 
 
-            var content = JsonSerializer.Serialize(new { Message = message });
-            response.WriteString(content);
+            //var content = JsonSerializer.Serialize(new { Message = message });
+            //response.WriteString(content);
 
             return response;
         }
@@ -52,14 +60,27 @@ public class LoggingApi
         }
     }
 
-    void Create(string? application, string? environment, string? level, Stream body)
+    async Task CreateAsync(string? application, string? level, Stream body)
     {
 
         if (String.IsNullOrWhiteSpace(application)) throw new ArgumentException("Application must be set in the route.", nameof(application));
-        if (String.IsNullOrWhiteSpace(environment)) throw new ArgumentException("Environment must be set in the route.", nameof(environment));
         if (String.IsNullOrWhiteSpace(level)) throw new ArgumentException("Level must be set in the route.", nameof(level));
 
-        return req.CreateResponse(HttpStatusCode.NotFound);
-        throw new NotImplementedException();
+        var reader = new StreamReader(body);
+        var content = reader.ReadToEnd();
+
+        var entry = new Services.LoggingStorage.Entry
+        {
+            Application = application,
+            Body = content,
+            Environment = Environment,
+            Level = level,
+            PartitionKey = ApplicationName,
+        };
+
+        var message = JsonSerializer.Serialize(entry);
+
+    var receipt =     await QueueClient.SendMessageAsync(message);
+
     }
 }

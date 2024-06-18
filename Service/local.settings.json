@@ -1,0 +1,10 @@
+{
+  "ConnectionStrings": {
+    "UniversalLoggingConnectionString": "DefaultEndpointsProtocol=https;AccountName=universallogging;AccountKey=NSCFbo4Az0ma98pg2gSQCL37g+W9yFexuILvcj+idRvgtDZNXJCgkk36eP4RztDf/lc1hHvmq//D+AStouRiCw==;BlobEndpoint=https://universallogging.blob.core.windows.net/;QueueEndpoint=https://universallogging.queue.core.windows.net/;TableEndpoint=https://universallogging.table.core.windows.net/;FileEndpoint=https://universallogging.file.core.windows.net/;"
+  },
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+  }
+}
