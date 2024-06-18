@@ -18,7 +18,7 @@ var host = new HostBuilder()
         var environment = environmentvariables["AZURE_FUNCTIONS_ENVIRONMENT"];
 
         services.AddScoped<ILogger, Logger>();
-        services.AddScoped(options => new QueueClient(connectionstring, "logentry"));
+        services.AddScoped(options => new QueueClient(connectionstring, "logentry", new() { MessageEncoding = QueueMessageEncoding.Base64 }));
         services.AddScoped(options => new TableClient(connectionstring, "Development"));
         services.AddScoped<LogQueue>();
     })

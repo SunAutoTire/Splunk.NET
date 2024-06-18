@@ -1,12 +1,19 @@
 ﻿
 using Azure;
 using Azure.Data.Tables;
+using System.Runtime.Serialization;
 
 namespace SunAuto.Logging.Api.Services.LoggingStorage;
 
 public class Entry : ITableEntity
 {
-    public string Application { get; set; } = null!;
+    [IgnoreDataMember]
+    public string Application
+    {
+        get => PartitionKey;
+        set => PartitionKey = value;
+    }
+
     public string Environment { get; set; } = null!;
     public string Level { get; set; } = null!;
     public string Body { get; set; } = null!;
