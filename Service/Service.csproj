@@ -23,6 +23,10 @@
 		<PackageReference Include="Azure.Data.Tables" Version="12.8.3" />
 		<PackageReference Include="Microsoft.Extensions.Azure" Version="1.5.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+		<PackageReference Include="SunAuto.Api" Version="2.9.1" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\..\Architecture\Api\Api.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="host.json">

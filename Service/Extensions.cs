@@ -24,11 +24,11 @@ public static class Extensions
         switch (statusCode)
         {
             case HttpStatusCode.NotFound:
-                logger.LogWarning(ex, ex.Message);
+                logger.LogWarning(ex, "{message}", ex.Message);
                 break;
             case HttpStatusCode.InternalServerError:
             default:
-                logger.LogCritical(ex, ex.Message);
+                logger.LogCritical(ex, "{message}", ex.Message);
                 break;
         }
     }

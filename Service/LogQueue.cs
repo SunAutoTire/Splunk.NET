@@ -1,13 +1,15 @@
+using Azure.Data.Tables;
 using Azure.Storage.Queues.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using SunAuto.Logging.Api.Services;
 using System.Text.Json;
 
 namespace SunAuto.Logging.Api;
 
-public class LogQueue(Services.LoggingStorage.ILogger logClient,ILogger<LogQueue> logger)
+public class LogQueue(TableClient tableClient, ILogger<LogQueue> logger)
 {
-    readonly Services.LoggingStorage.ILogger Client = logClient;
+    readonly TableClient TableClient = tableClient;
     private readonly ILogger<LogQueue> _logger = logger;
 
     [Function(nameof(LogQueue))]
@@ -18,9 +20,9 @@ public class LogQueue(Services.LoggingStorage.ILogger logClient,ILogger<LogQueue
             _logger.LogInformation("Queue trigger function processed: {text}", message.MessageText);
 
             var body = message.Body.ToString();
-            var entry = JsonSerializer.Deserialize<Services.LoggingStorage.Entry>(body);
+            var entry = JsonSerializer.Deserialize<Entry>(body);
 
-            await Client.CreateAsync(entry!, default);
+            await TableClient.AddEntityAsync(entry!, default);
         }
         catch (Exception ex)
         {

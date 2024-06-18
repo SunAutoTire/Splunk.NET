@@ -3,7 +3,7 @@ using Azure;
 using Azure.Data.Tables;
 using System.Runtime.Serialization;
 
-namespace SunAuto.Logging.Api.Services.LoggingStorage;
+namespace SunAuto.Logging.Api.Services;
 
 public class Entry : ITableEntity
 {
@@ -14,7 +14,7 @@ public class Entry : ITableEntity
         set => PartitionKey = value;
     }
 
-    public string Environment { get; set; } = null!;
+    public string? Message { get; set; }
     public string Level { get; set; } = null!;
     public string Body { get; set; } = null!;
 
