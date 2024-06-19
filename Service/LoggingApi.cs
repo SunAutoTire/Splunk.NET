@@ -69,6 +69,11 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
              .AsPages(next)
              .First();
 
+        var links = new List<Link> { new(req.Url.PathAndQuery) };
+
+        if (!String.IsNullOrWhiteSpace(page.ContinuationToken))
+            links.Add(new($"{req.Url.LocalPath}?next={page.ContinuationToken}", "next"));
+
         return new Linked<IEnumerable<Entry>>(page
             .Values
             .Select(i => new Entry
@@ -80,9 +85,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
                 RowKey = i.RowKey,
                 Timestamp = i.Timestamp,
                 Body = JsonSerializer.Deserialize<object>(i.Body),
-            }),
-            "Entries",
-            [new($"{req.Url.LocalPath}?next={page.ContinuationToken}")]);
+            }), "Entries", links);
     }
 
     static async Task<HttpResponseData> CreateResponseAsync<T>(HttpRequestData req, HttpStatusCode status, T? body)
