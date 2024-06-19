@@ -4,8 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
-using SunAuto.Logging;
-using SunAuto.Logging.FileStorage;
+using SunAuto.Logging.Client;
+using SunAuto.Logging.Client.FileStorage;
 
 var _ = new Welcome(roll: true);
 

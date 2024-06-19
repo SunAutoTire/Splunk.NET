@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 /// <summary>
 /// Log item

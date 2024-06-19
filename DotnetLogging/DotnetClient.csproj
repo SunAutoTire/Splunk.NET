@@ -4,8 +4,8 @@
 		<TargetFramework>net8.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		<AssemblyName>SunAuto.Logging</AssemblyName>
-		<RootNamespace>SunAuto.Logging</RootNamespace>
+		<AssemblyName>SunAuto.Logging.Client</AssemblyName>
+		<RootNamespace>SunAuto.Logging.Client</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Universal Logging by Sun Auto</Title>
 		<Description>A .NET client (SDK) for the Sun Auto Universal Logging system.</Description>

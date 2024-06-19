@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 public static class StartupExtensions
 {

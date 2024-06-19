@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 /// <summary>
 /// File manager for local development file-based logging.

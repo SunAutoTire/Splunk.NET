@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging.TableStorage;
+namespace SunAuto.Logging.Client.TableStorage;
 
 public class Storage(string environment) : IStorage
 {

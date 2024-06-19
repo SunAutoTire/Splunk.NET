@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using SunAuto.Extensions;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 public class Logger(IConfiguration configuration) : ILogger
 {

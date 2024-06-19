@@ -125,6 +125,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
 
         var message = JsonSerializer.Serialize(entry);
 
-        var receipt = await QueueClient.SendMessageAsync(message);
+        await QueueClient.SendMessageAsync(message);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 [ProviderAlias("SunAuto")]
 public sealed class LoggerProvider(IConfiguration configuration) :

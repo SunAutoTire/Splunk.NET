@@ -1,4 +1,4 @@
-﻿namespace SunAuto.Logging.FileStorage;
+﻿namespace SunAuto.Logging.Client.FileStorage;
 
 /// <summary>
 /// Extension methods

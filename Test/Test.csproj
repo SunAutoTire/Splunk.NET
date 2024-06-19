@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DotnetLogging\DotnetLogging.csproj" />
+    <ProjectReference Include="..\DotnetLogging\DotnetClient.csproj" />
   </ItemGroup>
 
 </Project>

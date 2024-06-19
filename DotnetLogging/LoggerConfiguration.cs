@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 public class LoggerConfiguration(IConfiguration configuration)
 {

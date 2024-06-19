@@ -1,4 +1,4 @@
-﻿//namespace SunAuto.Logging;
+﻿//namespace SunAuto.Logging.Client;
 
 //public class State(object state) : IDisposable
 //{

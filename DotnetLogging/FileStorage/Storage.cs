@@ -3,7 +3,7 @@ using CsvHelper.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 
-namespace SunAuto.Logging.FileStorage;
+namespace SunAuto.Logging.Client.FileStorage;
 
 /// <summary>
 /// File manager for local development file-based logging.
@@ -29,7 +29,7 @@ public class Storage(string path) : IStorage
         var eventformatted = $"{eventId.Id}:{eventId.Name}";
         var line = $"{datetime},{logLevel},{eventformatted},{formatted},{exception.Quote()}";
 
-        File.AppendAllLines(Path, new string[] { line });
+        File.AppendAllLines(Path, [line]);
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public class Storage(string path) : IStorage
             records.Add(record);
         }
 
-        return records.ToArray();
+        return [.. records];
     }
 
     /// <summary>
