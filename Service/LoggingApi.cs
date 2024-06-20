@@ -11,10 +11,17 @@ using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 
-public class LoggingApi(TableClient tableClient, QueueClient queue)
+public class LoggingApi
 {
-    readonly TableClient TableClient = tableClient;
-    readonly QueueClient QueueClient = queue;
+    public LoggingApi(TableClient tableClient, QueueClient queue)
+    {
+        TableClient = tableClient;
+        QueueClient = queue;
+    }
+
+    readonly TableClient TableClient;
+    readonly QueueClient QueueClient;
+    readonly JsonSerializerOptions JsonSerializerOptions;
 
     [Function("LoggerItem")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}")] HttpRequestData req,
@@ -82,7 +89,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
                 Message = i.Message,
                 RowKey = i.RowKey,
                 Timestamp = i.Timestamp,
-                Body = i.Body,
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
             }), "Entries", links);
     }
 
@@ -111,6 +118,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
         var bodystring = reader.ReadToEnd();
 
         var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
+        var objectstring = entry!.Body?.ToString();
         //var entry = new TableEntry
         //{
         //    Application = application,

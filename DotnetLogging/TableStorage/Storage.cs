@@ -10,24 +10,29 @@ public class Storage : IStorage
 {
     readonly HttpClient Client;
     private readonly string Application = "LoggingTestConsole";
+    readonly JsonSerializerOptions JsonSerializerOptions;
 
     public Storage(string environment)
     {
         Client = new HttpClient
         {
             BaseAddress = new Uri("http://localhost:7235"),
-
         };
+
+        JsonSerializerOptions = new JsonSerializerOptions(JsonSerializerOptions.Default);
+        JsonSerializerOptions.Converters.Add(new ExceptionConverter());
     }
 
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         var formatted = formatter(state!, exception);
 
+        var serializedex = JsonSerializer.Serialize(exception, JsonSerializerOptions);
+
         var entry = new Entry
         {
             Application = Application,
-            Body = exception,
+            Body = serializedex,
             Level = logLevel.ToString(),
             Message = formatted,
         };

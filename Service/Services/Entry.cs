@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 
 namespace SunAuto.Logging.Api.Services;
 
-public class Entry : SunAuto.Logging.Common.Entry, ITableEntity
+public class Entry : Common.Entry, ITableEntity
 {
     public Entry() =>Timestamp = DateTime.UtcNow;
 

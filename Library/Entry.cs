@@ -6,7 +6,7 @@ public class Entry
 
     public string? Message { get; set; }
     public string Level { get; set; } = null!;
-    public object? Body { get; set; } 
+    public string? Body { get; set; } 
 
     public DateTimeOffset? Timestamp { get; set; }
 }
