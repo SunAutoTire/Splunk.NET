@@ -11,17 +11,10 @@ using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 
-public class LoggingApi
+public class LoggingApi(TableClient tableClient, QueueClient queue)
 {
-    public LoggingApi(TableClient tableClient, QueueClient queue)
-    {
-        TableClient = tableClient;
-        QueueClient = queue;
-    }
-
-    readonly TableClient TableClient;
-    readonly QueueClient QueueClient;
-    readonly JsonSerializerOptions JsonSerializerOptions;
+    readonly TableClient TableClient = tableClient;
+    readonly QueueClient QueueClient = queue;
 
     [Function("LoggerItem")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}")] HttpRequestData req,
@@ -39,7 +32,9 @@ public class LoggingApi
                 case "GET":
                     var output = ListAsync(req, next, application, level, default);
 
-                    return await CreateResponseAsync(req, HttpStatusCode.OK, output);
+                    return output.Object.Any()
+                        ? await CreateResponseAsync(req, HttpStatusCode.OK, output)
+                        : await CreateResponseAsync(req, HttpStatusCode.NotFound, new {Message=$"No entries found for that application: {application}."});
                 case "POST":
                     var body = req.Body;
                     await CreateAsync(application, level, body);
@@ -49,8 +44,6 @@ public class LoggingApi
                 default:
                     throw new NotImplementedException();
             }
-
-            //var message = String.Format($"Category: {category}, ID: {id}");
         }
         catch (ArgumentException ex)
         {
@@ -108,27 +101,14 @@ public class LoggingApi
         return response;
     }
 
-    internal async Task CreateAsync(string? application, string? level, Stream body)
+    public async Task CreateAsync(string? application, string? level, Stream body)
     {
-
         if (String.IsNullOrWhiteSpace(application)) throw new ArgumentException("Application must be set in the route.", nameof(application));
         if (String.IsNullOrWhiteSpace(level)) throw new ArgumentException("Level must be set in the route.", nameof(level));
 
         var reader = new StreamReader(body);
         var bodystring = reader.ReadToEnd();
-
         var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
-        var objectstring = entry!.Body?.ToString();
-        //var entry = new TableEntry
-        //{
-        //    Application = application,
-        //    Body = bodyobject,
-        //    Level = level,
-        //    PartitionKey = application,
-        //    Message = bodyobject?.Message,
-        //    Timestamp = DateTime.UtcNow,
-        //};
-
         var message = JsonSerializer.Serialize(entry);
 
         await QueueClient.SendMessageAsync(message);
