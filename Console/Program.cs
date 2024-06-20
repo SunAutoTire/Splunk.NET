@@ -1,12 +1,10 @@
-﻿
-// See https://aka.ms/new-console-template for more information
+﻿// See https://aka.ms/new-console-template for more information
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
 using SunAuto.Logging.Client;
 using SunAuto.Logging.Client.FileStorage;
-using System.Runtime.InteropServices;
 
 var _ = new Welcome(roll: true);
 
@@ -31,11 +29,11 @@ logger.LogTrace(5, "== 120.");                    // Not logged
 logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe}?", "Maybe not");
 logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
 
-object nullobject = null;
+object? nullobject = null;
 
 try
 {
-    var check1 = nullobject.ToString();
+    var check1 = nullobject!.ToString();
 }
 catch (Exception ex)
 {
