@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using SunAuto.Logging.Client;
 
 namespace SunAuto.Logging.Test;
 

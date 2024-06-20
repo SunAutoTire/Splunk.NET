@@ -15,7 +15,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
 {
     readonly TableClient TableClient = tableClient;
     readonly QueueClient QueueClient = queue;
-    readonly string ApplicationName = "UniversalLogging";
 
     [Function("LoggerItem")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}")] HttpRequestData req,
@@ -80,11 +79,10 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
             {
                 Application = i.PartitionKey,
                 Level = i.Level,
-                ETag = i.ETag,
                 Message = i.Message,
                 RowKey = i.RowKey,
                 Timestamp = i.Timestamp,
-                Body = JsonSerializer.Deserialize<object>(i.Body),
+                Body = i.Body,
             }), "Entries", links);
     }
 
@@ -112,16 +110,16 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
         var reader = new StreamReader(body);
         var bodystring = reader.ReadToEnd();
 
-        var messageandcontent = JsonSerializer.Deserialize<MessageAndContent>(bodystring);
-
-        var entry = new TableEntry
-        {
-            Application = application,
-            Body = JsonSerializer.Serialize(messageandcontent?.Content),
-            Level = level,
-            PartitionKey = ApplicationName,
-            Message = messageandcontent?.Message,
-        };
+        var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
+        //var entry = new TableEntry
+        //{
+        //    Application = application,
+        //    Body = bodyobject,
+        //    Level = level,
+        //    PartitionKey = application,
+        //    Message = bodyobject?.Message,
+        //    Timestamp = DateTime.UtcNow,
+        //};
 
         var message = JsonSerializer.Serialize(entry);
 

@@ -27,6 +27,7 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\..\Architecture\Api\Api.csproj" />
+	  <ProjectReference Include="..\Library\Library.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<None Update="host.json">

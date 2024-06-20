@@ -14,6 +14,7 @@ public class Logger(IConfiguration configuration) : ILogger
         if (Storage == null)
         {
             var environment = Environment.GetEnvironmentVariable("LoggingEnvironment");
+            var x = Environment.GetEnvironmentVariables();
 
             Storage = environment switch
             {

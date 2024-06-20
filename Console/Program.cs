@@ -9,17 +9,19 @@ using SunAuto.Logging.Client.FileStorage;
 
 var _ = new Welcome(roll: true);
 
-Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
+//Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
+Environment.SetEnvironmentVariable("LoggingEnvironment", "Development");
 
 var builder = Host.CreateApplicationBuilder(args);
 
 builder.Logging.ClearProviders();
-builder.Logging.AddLogging();
+builder.Logging.AddSunAutoLogging();
 
 using var host = builder.Build();
 
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 
+logger.LogDebug(1, "Does this line get hit?");    // Not logged
 logger.LogDebug(1, "Does this line get hit?");    // Not logged
 logger.LogInformation(3, "Nothing to see here."); // Logs in ConsoleColor.DarkGreen
 logger.LogWarning(5, "Warning... that was odd."); // Logs in ConsoleColor.DarkCyan

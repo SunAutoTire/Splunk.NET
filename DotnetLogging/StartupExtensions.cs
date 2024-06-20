@@ -7,7 +7,7 @@ namespace SunAuto.Logging.Client;
 
 public static class StartupExtensions
 {
-    public static ILoggingBuilder AddLogging(this ILoggingBuilder builder)
+    public static ILoggingBuilder AddSunAutoLogging(this ILoggingBuilder builder)
     {
         builder.AddConfiguration();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
@@ -17,9 +17,9 @@ public static class StartupExtensions
         return builder;
     }
 
-    public static ILoggingBuilder AddLogging(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
+    public static ILoggingBuilder AddSunAutoLogging(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
     {
-        builder.AddLogging();
+        builder.AddSunAutoLogging();
         builder.Services.Configure(configure);
 
         return builder;
