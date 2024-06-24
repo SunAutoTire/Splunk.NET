@@ -18,7 +18,7 @@ public class Logger(IConfiguration configuration) : ILogger
 
             Storage = environment switch
             {
-                "Development" or "Staging" or "Test" or "Production" => new TableStorage.Storage(environment),
+                "Development" or "Staging" or "Test" or "Production" => new TableStorage.Storage(Configuration.GetSection("Logging:SunAuto")),
                 _ => new FileStorage.Storage(Configuration.GetValue<string>("Logging:SunAuto:Path")!),
             };
         }

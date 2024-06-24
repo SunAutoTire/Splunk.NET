@@ -1,10 +1,17 @@
 {
   "ConnectionStrings": {
-    "UniversalLoggingConnectionString": "DefaultEndpointsProtocol=https;AccountName=universallogging;AccountKey=NSCFbo4Az0ma98pg2gSQCL37g+W9yFexuILvcj+idRvgtDZNXJCgkk36eP4RztDf/lc1hHvmq//D+AStouRiCw==;BlobEndpoint=https://universallogging.blob.core.windows.net/;QueueEndpoint=https://universallogging.queue.core.windows.net/;TableEndpoint=https://universallogging.table.core.windows.net/;FileEndpoint=https://universallogging.file.core.windows.net/;"
+   "UniversalLoggingConnectionString": "DefaultEndpointsProtocol=https;AccountName=universallogging;AccountKey=NSCFbo4Az0ma98pg2gSQCL37g+W9yFexuILvcj+idRvgtDZNXJCgkk36eP4RztDf/lc1hHvmq//D+AStouRiCw==;BlobEndpoint=https://universallogging.blob.core.windows.net/;QueueEndpoint=https://universallogging.queue.core.windows.net/;TableEndpoint=https://universallogging.table.core.windows.net/;FileEndpoint=https://universallogging.file.core.windows.net/;"
   },
   "IsEncrypted": false,
   "Values": {
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "UniversalLoggingConnectionString": "DefaultEndpointsProtocol=https;AccountName=universallogging;AccountKey=NSCFbo4Az0ma98pg2gSQCL37g+W9yFexuILvcj+idRvgtDZNXJCgkk36eP4RztDf/lc1hHvmq//D+AStouRiCw==;BlobEndpoint=https://universallogging.blob.core.windows.net/;QueueEndpoint=https://universallogging.queue.core.windows.net/;TableEndpoint=https://universallogging.table.core.windows.net/;FileEndpoint=https://universallogging.file.core.windows.net/;",
+    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=sunautologging;AccountKey=gp70jDyhw8p85RPWbs7ZhIEePjeflhRBbem2ngLmtWk9IU27aS4A+7d1yikOef6XzbmsuZ0hZZ3M+AStSdP8yg==;EndpointSuffix=core.windows.net",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
+    //"FUNCTIONS_EXTENSION_VERSION": "~4",
+    //"WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED": "1",
+    //"WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "DefaultEndpointsProtocol=https;AccountName=sunautologging;AccountKey=gp70jDyhw8p85RPWbs7ZhIEePjeflhRBbem2ngLmtWk9IU27aS4A+7d1yikOef6XzbmsuZ0hZZ3M+AStSdP8yg==;EndpointSuffix=core.windows.net",
+    //"WEBSITE_CONTENTSHARE": "sunautologging0aa954",
+    //"WEBSITE_RUN_FROM_PACKAGE": "1",
+    //"APPINSIGHTS_INSTRUMENTATIONKEY": "5da7972b-71a9-4ac8-9ca6-6c325f6b7821",
   }
 }

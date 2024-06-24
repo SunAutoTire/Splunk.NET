@@ -7,14 +7,14 @@ namespace SunAuto.Logging.Api;
 
 public static class Extensions
 {
-    internal static HttpResponseData HandleError(this ILogger logger, HttpRequestData requestData, Exception ex, HttpStatusCode statusCode)
+    internal static async Task<HttpResponseData> HandleErrorAsync(this ILogger logger, HttpRequestData requestData, Exception ex, HttpStatusCode statusCode)
     {
         logger.LogIt(statusCode, ex);
 
         var response = requestData.CreateResponse(statusCode);
         response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
         var content = JsonSerializer.Serialize(new { ex.Message });
-        response.WriteString(content);
+        await response.WriteStringAsync(content);
 
         return response;
     }

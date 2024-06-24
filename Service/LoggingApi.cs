@@ -11,10 +11,12 @@ using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 
-public class LoggingApi(TableClient tableClient, QueueClient queue)
+public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFactory loggerFactory)
 {
     readonly TableClient TableClient = tableClient;
     readonly QueueClient QueueClient = queue;
+
+    readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
     [Function("LoggerItem")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}")] HttpRequestData req,
@@ -23,8 +25,8 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
                                 string? next,
                                 FunctionContext executionContext)
     {
-        var logger = executionContext.GetLogger("LoggerItem");
-        logger.LogInformation("POST Log item {url}.", req.Url);
+        Logger.LogInformation("POST Log item {url}.", req.Url);
+
         try
         {
             switch (req.Method)
@@ -34,7 +36,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
 
                     return output.Object.Any()
                         ? await CreateResponseAsync(req, HttpStatusCode.OK, output)
-                        : await CreateResponseAsync(req, HttpStatusCode.NotFound, new {Message=$"No entries found for that application: {application}."});
+                        : await CreateResponseAsync(req, HttpStatusCode.NotFound, new { Message = $"No entries found for that application: {application}." });
                 case "POST":
                     var body = req.Body;
                     await CreateAsync(application, level, body);
@@ -47,15 +49,15 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
         }
         catch (ArgumentException ex)
         {
-            return logger.HandleError(req, ex, HttpStatusCode.NotFound);
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
         }
         catch (Exception ex)
         {
-            return logger.HandleError(req, ex, HttpStatusCode.InternalServerError);
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
         }
     }
 
-    public Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, CancellationToken cancellationToken)
+    Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, CancellationToken cancellationToken)
     {
         var applicationfilter = String.IsNullOrWhiteSpace(application) ? null : $"PartitionKey eq '{application}'";
         var levelfilter = String.IsNullOrWhiteSpace(level) ? null : $"Level eq '{level}'";
@@ -101,7 +103,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue)
         return response;
     }
 
-    public async Task CreateAsync(string? application, string? level, Stream body)
+    async Task CreateAsync(string? application, string? level, Stream body)
     {
         if (String.IsNullOrWhiteSpace(application)) throw new ArgumentException("Application must be set in the route.", nameof(application));
         if (String.IsNullOrWhiteSpace(level)) throw new ArgumentException("Level must be set in the route.", nameof(level));

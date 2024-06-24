@@ -7,17 +7,17 @@ using System.Text.Json;
 
 namespace SunAuto.Logging.Api;
 
-public class LogQueue(TableClient tableClient, ILogger<LogQueue> logger)
+public class LogQueue(TableClient tableClient, ILoggerFactory loggerFactory)
 {
     readonly TableClient TableClient = tableClient;
-    private readonly ILogger<LogQueue> _logger = logger;
+    readonly ILogger<LogQueue> Logger = loggerFactory.CreateLogger<LogQueue>();
 
     [Function(nameof(LogQueue))]
     public async Task RunAsync([QueueTrigger("logentry", Connection = "UniversalLoggingConnectionString")] QueueMessage message)
     {
         try
         {
-            _logger.LogInformation("Queue trigger function processed: {text}", message.MessageText);
+            Logger.LogInformation("Queue trigger function processed: {text}", message.MessageText);
 
             var body = message.Body.ToString();
             var entry = JsonSerializer.Deserialize<Entry>(body);
@@ -26,7 +26,7 @@ public class LogQueue(TableClient tableClient, ILogger<LogQueue> logger)
         }
         catch (Exception ex)
         {
-            _logger.LogCritical(ex, "Queue trigger function erred: {text}", message.MessageText);
+            Logger.LogCritical(ex, "Queue trigger function erred: {text}", message.MessageText);
 
             throw;
         }

@@ -1,22 +1,36 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SunAuto.Logging.Client.FileStorage;
 using SunAuto.Logging.Common;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
 public class Storage : IStorage
 {
     readonly HttpClient Client;
-    private readonly string Application = "LoggingTestConsole";
+    readonly string Application = "LoggingTestConsole";
+    readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions;
 
-    public Storage(string environment)
+    public Storage(IConfigurationSection configurationSection)
     {
+        Application = configurationSection["Application"]!.ToString();
+        var environment = configurationSection["ApiKey"]!.ToString();
+        ApiKey = configurationSection["ApiKey"]!.ToString();
+
+        var vars = Environment.GetEnvironmentVariables();
+
+        foreach (System.Collections.DictionaryEntry item in vars)
+            System.Diagnostics.Debug.WriteLine($"{item.Key} {item.Value}");
+
+        var baseurl = configurationSection["BaseUrl"]!.ToString();
+
         Client = new HttpClient
         {
-            BaseAddress = new Uri("http://localhost:7235"),
+            BaseAddress = new Uri(baseurl),
         };
 
         JsonSerializerOptions = new JsonSerializerOptions(JsonSerializerOptions.Default);
