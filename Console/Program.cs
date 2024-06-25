@@ -40,11 +40,11 @@ catch (Exception ex)
     logger.LogError(ex, "Null reference.");
 }
 
-var storage = new Storage("..\\..\\..\\SunAuto.log");
+// var storage = new Storage("..\\..\\..\\SunAuto.log");
 
-var check = storage.List();
+// var check = storage.List();
 
-foreach (var item in check)
-    Console.WriteLine(item.TimeStamp);
+// foreach (var item in check)
+//     Console.WriteLine(item.TimeStamp);
 
 await host.RunAsync();
