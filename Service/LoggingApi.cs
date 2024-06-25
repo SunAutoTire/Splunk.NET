@@ -3,7 +3,7 @@ using Azure.Storage.Queues;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using SunAuto.Api.Hateoas;
+using SunAuto.Hateoas;
 using SunAuto.Logging.Api.Models;
 using System.Net;
 using System.Text.Json;
@@ -22,8 +22,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}")] HttpRequestData req,
                                 string? application,
                                 string? level,
-                                string? next,
-                                FunctionContext executionContext)
+                                string? next)
     {
         Logger.LogInformation("POST Log item {url}.", req.Url);
 
