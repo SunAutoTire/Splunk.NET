@@ -36,7 +36,7 @@ public class Logger(IConfiguration configuration) : ILogger
         }
         catch (ArgumentException ex)
         {
-            var message = typeof(Logger).GetEmbeddedResource("SunAuto.Logging.ConfigurationExMessage.txt");
+            var message = typeof(Logger).GetEmbeddedResource("SunAuto.Logging.Client.ConfigurationExMessage.txt");
             throw new InvalidOperationException(message, ex);
         }
     }
