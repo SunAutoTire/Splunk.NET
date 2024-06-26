@@ -6,20 +6,24 @@ namespace SunAuto.Logging.Client;
 
 public class Logger(IConfiguration configuration) : ILogger
 {
-    private readonly IConfiguration Configuration = configuration;
-    private IStorage? Storage;
+    readonly IConfiguration Configuration = configuration;
+    IStorage? Storage;
 
     IStorage GetStorage()
     {
         if (Storage == null)
         {
-            var environment = Environment.GetEnvironmentVariable("LoggingEnvironment");
-            var x = Environment.GetEnvironmentVariables();
+            var configuration = Configuration.GetSection("Logging:SunAuto");
+            var environment = configuration.GetValue<string>("Environment");
 
-            Storage = environment switch
+            var environmentname = String.IsNullOrWhiteSpace(environment)
+                ? Environment.GetEnvironmentVariable("LoggingEnvironment")
+                : environment;
+
+            Storage = environmentname switch
             {
-                "Development" or "Staging" or "Test" or "Production" => new TableStorage.Storage(Configuration.GetSection("Logging:SunAuto")),
-                _ => new FileStorage.Storage(Configuration.GetValue<string>("Logging:SunAuto:Path")!),
+                "Development" or "Staging" or "Test" or "Production" => new TableStorage.Storage(configuration),
+                _ => new FileStorage.Storage(configuration.GetValue<string>("Path")),
             };
         }
 
@@ -28,7 +32,7 @@ public class Logger(IConfiguration configuration) : ILogger
 
     readonly LogLevel DefaultLevel = GetLogLevel(configuration);
 
-    private static LogLevel GetLogLevel(IConfiguration configuration)
+    static LogLevel GetLogLevel(IConfiguration configuration)
     {
         try
         {
@@ -40,25 +44,6 @@ public class Logger(IConfiguration configuration) : ILogger
             throw new InvalidOperationException(message, ex);
         }
     }
-
-    //private static string GetMessage()
-    //{
-    //    var output = new StringBuilder();
-
-    //    output.AppendLine("SunAuto.Logging requires the following JSON to be added to the \"Logging\" object in the appsettings.json");
-    //    output.AppendLine("e.g.,");
-    //    output.AppendLine();
-
-    //    output.AppendLine(" \"SunAuto\": {");
-    //    output.AppendLine("   \"LogLevel\": {");
-    //    output.AppendLine("     \"Default\": \"Trace\",");
-    //    output.AppendLine("     \"Microsoft.Hosting\": \"Trace\"");
-    //    output.AppendLine("   }");
-    //    output.AppendLine(" },");
-    //    output.AppendLine();
-
-    //    return output.ToString();
-    //}
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;
 

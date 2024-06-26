@@ -9,9 +9,9 @@ namespace SunAuto.Logging.Client.FileStorage;
 /// File manager for local development file-based logging.
 /// </summary>
 /// <param name="path">File path of log file.</param>
-public class Storage(string path) : IStorage
+public class Storage(string? path) : IStorage
 {
-    private readonly string Path = path;
+    private readonly string? Path = path;
 
     /// <summary>
     /// Add a log item.
@@ -24,12 +24,19 @@ public class Storage(string path) : IStorage
     /// <param name="formatter">Formatter for message.</param>
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        var formatted = formatter(state!, exception).Quote();
-        var datetime = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}";
-        var eventformatted = $"{eventId.Id}:{eventId.Name}";
-        var line = $"{datetime},{logLevel},{eventformatted},{formatted},{exception.Quote()}";
+        if (!string.IsNullOrWhiteSpace(Path))
+        {
+            var formatted = formatter(state!, exception).Quote();
+            var datetime = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}";
+            var eventformatted = $"{eventId.Id}:{eventId.Name}";
+            var line = $"{datetime},{logLevel},{eventformatted},{formatted},{exception.Quote()}";
 
-        File.AppendAllLines(Path, [line]);
+            //var stream=    File.OpenWrite(Path) ;
+            using var writer = new StreamWriter(Path, true);
+            writer.WriteLine(line);
+            writer.Flush();
+            writer.Close();
+        }
     }
 
     /// <summary>

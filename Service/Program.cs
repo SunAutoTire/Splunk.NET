@@ -10,7 +10,7 @@ var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
-            services.AddLogging();
+        services.AddLogging();
 
         var factory = new LoggerFactory();
         var logger = factory.CreateLogger<Program>();
@@ -23,8 +23,7 @@ var host = new HostBuilder()
             services.ConfigureFunctionsApplicationInsights();
 
             var environmentvariables = Environment.GetEnvironmentVariables();
-             var connectionstring = environmentvariables["ConnectionStrings:UniversalLoggingConnectionString"]!.ToString();
-           // var connectionstring = environmentvariables["UniversalLoggingConnectionString"]!.ToString();
+            var connectionstring = environmentvariables["UniversalLoggingConnectionString"]!.ToString();
             var environment = environmentvariables["AZURE_FUNCTIONS_ENVIRONMENT"]!.ToString();
 
             services.AddScoped(options => new TableClient(connectionstring, environment));

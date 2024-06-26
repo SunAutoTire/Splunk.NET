@@ -1,24 +1,22 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging.Client.FileStorage;
 using SunAuto.Logging.Common;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
-public class Storage : IStorage
+public class Storage : IStorage, IDisposable
 {
     readonly HttpClient Client;
-    readonly string Application = "LoggingTestConsole";
+    readonly string Application;
     readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions;
+    bool disposedValue;
 
     public Storage(IConfigurationSection configurationSection)
     {
         Application = configurationSection["Application"]!.ToString();
-        var environment = configurationSection["ApiKey"]!.ToString();
         ApiKey = configurationSection["ApiKey"]!.ToString();
 
         var vars = Environment.GetEnvironmentVariables();
@@ -54,13 +52,12 @@ public class Storage : IStorage
         var serialized = JsonSerializer.Serialize(entry);
         var buffer = System.Text.Encoding.UTF8.GetBytes(serialized);
         var byteContent = new ByteArrayContent(buffer);
+        
         byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        var result = Client.PostAsync($"api/{Application}/{logLevel}", byteContent)
+        Client.PostAsync($"api/{Application}/{logLevel}?code={ApiKey}", byteContent)
             .GetAwaiter()
             .GetResult();
-
-        //throw new NotImplementedException();
     }
 
     public void Delete(EventId eventId)
@@ -71,5 +68,34 @@ public class Storage : IStorage
     public IEnumerable<LogItem> List()
     {
         throw new NotImplementedException();
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                Client?.Dispose();
+            }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            disposedValue = true;
+        }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~Storage()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }

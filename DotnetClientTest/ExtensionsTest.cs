@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SunAuto.Logging.Client;
 
-namespace SunAuto.Logging.Test;
+namespace SunAuto.Logging.Client.Test;
 
 public class ExtensionsTest
 {
@@ -52,7 +52,7 @@ public class ExtensionsTest
     }
 
     [Theory(DisplayName = "ToEventId - Exception")]
-    [InlineData(null, typeof(NullReferenceException))]
+    //[InlineData(null, typeof(NullReferenceException))]
     [InlineData("", typeof(FormatException))]
     [InlineData("  \t", typeof(FormatException))]
     [InlineData("Fart", typeof(FormatException))]

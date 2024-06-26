@@ -13,7 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DotnetLogging\DotnetClient.csproj" />
+	  <ProjectReference Include="..\DotnetClient\DotnetClient.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

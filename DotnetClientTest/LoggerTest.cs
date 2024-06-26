@@ -1,9 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging.Client;
 using System.Text;
 
-namespace SunAuto.Logging.Test;
+namespace SunAuto.Logging.Client.Test;
 
 public class LoggerTest
 {

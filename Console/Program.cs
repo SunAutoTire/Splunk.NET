@@ -4,7 +4,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
 using SunAuto.Logging.Client;
-using SunAuto.Logging.Client.FileStorage;
 
 var _ = new Welcome(roll: true);
 
@@ -35,7 +34,7 @@ try
 {
     var check1 = nullobject!.ToString();
 }
-catch (Exception ex)
+catch (NullReferenceException ex)
 {
     logger.LogError(ex, "Null reference.");
 }

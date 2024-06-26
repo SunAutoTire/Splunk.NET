@@ -108,8 +108,11 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         if (String.IsNullOrWhiteSpace(level)) throw new ArgumentException("Level must be set in the route.", nameof(level));
 
         var reader = new StreamReader(body);
-        var bodystring = reader.ReadToEnd();
+        var bodystring = await reader.ReadToEndAsync();
         var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
+
+        entry!.Application = application;
+
         var message = JsonSerializer.Serialize(entry);
 
         await QueueClient.SendMessageAsync(message);
