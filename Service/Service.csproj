@@ -24,7 +24,7 @@
 		<PackageReference Include="Azure.Data.Tables" Version="12.8.3" />
 		<PackageReference Include="Microsoft.Extensions.Azure" Version="1.7.4" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
-		<PackageReference Include="SunAuto.Hateoas" Version="1.0.0" />
+		<PackageReference Include="SunAuto.Hateoas" Version="1.0.3" />
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Library\Library.csproj" />
