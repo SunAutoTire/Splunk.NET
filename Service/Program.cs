@@ -23,11 +23,11 @@ var host = new HostBuilder()
             services.ConfigureFunctionsApplicationInsights();
 
             var environmentvariables = Environment.GetEnvironmentVariables();
-            var connectionstring = environmentvariables["UniversalLoggingConnectionString"]!.ToString();
-            var environment = environmentvariables["AZURE_FUNCTIONS_ENVIRONMENT"]!.ToString();
+            var queueadduri = new Uri(environmentvariables["LogEntryAddQueue"]!.ToString()!);
+            var tableclienturi = new Uri(environmentvariables["LogTable"]!.ToString()!);
 
-            services.AddScoped(options => new TableClient(connectionstring, environment));
-            services.AddScoped(options => new QueueClient(connectionstring, "logentry", new()
+            services.AddScoped(options => new TableClient(tableclienturi));
+            services.AddScoped(options => new QueueClient(queueadduri, new()
             {
                 MessageEncoding = QueueMessageEncoding.Base64
             }));

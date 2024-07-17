@@ -1,17 +1,22 @@
 {
   "ConnectionStrings": {
-   "UniversalLoggingConnectionString": "DefaultEndpointsProtocol=https;AccountName=universallogging;AccountKey=NSCFbo4Az0ma98pg2gSQCL37g+W9yFexuILvcj+idRvgtDZNXJCgkk36eP4RztDf/lc1hHvmq//D+AStouRiCw==;BlobEndpoint=https://universallogging.blob.core.windows.net/;QueueEndpoint=https://universallogging.queue.core.windows.net/;TableEndpoint=https://universallogging.table.core.windows.net/;FileEndpoint=https://universallogging.file.core.windows.net/;"
+    //"Primary": "gp70jDyhw8p85RPWbs7ZhIEePjeflhRBbem2ngLmtWk9IU27aS4A+7d1yikOef6XzbmsuZ0hZZ3M+AStSdP8yg==",
+    //"LogEntryProcessSasx": "https://sunautologging.queue.core.windows.net/logentry?sv=2020-08-04&st=2024-07-17T20%3A39%3A19Z&se=2027-12-18T21%3A39%3A00Z&sp=p&sig=%2BmX67GXQGn2%2Fd80gjjxJghiTQGLdpreuuQGLTQDiTqk%3D",
+    //"LogEntryProdcessDevSas": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T21%3A43%3A22Z&se=2027-07-18T21%3A43%3A00Z&sp=p&sig=66V4R%2FVcOsf%2BGRuEK50%2Fca2pyIUxMWYZkQTl%2BCNASEw%3D",
+    //"LogEntryProdcessTestSas": "https://sunautologging.queue.core.windows.net/logentrytest?sv=2020-08-04&st=2024-07-17T20%3A43%3A30Z&se=2026-07-18T20%3A43%3A30Z&sp=p&sig=cdOeDswQ7T0eFNwn%2FcK9Y%2B1F7bJNDZM86YOo9kgrBR0%3D",
+    //"LogEntryAddSas": "https://sunautologging.queue.core.windows.net/logentry?sv=2020-08-04&st=2024-07-17T20%3A46%3A20Z&se=2027-07-18T20%3A46%3A00Z&sp=a&sig=OAxpAsVBYIEfCGZI%2BGCDRvXDQ1z7wPY9VM67P4W71eg%3D",
+    //"LogEntryAddDevSas": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T20%3A47%3A00Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=mM%2ByyM1jqRu2tFMZ9Ywlq4TPphnW8BgBN2lkLL19AK4%3D",
+    //"LogEntryAddTestSas": "https://sunautologging.queue.core.windows.net/logentrytest?sv=2020-08-04&st=2024-07-17T20%3A47%3A24Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=9CzpwBC3GLzciSQzXw9N4cK9KlAxjNzRptVqdboq6hs%3D",
+    //"LogTableDev": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&st=2027-07-17T20%3A55%3A24Z&se=2024-07-18T20%3A55%3A24Z&sp=rad&sig=VDMCiUskuaXwtRWo1nMawD3u9k048iVV%2BSRELjAO89g%3D&tn=Development",
+    //"LogTableTest": "https://sunautologging.table.core.windows.net/Staging?sv=2019-02-02&st=2024-07-17T20%3A57%3A19Z&se=2027-07-18T20%3A57%3A00Z&sp=rad&sig=lB7vyVrdk%2FiwhPmYGZGsyUNJngNADzEiK5iV%2BANRBRg%3D&tn=Staging",
+    //"LogTable": "https://sunautologging.table.core.windows.net/Production?sv=2019-02-02&st=2024-07-17T20%3A56%3A30Z&se=2027-07-18T20%3A56%3A00Z&sp=ra&sig=KbUdd71PE12P8PPscS17kiL4jrqTvnJV%2FyWYVXbv1kQ%3D&tn=Production"
   },
   "IsEncrypted": false,
   "Values": {
-    "UniversalLoggingConnectionString": "DefaultEndpointsProtocol=https;AccountName=universallogging;AccountKey=NSCFbo4Az0ma98pg2gSQCL37g+W9yFexuILvcj+idRvgtDZNXJCgkk36eP4RztDf/lc1hHvmq//D+AStouRiCw==;BlobEndpoint=https://universallogging.blob.core.windows.net/;QueueEndpoint=https://universallogging.queue.core.windows.net/;TableEndpoint=https://universallogging.table.core.windows.net/;FileEndpoint=https://universallogging.file.core.windows.net/;",
-    "AzureWebJobsStorage": "DefaultEndpointsProtocol=https;AccountName=sunautologging;AccountKey=gp70jDyhw8p85RPWbs7ZhIEePjeflhRBbem2ngLmtWk9IU27aS4A+7d1yikOef6XzbmsuZ0hZZ3M+AStSdP8yg==;EndpointSuffix=core.windows.net",
-    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated"
-    //"FUNCTIONS_EXTENSION_VERSION": "~4",
-    //"WEBSITE_USE_PLACEHOLDER_DOTNETISOLATED": "1",
-    //"WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "DefaultEndpointsProtocol=https;AccountName=sunautologging;AccountKey=gp70jDyhw8p85RPWbs7ZhIEePjeflhRBbem2ngLmtWk9IU27aS4A+7d1yikOef6XzbmsuZ0hZZ3M+AStSdP8yg==;EndpointSuffix=core.windows.net",
-    //"WEBSITE_CONTENTSHARE": "sunautologging0aa954",
-    //"WEBSITE_RUN_FROM_PACKAGE": "1",
-    //"APPINSIGHTS_INSTRUMENTATIONKEY": "5da7972b-71a9-4ac8-9ca6-6c325f6b7821",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
+    "LogEntryProcessSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&si=QueueReadAddProcess&sig=%2BOrLJJJkq7JFtozusW0dNHRDM950ebNX30pm0221DZI%3D",
+    "LogEntryAddQueue": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T20%3A47%3A00Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=mM%2ByyM1jqRu2tFMZ9Ywlq4TPphnW8BgBN2lkLL19AK4%3D",
+    "LogTable": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&si=TableQueryAddDelete&sig=Gc3Aiu9k3BkTHeW2KkbjZF4cvpvW2VEjD%2FcHwhCleqQ%3D&tn=Development",
+    "LogQueueName": "logentrydev"
   }
 }
