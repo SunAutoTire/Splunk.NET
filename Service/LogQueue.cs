@@ -13,7 +13,7 @@ public class LogQueue(TableClient tableClient, ILoggerFactory loggerFactory)
     readonly ILogger<LogQueue> Logger = loggerFactory.CreateLogger<LogQueue>();
 
     [Function(nameof(LogQueue))]
-    public async Task RunAsync([QueueTrigger("%LogQueueName%", Connection = "LogEntryProcessSas")] QueueMessage message)
+    public async Task RunAsync([QueueTrigger("%LogQueueName%", Connection = "QueueSas")] QueueMessage message)
     {
         try
         {

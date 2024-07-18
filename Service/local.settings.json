@@ -1,15 +1,20 @@
 {
   "ConnectionStrings": {
-    //"Primary": "gp70jDyhw8p85RPWbs7ZhIEePjeflhRBbem2ngLmtWk9IU27aS4A+7d1yikOef6XzbmsuZ0hZZ3M+AStSdP8yg==",
-    //"LogEntryProcessSasx": "https://sunautologging.queue.core.windows.net/logentry?sv=2020-08-04&st=2024-07-17T20%3A39%3A19Z&se=2027-12-18T21%3A39%3A00Z&sp=p&sig=%2BmX67GXQGn2%2Fd80gjjxJghiTQGLdpreuuQGLTQDiTqk%3D",
-    //"LogEntryProdcessDevSas": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T21%3A43%3A22Z&se=2027-07-18T21%3A43%3A00Z&sp=p&sig=66V4R%2FVcOsf%2BGRuEK50%2Fca2pyIUxMWYZkQTl%2BCNASEw%3D",
-    //"LogEntryProdcessTestSas": "https://sunautologging.queue.core.windows.net/logentrytest?sv=2020-08-04&si=ReadAddProcess&sig=9sxsDgRaQHjcqqNre9Nj309YfWyvpkTxFnm50y1vs0A%3D",
-    //"LogEntryAddSas": "https://sunautologging.queue.core.windows.net/logentry?sv=2020-08-04&st=2024-07-17T20%3A46%3A20Z&se=2027-07-18T20%3A46%3A00Z&sp=a&sig=OAxpAsVBYIEfCGZI%2BGCDRvXDQ1z7wPY9VM67P4W71eg%3D",
-    //"LogEntryAddDevSas": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T20%3A47%3A00Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=mM%2ByyM1jqRu2tFMZ9Ywlq4TPphnW8BgBN2lkLL19AK4%3D",
-    //"LogEntryAddTestSas": "https://sunautologging.queue.core.windows.net/logentrytest?sv=2020-08-04&st=2024-07-17T20%3A47%3A24Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=9CzpwBC3GLzciSQzXw9N4cK9KlAxjNzRptVqdboq6hs%3D",
-    //"LogTableDev": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&st=2027-07-17T20%3A55%3A24Z&se=2024-07-18T20%3A55%3A24Z&sp=rad&sig=VDMCiUskuaXwtRWo1nMawD3u9k048iVV%2BSRELjAO89g%3D&tn=Development",
-    //"LogTableTest": "https://sunautologging.table.core.windows.net/Staging?sv=2019-02-02&st=2024-07-17T20%3A57%3A19Z&se=2027-07-18T20%3A57%3A00Z&sp=rad&sig=lB7vyVrdk%2FiwhPmYGZGsyUNJngNADzEiK5iV%2BANRBRg%3D&tn=Staging",
-    //"LogTable": "https://sunautologging.table.core.windows.net/Production?sv=2019-02-02&st=2024-07-17T20%3A56%3A30Z&se=2027-07-18T20%3A56%3A00Z&sp=ra&sig=KbUdd71PE12P8PPscS17kiL4jrqTvnJV%2FyWYVXbv1kQ%3D&tn=Production"
+    //prod
+    //"QueueSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&st=2024-07-18T20%3A44%3A27Z&se=2027-07-19T20%3A44%3A00Z&sp=rap&sig=EE3RiqaVAr9FwPDuE0lzW21flRvij7tBQJLdvKYXz1U%3D",
+    //"QueueAddSas": "https://sunautologging.queue.core.windows.net/logentry?sv=2020-08-04&st=2024-07-18T20%3A44%3A27Z&se=2027-07-19T20%3A44%3A00Z&sp=rap&sig=EE3RiqaVAr9FwPDuE0lzW21flRvij7tBQJLdvKYXz1U%3D",
+    //"TableSas": "https://sunautologging.table.core.windows.net/Production?sv=2019-02-02&st=2024-07-18T20%3A41%3A33Z&se=2027-07-19T20%3A41%3A00Z&sp=ra&sig=m9Y2c1wUHHYmsoPqhG0GCkmOQ1gz%2FCLsdciKWjSPv2A%3D&tn=Production"
+    // "LogQueueName": "logentry"
+    //test
+    // "QueueSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&st=2024-07-18T20%3A52%3A09Z&se=2027-07-19T20%3A52%3A00Z&sp=rap&sig=FTyuEsA6rfqa1LfCaxE7IxvC2FTAvLovSKHVRlbc3lI%3D",
+    // "QueueAddSas": "https://sunautologging.queue.core.windows.net/logentrytest?sv=2020-08-04&st=2024-07-18T20%3A52%3A09Z&se=2027-07-19T20%3A52%3A00Z&sp=rap&sig=FTyuEsA6rfqa1LfCaxE7IxvC2FTAvLovSKHVRlbc3lI%3D",
+    // "TableSas": "https://sunautologging.table.core.windows.net/Staging?sv=2019-02-02&st=2024-07-18T21%3A03%3A19Z&se=2027-07-19T21%3A03%3A00Z&sp=rad&sig=8wtRfXGE8x4kQNy9yYl4KCPNJnfgdjK8qvqo1Ts37D4%3D&tn=Staging",
+    // "LogQueueName": "logentrytest"
+    //dev
+    //  "QueueSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&st=2024-07-18T21%3A12%3A21Z&se=2027-07-19T21%3A12%3A00Z&sp=rap&sig=BnX1qN%2FoAvWJ39h8ty2cfviVkPYkJZH7HeCCro3Q%2F9Q%3D",
+    //  "QueueAddSas": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-18T21%3A12%3A21Z&se=2027-07-19T21%3A12%3A00Z&sp=rap&sig=BnX1qN%2FoAvWJ39h8ty2cfviVkPYkJZH7HeCCro3Q%2F9Q%3D",
+    //  "TableSas": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&st=2024-07-18T21%3A13%3A24Z&se=2027-07-19T21%3A13%3A00Z&sp=rad&sig=d3uOHJMP17pR3eNrHu48Y2seMj45dVwA8y4tjraPeYI%3D&tn=Development",
+    //  "LogQueueName": "logentrydev"
   },
   "IsEncrypted": false,
   "Values": {
@@ -18,9 +23,9 @@
     //"LogEntryAddQueue": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T20%3A47%3A00Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=mM%2ByyM1jqRu2tFMZ9Ywlq4TPphnW8BgBN2lkLL19AK4%3D",
     //"LogTable": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&si=TableQueryAddDelete&sig=Gc3Aiu9k3BkTHeW2KkbjZF4cvpvW2VEjD%2FcHwhCleqQ%3D&tn=Development",
     //"LogQueueName": "logentrydev",
-    "LogEntryProcessSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&st=2024-07-17T23%3A31%3A19Z&se=2027-07-18T23%3A31%3A00Z&sp=rap&sig=SvGVifUkVGt2VuuwkI13HzqpFOfwr%2BBn%2FhZO8OtqKfA%3D",
-    "LogEntryAddQueue": "https://sunautologging.queue.core.windows.net/logentrytest?sv=2020-08-04&st=2024-07-17T23%3A31%3A19Z&se=2027-07-18T23%3A31%3A00Z&sp=rap&sig=SvGVifUkVGt2VuuwkI13HzqpFOfwr%2BBn%2FhZO8OtqKfA%3D",
-    "LogTable": "https://sunautologging.table.core.windows.net/Staging?sv=2019-02-02&st=2024-07-17T23%3A30%3A38Z&se=2027-07-18T23%3A30%3A00Z&sp=rad&sig=KJEJL79JxJjOsqGQVifFi1XCJ1ZyEG0ByM2IHn2WqcY%3D&tn=Staging",
-    "LogQueueName": "logentrytest"
+    "QueueSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&st=2024-07-18T21%3A12%3A21Z&se=2027-07-19T21%3A12%3A00Z&sp=rap&sig=BnX1qN%2FoAvWJ39h8ty2cfviVkPYkJZH7HeCCro3Q%2F9Q%3D",
+    "QueueAddSas": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-18T21%3A12%3A21Z&se=2027-07-19T21%3A12%3A00Z&sp=rap&sig=BnX1qN%2FoAvWJ39h8ty2cfviVkPYkJZH7HeCCro3Q%2F9Q%3D",
+    "TableSas": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&st=2024-07-18T21%3A13%3A24Z&se=2027-07-19T21%3A13%3A00Z&sp=rad&sig=d3uOHJMP17pR3eNrHu48Y2seMj45dVwA8y4tjraPeYI%3D&tn=Development",
+    "LogQueueName": "logentrydev"
   }
 }

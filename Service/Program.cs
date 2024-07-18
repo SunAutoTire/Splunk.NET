@@ -23,8 +23,8 @@ var host = new HostBuilder()
             services.ConfigureFunctionsApplicationInsights();
 
             var environmentvariables = Environment.GetEnvironmentVariables();
-            var queueadduri = new Uri(environmentvariables["LogEntryAddQueue"]!.ToString()!);
-            var tableclienturi = new Uri(environmentvariables["LogTable"]!.ToString()!);
+            var queueadduri = new Uri(environmentvariables["QueueAddSas"]!.ToString()!);
+            var tableclienturi = new Uri(environmentvariables["TableSas"]!.ToString()!);
 
             services.AddScoped(options => new TableClient(tableclienturi));
             services.AddScoped(options => new QueueClient(queueadduri, new()
