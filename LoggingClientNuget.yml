@@ -13,6 +13,7 @@ steps:
     projects: '**/DotnetClient.csproj'
     feedsToUse: 'select'
     vstsFeed: '6673237b-3ab0-455c-9685-3a783656608e/87d5524c-c60d-4dd7-8c5a-41127d611388'
+    verbosityRestore: 'Diagnostic'
 
 - task: DotNetCoreCLI@2
   name: Build
