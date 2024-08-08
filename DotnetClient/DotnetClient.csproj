@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>SunAuto.Logging.Client</AssemblyName>
+		<RootNamespace>SunAuto.Logging.Client</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Universal Logging by Sun Auto</Title>
+		<Description>A .NET client (SDK) for the Sun Auto Universal Logging system.</Description>
+		<Copyright>Copyright © 2024 Sun Auto Tire &amp; Service</Copyright>
+		<Authors>Daniel Przybylski</Authors>
+		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
+		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
+		<Version>1.0.2</Version>
+		<PackageProjectUrl>https://dev.azure.com/SunAuto/Pipelines/_artifacts/feed/SunAuto/NuGet/SunAuto.Logging</PackageProjectUrl>
+		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
+		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<RepositoryUrl>https://bitbucket.org/sunauto/logging/src</RepositoryUrl>
+		<PackageTags>Logging, Azure Storage, File Storage</PackageTags>
+		<PackageReleaseNotes>Full CI/CD only supporting local enviroment file logging.</PackageReleaseNotes>
+		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Remove="ConfigurationExMessage.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="ConfigurationExMessage.txt" />
+		<EmbeddedResource Include="LICENSE.txt" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="CsvHelper" Version="33.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
+		<PackageReference Include="SunAuto.Support" Version="2.2.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Library\Library.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="LICENSE.txt">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="Sun-Auto-Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
