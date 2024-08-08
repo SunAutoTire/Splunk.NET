@@ -17,7 +17,7 @@ steps:
     command: 'restore'
     projects: '**/DotnetLogging.csproj'
     feedsToUse: 'select'
-    vstsFeed: '6074c033-a73a-4acc-b238-58eec6c81c92'
+    vstsFeed: '0a6afb71-e01b-42b3-8b05-aaf61f56fcbb/8db8fe12-9df0-422a-92aa-de9c3fe56e6a'
 
 - task: DotNetCoreCLI@2
   name: Build
@@ -35,8 +35,8 @@ steps:
 - task: NuGetCommand@2
   displayName: 'NuGet push'
   inputs:
+    command: 'push'
     packagesToPush: '$(Build.ArtifactStagingDirectory)/**/*.nupkg'
-    command: push
-    feedsToUse: 'select'
-    publishVstsFeed: 'feedname'
+    nuGetFeedType: 'internal'
+    publishVstsFeed: '0a6afb71-e01b-42b3-8b05-aaf61f56fcbb/8db8fe12-9df0-422a-92aa-de9c3fe56e6a'
     allowPackageConflicts: true
