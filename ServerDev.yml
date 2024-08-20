@@ -5,9 +5,17 @@ trigger:
 pool:
   vmImage: 'windows-latest'
 steps:
-- script: |
-    dotnet restore
-    dotnet build --configuration Debug
+
+- task: NuGetCommand@2
+  name: "Restore"
+  displayName: "Restore NuGet dependencies"
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*All.sln'
+    feedsToUse: 'select'
+    vstsFeed: 'f498e404-b031-4026-8079-fa413a817b22'
+    noCache: true
+    
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
@@ -16,6 +24,16 @@ steps:
     arguments: '--configuration Debug --output publish_output'
     zipAfterPublish: false
     modifyOutputPath: false
+
+- task: VSBuild@1
+  name: "Build"
+  displayName: "Build assemblies"
+  inputs:
+    solution: '**/Service.csproj'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    platform: 'Any CPU'
+    configuration: 'Debug'
+
 - task: ArchiveFiles@2
   displayName: "Archive files"
   inputs:
