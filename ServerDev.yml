@@ -1,0 +1,39 @@
+    
+trigger:
+- dev
+
+pool:
+  vmImage: 'windows-latest'
+steps:
+- script: |
+    dotnet restore
+    dotnet build --configuration Debug
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: false
+    projects: 'Service.csproj'
+    arguments: '--configuration Debug --output publish_output'
+    zipAfterPublish: false
+    modifyOutputPath: false
+- task: ArchiveFiles@2
+  displayName: "Archive files"
+  inputs:
+    rootFolderOrFile: "$(System.DefaultWorkingDirectory)/publish_output"
+    includeRootFolder: false
+    archiveFile: "$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip"
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(System.DefaultWorkingDirectory)/build$(Build.BuildId).zip'
+    artifactName: 'drop'
+
+- task: AzureFunctionApp@2 # Add this at the end of your file
+  inputs:
+    connectedServiceNameARM: 'UniversalLoggingServiceConnection'
+    appType: 'functionAppLinux'
+    appName: 'SunAutoLogging'
+    deployToSlotOrASE: true
+    resourceGroupName: 'IT-Development-Resource-Group'
+    slotName: 'dev'
+    package: '$(System.ArtifactsDirectory)/**/*.zip'
+    deploymentMethod: 'auto'
