@@ -34,6 +34,6 @@ steps:
     appName: 'SunAutoLogging'
     deployToSlotOrASE: true
     resourceGroupName: 'IT-Development-Resource-Group'
-    slotName: 'staging'
+    slotName: 'test'
     package: '$(System.ArtifactsDirectory)/**/*.zip'
     deploymentMethod: 'auto'
