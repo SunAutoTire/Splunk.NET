@@ -20,7 +20,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/Service.csproj'
-    arguments: '--configuration Debug --output publish_output'
+    arguments: '--configuration Release --output publish_output'
     zipAfterPublish: false
     modifyOutputPath: false
 - task: ArchiveFiles@2
@@ -39,8 +39,5 @@ steps:
     connectedServiceNameARM: 'UniversalLoggingServiceConnection'
     appType: 'functionAppLinux'
     appName: 'SunAutoLogging'
-    deployToSlotOrASE: true
-    resourceGroupName: 'IT-Development-Resource-Group'
-    slotName: 'test'
     package: '$(System.ArtifactsDirectory)/**/*.zip'
     deploymentMethod: 'auto'
