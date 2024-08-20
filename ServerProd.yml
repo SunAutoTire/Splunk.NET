@@ -19,7 +19,7 @@ steps:
   inputs:
     command: 'publish'
     publishWebProjects: false
-    projects: 'Service.csproj'
+    projects: '**/Service.csproj'
     arguments: '--configuration Debug --output publish_output'
     zipAfterPublish: false
     modifyOutputPath: false
