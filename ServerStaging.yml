@@ -1,13 +1,20 @@
-    
 trigger:
 - staging
 
 pool:
   vmImage: 'windows-latest'
 steps:
-- script: |
-    dotnet restore
-    dotnet build --configuration Debug
+
+- task: NuGetCommand@2
+  name: "Restore"
+  displayName: "Restore NuGet dependencies"
+  inputs:
+    command: 'restore'
+    restoreSolution: '**/*All.sln'
+    feedsToUse: 'select'
+    vstsFeed: 'f498e404-b031-4026-8079-fa413a817b22'
+    noCache: true
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'publish'
