@@ -20,9 +20,19 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: '**/Service.csproj'
-    arguments: '--configuration Release --output publish_output'
+    arguments: '--configuration Debug --output publish_output'
     zipAfterPublish: false
     modifyOutputPath: false
+
+- task: VSBuild@1
+  name: "Build"
+  displayName: "Build assemblies"
+  inputs:
+    solution: '**/Service.csproj'
+    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+    platform: 'Any CPU'
+    configuration: 'Release'
+
 - task: ArchiveFiles@2
   displayName: "Archive files"
   inputs:
@@ -40,4 +50,5 @@ steps:
     appType: 'functionAppLinux'
     appName: 'SunAutoLogging'
     package: '$(System.ArtifactsDirectory)/**/*.zip'
+    runtimeStack: 'DOTNET-ISOLATED|8.0'
     deploymentMethod: 'auto'
