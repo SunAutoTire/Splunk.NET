@@ -28,11 +28,19 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         try
         {
+            var queryParameters = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
+            var applications = queryParameters.GetValues("application");
+            var levels = queryParameters.GetValues("level");
+
+            // Combina parámetros de ruta y consulta
+            application ??= applications?.FirstOrDefault();
+            level ??= levels?.FirstOrDefault();
+
             switch (req.Method)
             {
                 case "GET":
                     var output = ListAsync(req, next, application, level, default);
-
+                    
                     return output.Object.Any()
                         ? await CreateResponseAsync(req, HttpStatusCode.OK, output)
                         : await CreateResponseAsync(req, HttpStatusCode.NotFound, new { Message = $"No entries found for that application: {application}." });
