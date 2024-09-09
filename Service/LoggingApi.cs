@@ -32,7 +32,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             var applications = queryParameters.GetValues("application");
             var levels = queryParameters.GetValues("level");
 
-            // Combina parámetros de ruta y consulta
             application ??= applications?.FirstOrDefault();
             level ??= levels?.FirstOrDefault();
 
