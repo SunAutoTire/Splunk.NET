@@ -28,13 +28,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         try
         {
-            var queryParameters = System.Web.HttpUtility.ParseQueryString(req.Url.Query);
-            var applications = queryParameters.GetValues("application");
-            var levels = queryParameters.GetValues("level");
-
-            application ??= applications?.FirstOrDefault();
-            level ??= levels?.FirstOrDefault();
-
             switch (req.Method)
             {
                 case "GET":
