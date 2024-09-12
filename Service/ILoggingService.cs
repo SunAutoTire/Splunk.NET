@@ -12,7 +12,6 @@ namespace SunAuto.Logging.Api
     {
         Task<Linked<IEnumerable<Entry>>> ListAsync(string? next, string? application, string? level, DateTimeOffset? startDate,
             DateTimeOffset? endDate, CancellationToken cancellationToken);
-        Task<string> ExportLogsAsync(string? application, string? level, DateTimeOffset? startDate,DateTimeOffset? endDate, CancellationToken cancellationToken);
-    }
+        Task<string> ExportLogsAsync(string? application, string? level, DateTimeOffset? startDate, DateTimeOffset? endDate, CancellationToken cancellationToken);
     }
 }
