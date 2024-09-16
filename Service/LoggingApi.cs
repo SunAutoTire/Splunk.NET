@@ -19,7 +19,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
     [Function("LoggerItem")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}/{timestamp:alpha?}/{rowKey}")] HttpRequestData req,
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKey:alpha?}")] HttpRequestData req,
                                 string? application,
                                 string? level,
                                 DateTime? startDate, DateTime? endDate,
