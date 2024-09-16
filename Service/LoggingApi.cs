@@ -84,7 +84,9 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
         var applicationfilter = String.IsNullOrWhiteSpace(application) ? null : $"PartitionKey eq '{application}'";
+
         var levelfilter = String.IsNullOrWhiteSpace(level) ? null : $"Level eq '{level}'";
+
         var dateRangeFilter = BuildDateRangeFilter(startDate, endDate);
 
         //var filter = String.Join(" and ", new string?[] { applicationfilter, levelfilter }.Where(i => !String.IsNullOrWhiteSpace(i)));
