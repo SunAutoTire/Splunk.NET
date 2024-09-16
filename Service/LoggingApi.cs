@@ -19,7 +19,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
     [Function("LoggerItem")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKey:alpha?}")] HttpRequestData req,
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{level:alpha?}/{timestamp:alpha?}/{rowKey}")] HttpRequestData req,
                                 string? application,
                                 string? level,
                                 DateTime? startDate, DateTime? endDate,
@@ -84,12 +84,10 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
         var applicationfilter = String.IsNullOrWhiteSpace(application) ? null : $"PartitionKey eq '{application}'";
-
         var levelfilter = String.IsNullOrWhiteSpace(level) ? null : $"Level eq '{level}'";
-
         var dateRangeFilter = BuildDateRangeFilter(startDate, endDate);
 
-        //var filter = String.Join(" and ", new string?[] { applicationfilter, levelfilter }.Where(i => !String.IsNullOrWhiteSpace(i)));
+        //var filter = String.Join(" and ", new string?[] { applicationfilter, levelfilter,dateRangeFilter }.Where(i => !String.IsNullOrWhiteSpace(i)));
 
         var filters = new[] { applicationfilter, levelfilter, dateRangeFilter }
         .Where(f => !String.IsNullOrWhiteSpace(f))
