@@ -18,13 +18,10 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
-    [Function("LoggerItem")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKey?}")] HttpRequestData req,
+    [Function("CreateLoggerItem")]
+    public async Task<HttpResponseData> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "{application:alpha?}/{rowKeyOrLevel:alpha?}")] HttpRequestData req,
                                 string? application,
-                                string? level,
-                                DateTime? startDate, DateTime? endDate,
-                                string? rowKey,
-                                string? next)
+                                string? rowKeyOrLevel)
     {
         Logger.LogInformation("POST Log item {url}.", req.Url);
 
@@ -32,9 +29,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         {
             return req.Method switch
             {
-                "GET" => await HandleGetRequest(req, application, level, startDate, endDate, next),
-                "POST" => await HandlePostRequest(req, application, level),
-                "DELETE" => await HandleDeleteRequest(req, application, rowKey),
+                "POST" => await HandlePostRequest(req, application, rowKeyOrLevel),
                 _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
             };
         }
@@ -56,6 +51,78 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
         }
     }
+
+    [Function("GetOrDeleteLoggerItem")]
+    public async Task<HttpResponseData> GetOrDeleteAsync([HttpTrigger(AuthorizationLevel.Function, "get", "delete", Route = "{application:alpha?}/{rowKeyOrLevel:guid}")] HttpRequestData req,
+                               string? application,
+                               string? rowKeyOrLevel)
+    {
+        Logger.LogInformation("Get or Delete Log item {url}.", req.Url);
+
+        try
+        {
+            return req.Method switch
+            {
+                "GET" => await HandleGetSingleItemRequest(req, application, rowKeyOrLevel),
+                "DELETE" => await HandleDeleteRequest(req, application, rowKeyOrLevel),
+                _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
+            };
+        }
+        catch (ArgumentException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
+        }
+        catch (NullReferenceException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unhandled exception occurred during processing.");
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
+        }
+    }
+
+    [Function("GetLoggerItem")]
+    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKeyOrLevel:alpha}")] HttpRequestData req,
+                               string? application,
+                               string? rowKeyOrLevel,
+                               DateTime? startDate, DateTime? endDate,
+                               string? next)
+    {
+        Logger.LogInformation("Get Log item {url}.", req.Url);
+
+        try
+        {
+            return req.Method switch
+            {
+                "GET" => await HandleGetRequest(req, application, rowKeyOrLevel, startDate, endDate, next),
+                _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
+            };
+        }
+        catch (ArgumentException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
+        }
+        catch (NullReferenceException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unhandled exception occurred during processing.");
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
+        }
+    }
+
 
     private async Task<HttpResponseData> HandleGetRequest(HttpRequestData req, string? application, string? level, DateTime? startDate, DateTime? endDate, string? next)
     {
@@ -79,6 +146,15 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         await DeleteAsync(application, rowKey);
         return await CreateResponseAsync(req, HttpStatusCode.NoContent, new { Message = "Successfully deleted." });
+    }
+
+    private async Task<HttpResponseData> HandleGetSingleItemRequest(HttpRequestData req, string? application, string? rowKey)
+    {
+        if (string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(rowKey))
+            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and rowKey must be provided.");
+
+        var output = await GetByRowKeyAsync(req,application, rowKey, CancellationToken.None);
+        return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
@@ -140,6 +216,26 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return string.Join(" and ", filters);
     }
 
+    private async Task<Entry?> GetByRowKeyAsync(HttpRequestData req, string rowKey, string partitionKey, CancellationToken cancellationToken)
+    {
+        var response = await TableClient.GetEntityAsync<TableEntry>(partitionKey, rowKey, cancellationToken: cancellationToken);
+
+        if (response.HasValue)
+        {
+            var entity = response.Value;
+            return new Entry
+            {
+                Application = entity.PartitionKey,
+                Level = entity.Level,
+                Message = entity.Message,
+                RowKey = entity.RowKey,
+                Timestamp = entity.Timestamp,
+                Body = entity.Body == null ? null : JsonSerializer.Deserialize<object>(entity.Body),
+            };
+        }
+
+        return null;
+    }
 
     static async Task<HttpResponseData> CreateResponseAsync<T>(HttpRequestData req, HttpStatusCode status, T? body)
     {
