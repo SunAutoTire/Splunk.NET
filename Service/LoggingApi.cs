@@ -7,6 +7,7 @@ using SunAuto.Hateoas;
 using SunAuto.Logging.Api.Models;
 using System.Net;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
@@ -88,7 +89,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     }
 
     [Function("GetLoggerItem")]
-    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKeyOrLevel:alpha}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKeyOrLevel?}")] HttpRequestData req,
                                string? application,
                                string? rowKeyOrLevel,
                                DateTime? startDate, DateTime? endDate,
@@ -153,16 +154,16 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         if (string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(rowKey))
             return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and rowKey must be provided.");
 
-        var output = await GetByRowKeyAsync(req,application, rowKey, CancellationToken.None);
+        var output = await GetByRowKeyAsync(req, application, rowKey, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
         var applicationfilter = String.IsNullOrWhiteSpace(application) ? null : $"PartitionKey eq '{application}'";
-        
+
         var levels = String.IsNullOrWhiteSpace(level) ? null : level.Split('|', StringSplitOptions.RemoveEmptyEntries);
-        
+
         var levelfilter = levels == null || levels.Length == 0
             ? null
             : string.Join(" or ", levels.Select(l => $"Level eq '{l}'"));
@@ -216,25 +217,34 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return string.Join(" and ", filters);
     }
 
-    private async Task<Entry?> GetByRowKeyAsync(HttpRequestData req, string rowKey, string partitionKey, CancellationToken cancellationToken)
+    private async Task<Entry> GetByRowKeyAsync(HttpRequestData req, string application, string rowKey, CancellationToken cancellationToken)
     {
-        var response = await TableClient.GetEntityAsync<TableEntry>(partitionKey, rowKey, cancellationToken: cancellationToken);
-
-        if (response.HasValue)
+        if (string.IsNullOrWhiteSpace(rowKey))
         {
-            var entity = response.Value;
-            return new Entry
-            {
-                Application = entity.PartitionKey,
-                Level = entity.Level,
-                Message = entity.Message,
-                RowKey = entity.RowKey,
-                Timestamp = entity.Timestamp,
-                Body = entity.Body == null ? null : JsonSerializer.Deserialize<object>(entity.Body),
-            };
+            throw new ArgumentException("rowKey must be provided", nameof(rowKey));
         }
 
-        return null;
+        var filter = $"PartitionKey eq '{application}' and RowKey eq '{rowKey}'";
+
+        // Query the table synchronously
+        var result = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
+
+        var entry = result.FirstOrDefault();
+
+        if (entry == null)
+        {
+            throw new KeyNotFoundException($"No entry found with RowKey '{rowKey}'");
+        }
+
+        return new Entry
+        {
+            Application = entry.PartitionKey,
+            Level = entry.Level,
+            Message = entry.Message,
+            RowKey = entry.RowKey,
+            Timestamp = entry.Timestamp,
+            Body = entry.Body == null ? null : JsonSerializer.Deserialize<object>(entry.Body),
+        };
     }
 
     static async Task<HttpResponseData> CreateResponseAsync<T>(HttpRequestData req, HttpStatusCode status, T? body)
