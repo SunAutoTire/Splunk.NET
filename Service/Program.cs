@@ -37,10 +37,6 @@ var host = new HostBuilder()
             services.AddScoped<LoggingApi>();
             services.AddScoped<LogQueue>();
 
-            // Register LoggingService and IPaginationService
-            services.AddScoped<ILoggingService, LoggingService>();
-            services.AddScoped<IPaginationService, PaginationService>();
-
             logger.LogInformation("Started up.");
 
         }
