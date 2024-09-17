@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SunAuto.Logging.Api;
-using SunAuto.Logging.Api.Services;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
