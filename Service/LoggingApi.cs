@@ -170,8 +170,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var dateRangeFilter = BuildDateRangeFilter(startDate, endDate);
 
-        //var filter = String.Join(" and ", new string?[] { applicationfilter, levelfilter,dateRangeFilter }.Where(i => !String.IsNullOrWhiteSpace(i)));
-
         var filters = new[] { applicationfilter, levelfilter, dateRangeFilter }
         .Where(f => !String.IsNullOrWhiteSpace(f))
         .ToArray();
