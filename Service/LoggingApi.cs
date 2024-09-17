@@ -19,7 +19,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
     [Function("LoggerItem")]
-    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKey:alpha?}")] HttpRequestData req,
+    public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKey?}")] HttpRequestData req,
                                 string? application,
                                 string? level,
                                 DateTime? startDate, DateTime? endDate,
@@ -84,7 +84,13 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
         var applicationfilter = String.IsNullOrWhiteSpace(application) ? null : $"PartitionKey eq '{application}'";
-        var levelfilter = String.IsNullOrWhiteSpace(level) ? null : $"Level eq '{level}'";
+        
+        var levels = String.IsNullOrWhiteSpace(level) ? null : level.Split('|', StringSplitOptions.RemoveEmptyEntries);
+        
+        var levelfilter = levels == null || levels.Length == 0
+            ? null
+            : string.Join(" or ", levels.Select(l => $"Level eq '{l}'"));
+
         var dateRangeFilter = BuildDateRangeFilter(startDate, endDate);
 
         //var filter = String.Join(" and ", new string?[] { applicationfilter, levelfilter,dateRangeFilter }.Where(i => !String.IsNullOrWhiteSpace(i)));
@@ -126,13 +132,14 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         var filters = new List<string>();
 
         if (startDate != null)
-            filters.Add($"Timestamp ge '{startDate.Value:yyyy-MM-ddTHH:mm:ssZ}'");
+            filters.Add($"Timestamp ge datetime'{startDate.Value:yyyy-MM-ddTHH:mm:ssZ}'");
 
         if (endDate != null)
-            filters.Add($"Timestamp le '{endDate.Value:yyyy-MM-ddTHH:mm:ssZ}'");
+            filters.Add($"Timestamp le datetime'{endDate.Value:yyyy-MM-ddTHH:mm:ssZ}'");
 
-        return String.Join(" and ", filters);
+        return string.Join(" and ", filters);
     }
+
 
     static async Task<HttpResponseData> CreateResponseAsync<T>(HttpRequestData req, HttpStatusCode status, T? body)
     {
