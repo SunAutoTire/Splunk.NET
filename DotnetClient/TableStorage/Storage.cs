@@ -20,11 +20,6 @@ public class Storage : IStorage, IDisposable
         Application = configurationSection["Application"]!.ToString();
         ApiKey = configurationSection["ApiKey"]!.ToString();
 
-        var vars = Environment.GetEnvironmentVariables();
-
-        foreach (System.Collections.DictionaryEntry item in vars)
-            System.Diagnostics.Debug.WriteLine($"{item.Key} {item.Value}");
-
         var baseurl = configurationSection["BaseUrl"]!.ToString();
 
         try
@@ -34,8 +29,9 @@ public class Storage : IStorage, IDisposable
                 BaseAddress = new Uri(baseurl),
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
             // We must handle this in CAR-403 ticket 
 
             //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
@@ -71,9 +67,9 @@ public class Storage : IStorage, IDisposable
                 .GetAwaiter()
                 .GetResult();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-
+            System.Diagnostics.Debug.WriteLine(ex.Message);
         }
     }
 

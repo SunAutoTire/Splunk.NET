@@ -12,7 +12,7 @@ Environment.SetEnvironmentVariable("LoggingEnvironment", "Development");
 
 var builder = Host.CreateApplicationBuilder(args);
 
-builder.Logging.ClearProviders();
+//builder.Logging.ClearProviders();
 builder.Logging.AddSunAutoLogging();
 
 using var host = builder.Build();
