@@ -31,6 +31,8 @@ var host = new HostBuilder()
             {
                 MessageEncoding = QueueMessageEncoding.Base64
             }));
+
+            // Register LoggingApi and LogQueue
             services.AddScoped<LoggingApi>();
             services.AddScoped<LogQueue>();
 

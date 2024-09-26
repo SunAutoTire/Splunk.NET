@@ -8,7 +8,7 @@ namespace SunAuto.Logging.Client.TableStorage;
 
 public class Storage : IStorage, IDisposable
 {
-    readonly HttpClient Client;
+    readonly HttpClient Client=null!;
     readonly string Application;
     readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions;
@@ -16,6 +16,7 @@ public class Storage : IStorage, IDisposable
 
     public Storage(IConfigurationSection configurationSection)
     {
+
         Application = configurationSection["Application"]!.ToString();
         ApiKey = configurationSection["ApiKey"]!.ToString();
 
@@ -26,10 +27,20 @@ public class Storage : IStorage, IDisposable
 
         var baseurl = configurationSection["BaseUrl"]!.ToString();
 
-        Client = new HttpClient
+        try
         {
-            BaseAddress = new Uri(baseurl),
-        };
+            Client = new HttpClient
+            {
+                BaseAddress = new Uri(baseurl),
+            };
+        }
+        catch (Exception)
+        {
+            // We must handle this in CAR-403 ticket 
+
+            //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
+
+        }
 
         JsonSerializerOptions = new JsonSerializerOptions(JsonSerializerOptions.Default);
         JsonSerializerOptions.Converters.Add(new ExceptionConverter());
@@ -52,12 +63,18 @@ public class Storage : IStorage, IDisposable
         var serialized = JsonSerializer.Serialize(entry);
         var buffer = System.Text.Encoding.UTF8.GetBytes(serialized);
         var byteContent = new ByteArrayContent(buffer);
-        
-        byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-        Client.PostAsync($"api/{Application}/{logLevel}?code={ApiKey}", byteContent)
-            .GetAwaiter()
-            .GetResult();
+        byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+        try
+        {
+            Client.PostAsync($"api/{Application}/{logLevel}?code={ApiKey}", byteContent)
+                .GetAwaiter()
+                .GetResult();
+        }
+        catch (Exception)
+        {
+
+        }
     }
 
     public void Delete(EventId eventId)
