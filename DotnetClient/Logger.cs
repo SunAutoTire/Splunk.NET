@@ -23,7 +23,7 @@ public class Logger(IConfiguration configuration) : ILogger
             Storage = environmentname switch
             {
                 "Development" or "Staging" or "Test" or "Production" => new TableStorage.Storage(configuration),
-                _ => new FileStorage.Storage(configuration.GetValue<string>("Path")),
+                _ => new FileStorage.Storage(configuration.GetValue<string>("Path")!),
             };
         }
 

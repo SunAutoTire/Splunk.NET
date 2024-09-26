@@ -8,7 +8,7 @@ namespace SunAuto.Logging.Client.TableStorage;
 
 public class Storage : IStorage, IDisposable
 {
-    readonly HttpClient Client;
+    readonly HttpClient Client=null!;
     readonly string Application;
     readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions;
