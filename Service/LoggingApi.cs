@@ -20,9 +20,9 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
     [Function("CreateLoggerItem")]
-    public async Task<HttpResponseData> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "{application:alpha?}/{rowKeyOrLevel:alpha?}")] HttpRequestData req,
+    public async Task<HttpResponseData> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "{application:alpha?}/{Level:alpha?}")] HttpRequestData req,
                                 string? application,
-                                string? rowKeyOrLevel)
+                                string? Level)
     {
         Logger.LogInformation("POST Log item {url}.", req.Url);
 
@@ -30,7 +30,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         {
             return req.Method switch
             {
-                "POST" => await HandlePostRequest(req, application, rowKeyOrLevel),
+                "POST" => await HandlePostRequest(req, application, Level),
                 _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
             };
         }
@@ -53,18 +53,17 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         }
     }
 
-    [Function("GetOrDeleteLoggerItem")]
-    public async Task<HttpResponseData> GetOrDeleteAsync([HttpTrigger(AuthorizationLevel.Function, "get", "delete", Route = "{application:alpha?}/{rowKeyOrLevel:guid}")] HttpRequestData req,
-                               string? application,
-                               string? rowKeyOrLevel)
+    [Function("DeleteLoggerItem")]
+    public async Task<HttpResponseData> DeleteAsync([HttpTrigger(AuthorizationLevel.Function, "delete", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
+                       string? application,
+                       string? rowKeyOrLevel)
     {
-        Logger.LogInformation("Get or Delete Log item {url}.", req.Url);
+        Logger.LogInformation("Delete Log item {url}.", req.Url);
 
         try
         {
             return req.Method switch
             {
-                "GET" => await HandleGetSingleItemRequest(req, application, rowKeyOrLevel),
                 "DELETE" => await HandleDeleteRequest(req, application, rowKeyOrLevel),
                 _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
             };
@@ -88,10 +87,70 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         }
     }
 
-    [Function("GetLoggerItem")]
-    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", "post", "delete", Route = "{application:alpha?}/{rowKeyOrLevel?}")] HttpRequestData req,
+    [Function("SearchLogsByDateRange")]
+    public async Task<HttpResponseData> SearchByDateRangeAsync(
+        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "logs/date-range")] HttpRequestData req,
+        DateTime startDate,
+        DateTime endDate,
+        string? application,
+        string? next)
+    {
+        Logger.LogInformation("Search logs for application {application} between {startDate} and {endDate}.", application, startDate, endDate);
+
+        return await HandleDateRangeSearchAsync(req, next, application, startDate, endDate);
+    }
+
+    [Function("SearchLogsByLevel")]
+    public async Task<HttpResponseData> SearchLogsByLevelAsync(
+    [HttpTrigger(AuthorizationLevel.Function, "get", Route = "logs/level")] HttpRequestData req,
+    string? application,
+    string? level,
+    string? next)
+    {
+        Logger.LogInformation("Search logs for application {application} level {level}.", application, level);
+
+        return await HandleLevelSearchAsync(req, next, application, level);
+    }
+
+    [Function("SearchSingleLoggerItem")]
+    public async Task<HttpResponseData> GetOrDeleteAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
                                string? application,
-                               string? rowKeyOrLevel,
+                               string? rowKeyOrLevel)
+    {
+        Logger.LogInformation("Get Log item {url}.", req.Url);
+
+        try
+        {
+            return req.Method switch
+            {
+                "GET" => await HandleGetSingleItemRequest(req, application, rowKeyOrLevel),
+                _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
+            };
+        }
+        catch (ArgumentException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
+        }
+        catch (NullReferenceException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unhandled exception occurred during processing.");
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
+        }
+    }
+
+
+    [Function("SearchLoggerItemsAdvance")]
+    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}")] HttpRequestData req,
+                               string? application,
+                               string? Level,
                                DateTime? startDate, DateTime? endDate,
                                string? next)
     {
@@ -101,7 +160,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         {
             return req.Method switch
             {
-                "GET" => await HandleGetRequest(req, application, rowKeyOrLevel, startDate, endDate, next),
+                "GET" => await HandleGetRequest(req, application, Level, startDate, endDate, next),
                 _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
             };
         }
@@ -158,9 +217,109 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
+    private async Task<HttpResponseData> HandleDateRangeSearchAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate)
+    {
+        var output = ListByDateRangeAsync(req, next, application, startDate, endDate, CancellationToken.None);
+        return await CreateResponseAsync(req, HttpStatusCode.OK, output);
+    }
+
+    private async Task<HttpResponseData> HandleLevelSearchAsync(HttpRequestData req, string? next, string? application, string? level)
+    {
+        var output = ListByLevelAsync(req, next, application, level,CancellationToken.None);
+        return await CreateResponseAsync(req, HttpStatusCode.OK, output);
+    }
+
+    private Linked<IEnumerable<Entry>> ListByLevelAsync(HttpRequestData req, string? next, string? application, string? level, CancellationToken cancellationToken)
+    {
+        var applications = String.IsNullOrWhiteSpace(application) ? null : application.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+        var applicationfilter = applications == null || applications.Length == 0
+            ? null
+            : string.Join(" or ", applications.Select(l => $"PartitionKey eq '{l}'"));
+
+        var levels = String.IsNullOrWhiteSpace(level) ? null : level.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+        var levelfilter = levels == null || levels.Length == 0
+            ? null
+            : string.Join(" or ", levels.Select(l => $"Level eq '{l}'"));
+
+        var filters = new[] { applicationfilter, levelfilter }
+        .Where(f => !String.IsNullOrWhiteSpace(f))
+        .ToArray();
+
+        var filter = String.Join(" and ", filters);
+
+        var output = TableClient.Query<TableEntry>(filter, 25, null, cancellationToken);
+
+        var page = output
+             .AsPages(next)
+             .First();
+
+        var links = new List<Link> { new(req.Url.PathAndQuery) };
+
+        if (!String.IsNullOrWhiteSpace(page.ContinuationToken))
+            links.Add(new($"{req.Url.LocalPath}?next={page.ContinuationToken}", "next"));
+
+        return new Linked<IEnumerable<Entry>>(page
+            .Values
+            .Select(i => new Entry
+            {
+                Application = i.PartitionKey,
+                Level = i.Level,
+                Message = i.Message,
+                RowKey = i.RowKey,
+                Timestamp = i.Timestamp,
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
+            }), "Entries", links);
+    }
+
+    private Linked<IEnumerable<Entry>> ListByDateRangeAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
+    {
+        var applications = String.IsNullOrWhiteSpace(application) ? null : application.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+        var applicationfilter = applications == null || applications.Length == 0
+            ? null
+            : string.Join(" or ", applications.Select(l => $"PartitionKey eq '{l}'"));
+
+        var dateRangeFilter = BuildDateRangeFilter(startDate, endDate);
+
+        var filters = new[] { applicationfilter, dateRangeFilter }
+        .Where(f => !String.IsNullOrWhiteSpace(f))
+        .ToArray();
+
+        var filter = String.Join(" and ", filters);
+
+        var output = TableClient.Query<TableEntry>(filter, 25, null, cancellationToken);
+
+        var page = output
+             .AsPages(next)
+             .First();
+
+        var links = new List<Link> { new(req.Url.PathAndQuery) };
+
+        if (!String.IsNullOrWhiteSpace(page.ContinuationToken))
+            links.Add(new($"{req.Url.LocalPath}?next={page.ContinuationToken}", "next"));
+
+        return new Linked<IEnumerable<Entry>>(page
+            .Values
+            .Select(i => new Entry
+            {
+                Application = i.PartitionKey,
+                Level = i.Level,
+                Message = i.Message,
+                RowKey = i.RowKey,
+                Timestamp = i.Timestamp,
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
+            }), "Entries", links);
+    }
+
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
-        var applicationfilter = String.IsNullOrWhiteSpace(application) ? null : $"PartitionKey eq '{application}'";
+        var applications = String.IsNullOrWhiteSpace(application) ? null : application.Split('|', StringSplitOptions.RemoveEmptyEntries);
+
+        var applicationfilter = applications == null || applications.Length == 0
+            ? null
+            : string.Join(" or ", applications.Select(l => $"PartitionKey eq '{l}'"));
 
         var levels = String.IsNullOrWhiteSpace(level) ? null : level.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
