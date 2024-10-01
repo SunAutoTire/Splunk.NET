@@ -1,49 +1,111 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Azure.Data.Tables;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
+using SunAuto.Development.Library.Banners;
 using SunAuto.Logging.Client;
+using SunAuto.Logging.Console;
 
-var _ = new Welcome(roll: true);
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile($"appsettings.json")
+    .Build();
 
 //Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
 Environment.SetEnvironmentVariable("LoggingEnvironment", "Development");
 
 var builder = Host.CreateApplicationBuilder(args);
+var services = builder.Services;
 
 //builder.Logging.ClearProviders();
 builder.Logging.AddSunAutoLogging();
 
+services.AddLogging();
+services.AddSingleton<Authentication>();
+services.AddSingleton<IBanner, BairesDev>();
+services.AddSingleton<Welcome>();
+services.AddScoped<LogGenerator>();
+services.AddScoped<LogUtilities>();
+
+var tableclienturi = new Uri(configuration["TableSas"]!);
+
+services.AddScoped(options => new TableClient(tableclienturi));
+
 using var host = builder.Build();
-
-var logger = host.Services.GetRequiredService<ILogger<Program>>();
-
-logger.LogDebug(1, "Does this line get hit?");    // Not logged
-logger.LogDebug(1, "Does this line get hit?");    // Not logged
-logger.LogInformation(3, "Nothing to see here."); // Logs in ConsoleColor.DarkGreen
-logger.LogWarning(5, "Warning... that was odd."); // Logs in ConsoleColor.DarkCyan
-logger.LogError(7, "Oops, there was an error.");  // Logs in ConsoleColor.DarkRed
-logger.LogTrace(5, "== 120.");                    // Not logged
-logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe}?", "Maybe not");
-logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
-
-object? nullobject = null;
 
 try
 {
-    var check1 = nullobject!.ToString();
+    var authentication = host.Services.GetService<Authentication>();
+    var welcome = host.Services.GetService<Welcome>();
+
+    var result = await authentication!.LogInAsync();
+    var roll = welcome!.RollAsync(result!);
+    var cancellationTokenSource = new CancellationTokenSource();
+    var cancellationtoken = cancellationTokenSource.Token;
+    await roll;
+
+
+    await ChooseAsync();
+
+    async Task ChooseAsync()
+    {
+        Console.WriteLine("What are we up for today?" + Environment.NewLine);
+        Console.WriteLine("a - Rename partition key." + Environment.NewLine);
+        Console.WriteLine("b - Generate log entries." + Environment.NewLine);
+        Console.WriteLine("c - Purge old entries." + Environment.NewLine);
+        Console.WriteLine("x - Exit" + Environment.NewLine);
+
+        var input = Console.ReadLine();
+        var utilities = host.Services.GetRequiredService<LogUtilities>();
+
+        switch (input)
+        {
+            case ("a"):
+                var tasks = new List<Task>{
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireData", "ABDGTireServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireDataAPI", "ABDGTireServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "CarifyAPI", "CarifyBusinessAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "SatsIntegrationAPI", "SatsIntSatsMainServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireData", "TireDataServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireDataServices", "TireDataServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "WebpageResourcesAPI", "WebResourcesServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastVastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
+                };
+
+                await Task.WhenAll(tasks);
+
+                break;
+            case ("b"):
+                var generator = host.Services.GetRequiredService<LogGenerator>();
+                generator.Run();
+                break;
+            case ("c"):
+                await utilities.CleanupOldEntriesAsync(cancellationtoken);
+                break;
+            case ("x"):
+                //Environment.Exit(0);
+                cancellationTokenSource?.Cancel();
+                return;
+            default:
+                Console.WriteLine();
+                Console.WriteLine(Environment.NewLine + "Please choose from the list:" + Environment.NewLine);
+                Console.WriteLine();
+                await ChooseAsync();
+                break;
+        }
+
+        // THis should be handled a better way to avoid StackOverflow.com
+        await ChooseAsync();
+    }
+
+    await host.RunAsync(cancellationtoken);
+
+    await host.RunAsync();
 }
-catch (NullReferenceException ex)
+catch (Exception ex)
 {
-    logger.LogError(ex, "Null reference.");
+    Console.WriteLine(Environment.NewLine + ex.Message + Environment.NewLine);
+    Console.WriteLine("Later!" + Environment.NewLine);
 }
-
-// var storage = new Storage("..\\..\\..\\SunAuto.log");
-
-// var check = storage.List();
-
-// foreach (var item in check)
-//     Console.WriteLine(item.TimeStamp);
-
-await host.RunAsync();
