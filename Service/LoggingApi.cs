@@ -112,10 +112,11 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return await HandleLevelSearchAsync(req, next, application, level);
     }
 
+    //TODO: THis could be merged w/ endpoint on line 56
     [Function("SearchSingleLoggerItem")]
     public async Task<HttpResponseData> GetOrDeleteAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
                                string? application,
-                               string? rowKeyOrLevel)
+                               string? rowKey)
     {
         Logger.LogInformation("Get Log item {url}.", req.Url);
 
@@ -123,7 +124,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         {
             return req.Method switch
             {
-                "GET" => await HandleGetSingleItemRequest(req, application, rowKeyOrLevel),
+                "GET" => await HandleGetSingleItemRequest(req, application, rowKey),
                 _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
             };
         }
@@ -148,7 +149,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
 
     [Function("SearchLoggerItemsAdvance")]
-    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "search")] HttpRequestData req,
                                string? application,
                                string? Level,
                                DateTime? startDate, DateTime? endDate,
@@ -213,7 +214,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         if (string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(rowKey))
             return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and rowKey must be provided.");
 
-        var output = await GetByRowKeyAsync(req, application, rowKey, CancellationToken.None);
+        var output = GetByRowKey(application, rowKey, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
@@ -225,7 +226,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
     private async Task<HttpResponseData> HandleLevelSearchAsync(HttpRequestData req, string? next, string? application, string? level)
     {
-        var output = ListByLevelAsync(req, next, application, level,CancellationToken.None);
+        var output = ListByLevelAsync(req, next, application, level, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
@@ -359,7 +360,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             }), "Entries", links);
     }
 
-    private string? BuildDateRangeFilter(DateTime? startDate, DateTime? endDate)
+    private static string? BuildDateRangeFilter(DateTime? startDate, DateTime? endDate)
     {
         if (startDate == null && endDate == null) return null;
 
@@ -374,7 +375,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return string.Join(" and ", filters);
     }
 
-    private async Task<Entry> GetByRowKeyAsync(HttpRequestData req, string application, string rowKey, CancellationToken cancellationToken)
+    private Entry GetByRowKey(string application, string rowKey, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(rowKey))
         {
@@ -386,12 +387,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         // Query the table synchronously
         var result = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
 
-        var entry = result.FirstOrDefault();
-
-        if (entry == null)
-        {
-            throw new KeyNotFoundException($"No entry found with RowKey '{rowKey}'");
-        }
+        var entry = result.FirstOrDefault() ?? throw new KeyNotFoundException($"No entry found with RowKey '{rowKey}'");
 
         return new Entry
         {

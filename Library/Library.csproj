@@ -13,7 +13,7 @@
 		<Authors>Daniel Przybylski</Authors>
 		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
-		<Version>1.0.2</Version>
+		<Version>1.0.5-dev-preview</Version>
 		<PackageProjectUrl>https://dev.azure.com/SunAuto/Pipelines/_artifacts/feed/SunAuto/NuGet/SunAuto.Logging</PackageProjectUrl>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
