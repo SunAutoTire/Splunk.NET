@@ -9,5 +9,5 @@ public class Entry
     public string? Body { get; set; } 
 
     public DateTimeOffset? Timestamp { get; set; }
-    public string RowKey { get; set; } = null!;
+    public string RowKey { get; set; } = Guid.NewGuid().ToString();
 }
