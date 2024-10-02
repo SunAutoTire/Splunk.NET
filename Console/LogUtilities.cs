@@ -2,7 +2,6 @@
 
 using Azure.Data.Tables;
 using SunAuto.Extensions.Console;
-using System.Threading;
 
 namespace SunAuto.Logging.Console;
 
@@ -79,6 +78,7 @@ internal class LogUtilities(TableClient tableClient)
 
             foreach (var value in page.Values)
             {
+                System.Console.WriteLine($"Deleting: {value.Timestamp!.Value.ToLocalTime():G}");
                 tasks.Add(Client.DeleteEntityAsync(entity: value, cancellationToken: cancellationToken));
             }
 

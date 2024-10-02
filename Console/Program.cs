@@ -28,7 +28,9 @@ services.AddSingleton<Welcome>();
 services.AddScoped<LogGenerator>();
 services.AddScoped<LogUtilities>();
 
-var tableclienturi = new Uri(configuration["TableSas"]!);
+var tableclienturi = Environment.GetEnvironmentVariable("LoggingEnvironment") == "Development"
+    ? new Uri(configuration["TableSasDev"]!)
+    : new Uri(configuration["TableSasStage"]!);
 
 services.AddScoped(options => new TableClient(tableclienturi));
 
@@ -61,30 +63,32 @@ try
 
         switch (input)
         {
-            case ("a"):
-                var tasks = new List<Task>{
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireData", "ABDGTireServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireDataAPI", "ABDGTireServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "CarifyAPI", "CarifyBusinessAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "SatsIntegrationAPI", "SatsIntSatsMainServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireData", "TireDataServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireDataServices", "TireDataServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "WebpageResourcesAPI", "WebResourcesServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastVastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
+            case "a":
+                var tasks = new List<Task>
+                {
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireData", "ABDGTireServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireDataAPI", "ABDGTireServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "CarifyAPI", "CarifyBusinessAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "SatsIntegrationAPI", "SatsIntSatsMainServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireData", "TireDataServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireDataServices", "TireDataServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastOfficeAPI", "VastVastOfficeServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "WebpageResourcesAPI", "WebResourcesServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastVastOfficeAPI", "VastVastOfficeServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastVastOfficeServiceApi", "VastVastOfficeServiceAPI", cancellationtoken),
                 };
 
                 await Task.WhenAll(tasks);
 
                 break;
-            case ("b"):
+            case "b":
                 var generator = host.Services.GetRequiredService<LogGenerator>();
                 generator.Run();
                 break;
-            case ("c"):
+            case "c":
                 await utilities.CleanupOldEntriesAsync(cancellationtoken);
                 break;
-            case ("x"):
+            case "x":
                 //Environment.Exit(0);
                 cancellationTokenSource?.Cancel();
                 return;
