@@ -7,13 +7,17 @@ using SunAuto.Development.Console;
 using SunAuto.Development.Library.Banners;
 using SunAuto.Logging.Client;
 using SunAuto.Logging.Console;
-using System.Threading;
 
 var configuration = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.json")
     .Build();
 
+var cancellationTokenSource = new CancellationTokenSource();
+var cancellationtoken = cancellationTokenSource.Token;
+
 var environment = DetermineEnvironment();
+if (environment.Length < 1) Exit();
+
 var builder = Host.CreateApplicationBuilder(args);
 var services = builder.Services;
 
@@ -23,11 +27,11 @@ using var host = builder.Build();
 
 try
 {
-    var cancellationTokenSource = new CancellationTokenSource();
-    var cancellationtoken = cancellationTokenSource.Token;
-
     await AuthenticateAndWelcomeAsync(cancellationtoken);
-    await ChooseAsync(0, cancellationtoken);
+
+    var isexit = await ChooseAsync(0, cancellationtoken);
+
+    if (isexit) Exit();
 
     await host.RunAsync(cancellationtoken);
 }
@@ -119,9 +123,14 @@ string DetermineEnvironment(int tries = 0)
         case "a": return "Development";
         case "b": return "Staging";
         case "c": return "Production";
+        case "x": return String.Empty;
         default:
-            Console.WriteLine("Let's choose one of the above, okay?");
-            if (tries > 3) Console.WriteLine("Have a nice day 😐");
+            Console.WriteLine("Let's choose one of the above, okay?" + Environment.NewLine);
+            if (tries > 3)
+            {
+                Console.WriteLine("Have a nice day 😐");
+                return String.Empty;
+            }
             return DetermineEnvironment(++tries);
     }
 }
@@ -148,4 +157,11 @@ void AddServices(HostApplicationBuilder builder, string environment, IConfigurat
     };
 
     services.AddScoped(options => new TableClient(tableclienturi));
+}
+
+void Exit()
+{
+    Console.WriteLine(Environment.NewLine+"Later!" + Environment.NewLine);
+
+    Environment.Exit(0);
 }
