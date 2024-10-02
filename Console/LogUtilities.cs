@@ -9,7 +9,7 @@ internal class LogUtilities(TableClient tableClient)
 {
     readonly TableClient Client = tableClient;
 
-    internal async Task RenamePartitionKeysAsync(string? environment, string oldName, string newName, CancellationToken cancellationtoken)
+    internal async Task RenamePartitionKeysAsync(string oldName, string newName, CancellationToken cancellationtoken)
     {
         System.Console.WriteLine($"Renaming {oldName} to {newName}");
 
