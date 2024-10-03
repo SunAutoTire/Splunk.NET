@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
+using SunAuto.Logging.Client.TableStorage;
 
 namespace SunAuto.Logging.Client;
 
@@ -11,6 +12,9 @@ public static class StartupExtensions
     {
         builder.AddConfiguration();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
+        builder.Services.AddSingleton<Logger>();
+        builder.Services.AddScoped<IStorage,Storage>();
+        builder.Services.AddScoped<EntryStack>();
 
         LoggerProviderOptions.RegisterProviderOptions<LoggerConfiguration, LoggerProvider>(builder.Services);
 

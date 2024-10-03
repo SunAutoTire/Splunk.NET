@@ -3,6 +3,7 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
 using SunAuto.Development.Library.Banners;
 using SunAuto.Logging.Client;

@@ -4,31 +4,32 @@ using SunAuto.Extensions;
 
 namespace SunAuto.Logging.Client;
 
-public class Logger(IConfiguration configuration) : ILogger
+public class Logger(IStorage storage,IConfiguration configuration) : ILogger
 {
+    readonly IStorage Storage = storage;
     readonly IConfiguration Configuration = configuration;
-    IStorage? Storage;
+    //IStorage? Storage;
 
-    IStorage GetStorage()
-    {
-        if (Storage == null)
-        {
-            var configuration = Configuration.GetSection("Logging:SunAuto");
-            var environment = configuration.GetValue<string>("Environment");
+    //IStorage GetStorage()
+    //{
+    //    if (Storage == null)
+    //    {
+    //        var configuration = Configuration.GetSection("Logging:SunAuto");
+    //        var environment = configuration.GetValue<string>("Environment");
 
-            var environmentname = String.IsNullOrWhiteSpace(environment)
-                ? Environment.GetEnvironmentVariable("LoggingEnvironment")
-                : environment;
+    //        var environmentname = String.IsNullOrWhiteSpace(environment)
+    //            ? Environment.GetEnvironmentVariable("LoggingEnvironment")
+    //            : environment;
 
-            Storage = environmentname switch
-            {
-                "Development" or "Staging" or "Test" or "Production" => new TableStorage.Storage(configuration),
-                _ => new FileStorage.Storage(configuration.GetValue<string>("Path")!),
-            };
-        }
+    //        Storage = environmentname switch
+    //        {
+    //            "Development" or "Staging" or "Test" or "Production" => Storage,
+    //            _ => new FileStorage.Storage(configuration.GetValue<string>("Path")!),
+    //        };
+    //    }
 
-        return Storage;
-    }
+    //    return Storage;
+    //}
 
     readonly LogLevel DefaultLevel = GetLogLevel(configuration);
 
@@ -52,6 +53,6 @@ public class Logger(IConfiguration configuration) : ILogger
     public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         if (IsEnabled(logLevel))
-            GetStorage().Add(logLevel, eventId, state, exception, formatter);
+            Storage.Add(logLevel, eventId, state, exception, formatter);
     }
 }
