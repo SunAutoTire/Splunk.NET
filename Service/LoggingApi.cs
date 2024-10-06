@@ -1,5 +1,7 @@
 using Azure.Data.Tables;
 using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
+using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -7,7 +9,6 @@ using SunAuto.Hateoas;
 using SunAuto.Logging.Api.Models;
 using System.Net;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
 using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
@@ -18,6 +19,46 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     readonly QueueClient QueueClient = queue;
 
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
+
+    [Function("CreateLoggerItems")]
+    public async Task<HttpResponseData> CreateBatchAsync([HttpTrigger(AuthorizationLevel.Function, "post",Route ="")] HttpRequestData req)
+    {
+        Logger.LogInformation("POST Log item {url}.", req.Url);
+
+        try
+        {
+            if (req.Body == null)
+                return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Post body must be present.");
+
+            var receipt = req.Method switch
+            {
+                "POST" => await HandlePostBatchRequest(req.Body),
+                _ => null
+            };
+
+            return receipt == null
+                ? await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
+                : await CreateResponseAsync(req, HttpStatusCode.Created, new { Message = "Entry logged." });
+
+        }
+        catch (ArgumentException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
+        }
+        catch (NullReferenceException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "An unhandled exception occurred during processing.");
+            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
+        }
+    }
 
     [Function("CreateLoggerItem")]
     public async Task<HttpResponseData> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "{application:alpha?}/{Level:alpha?}")] HttpRequestData req,
@@ -189,6 +230,16 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     {
         var output = ListAsync(req, next, application, level, startDate, endDate, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
+    }
+
+    private async Task<SendReceipt> HandlePostBatchRequest(Stream body)
+    {
+        using var reader = new StreamReader(body);
+        var bodystring = await reader.ReadToEndAsync();
+        var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
+        var message = JsonSerializer.Serialize(entry);
+
+        return await QueueClient.SendMessageAsync(message);
     }
 
     private async Task<HttpResponseData> HandlePostRequest(HttpRequestData req, string? application, string? level)

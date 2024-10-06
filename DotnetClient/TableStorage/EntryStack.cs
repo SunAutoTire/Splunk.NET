@@ -21,7 +21,7 @@ public class EntryStack : IDisposable
     {
         Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
         ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
-        Client.BaseAddress = new Uri(configuration["TableSas"]!);
+        Client.BaseAddress = new Uri( configuration.GetSection("Logging:SunAuto")["BaseUrl"]!.ToString());
     }
 
     public async void Push(QueueEntry<object> queueEntry)
@@ -57,6 +57,9 @@ public class EntryStack : IDisposable
                             Message = i.Formatted,
                         };
                     });
+                
+                for (int i = 0; i < count; i++)
+                    Queue.Dequeue();
 
                 bodycount = items.Count();
                 var serialized = JsonSerializer.Serialize(items);
@@ -65,16 +68,17 @@ public class EntryStack : IDisposable
 
                 byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-                await Client.PostAsync($"api/{Application}?code={ApiKey}", byteContent);
+                await Client.PostAsync($"api?code={ApiKey}", byteContent);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
+
+                for (int i = 0; i < count; i++)
+                    Queue.Dequeue();
             }
             finally
             {
-                for (int i = 0; i < count; i++)
-                    Queue.Dequeue();
             }
 
             count = Queue.Count;
