@@ -15,6 +15,8 @@ public static class StartupExtensions
         builder.Services.AddSingleton<Logger>();
         builder.Services.AddScoped<IStorage,Storage>();
         builder.Services.AddScoped<EntryStack>();
+        builder.Services.AddHttpClient();
+
 
         LoggerProviderOptions.RegisterProviderOptions<LoggerConfiguration, LoggerProvider>(builder.Services);
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 namespace SunAuto.Logging.Client;
 
 [ProviderAlias("SunAuto")]
-public sealed class LoggerProvider(Logger logger,IConfiguration configuration) :
+public sealed class LoggerProvider(Logger logger) :
     ILoggerProvider
 {
     //readonly List<Logger> Loggers = [];

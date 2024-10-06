@@ -6,15 +6,23 @@ using System.Text.Json;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
-public class EntryStack(IConfiguration configuration) : IDisposable
+public class EntryStack : IDisposable
 {
-    readonly HttpClient Client = null!;
+    readonly HttpClient Client = new();
+
     readonly Queue<QueueEntry<object>> Queue = new();
     Task? Runner;
     private bool disposedValue;
     readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerOptions.Default);
-    readonly string Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
-    readonly string ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
+    readonly string Application = null!;
+    readonly string ApiKey = null!;
+
+    public EntryStack(IConfiguration configuration)
+    {
+        Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
+        ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
+        Client.BaseAddress = new Uri(configuration["TableSas"]!);
+    }
 
     public async void Push(QueueEntry<object> queueEntry)
     {
@@ -35,7 +43,8 @@ public class EntryStack(IConfiguration configuration) : IDisposable
         {
             try
             {
-                var body = Queue
+                var items = Queue
+                    .ToArray()
                     .Select(i =>
                     {
                         var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
@@ -47,11 +56,10 @@ public class EntryStack(IConfiguration configuration) : IDisposable
                             Level = i.Loglevel.ToString(),
                             Message = i.Formatted,
                         };
-                    })
-                    .ToArray();
+                    });
 
-                bodycount = body.Length;
-                var serialized = JsonSerializer.Serialize(body);
+                bodycount = items.Count();
+                var serialized = JsonSerializer.Serialize(items);
                 var buffer = Encoding.UTF8.GetBytes(serialized);
                 var byteContent = new ByteArrayContent(buffer);
 
@@ -65,7 +73,7 @@ public class EntryStack(IConfiguration configuration) : IDisposable
             }
             finally
             {
-                for (int i = 0; i < bodycount; i++)
+                for (int i = 0; i < count; i++)
                     Queue.Dequeue();
             }
 
@@ -85,7 +93,7 @@ public class EntryStack(IConfiguration configuration) : IDisposable
             if (disposing)
             {
                 while (Queue.Count > 0)
-                    Task.Delay(250).GetAwaiter().GetResult();
+                    Task.Delay(100).GetAwaiter().GetResult();
 
                 Client?.Dispose();
             }
