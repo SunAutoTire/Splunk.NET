@@ -152,7 +152,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
     //TODO: THis could be merged w/ endpoint on line 56
     [Function("SearchSingleLoggerItem")]
-    public async Task<HttpResponseData> GetOrDeleteAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
                                string? application,
                                string? rowKey)
     {
