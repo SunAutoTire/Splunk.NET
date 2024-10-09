@@ -26,6 +26,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetClient", "DotnetClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetClientTest", "DotnetClientTest\DotnetClientTest.csproj", "{82CB61CC-1C9A-48B0-AA08-41359F170CAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ping1", "Ping1\Ping1.csproj", "{C52BEC43-448B-40C8-A737-40214A9A2C91}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -56,6 +58,10 @@ Global
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C52BEC43-448B-40C8-A737-40214A9A2C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C52BEC43-448B-40C8-A737-40214A9A2C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C52BEC43-448B-40C8-A737-40214A9A2C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C52BEC43-448B-40C8-A737-40214A9A2C91}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
