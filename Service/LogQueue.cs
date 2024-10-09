@@ -2,7 +2,7 @@ using Azure.Data.Tables;
 using Azure.Storage.Queues.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging.Api.Services;
+// using SunAuto.Logging.Api.Services;
 using System.Text.Json;
 
 namespace SunAuto.Logging.Api;

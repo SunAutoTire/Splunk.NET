@@ -1,16 +1,14 @@
 using Azure.Data.Tables;
 using Azure.Storage.Queues;
 using Azure.Storage.Queues.Models;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using SunAuto.Hateoas;
-using SunAuto.Logging.Api.Models;
+using SunAuto.Logging.Common;
 using System.Net;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
-using TableEntry = SunAuto.Logging.Api.Services.Entry;
+// using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 
@@ -259,7 +257,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     {
         using var reader = new StreamReader(body);
         var bodystring = await reader.ReadToEndAsync();
-        var entry = JsonSerializer.Deserialize<IEnumerable<TableEntry>>(bodystring);
+        var entry = JsonSerializer.Deserialize<IEnumerable<Entry>>(bodystring);
 
         foreach (var item in entry!)
         {
@@ -339,7 +337,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
                 Message = i.Message,
                 RowKey = i.RowKey,
                 Timestamp = i.Timestamp,
-                Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<string>(i.Body),
             }), "Entries", links);
     }
 
@@ -379,7 +377,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
                 Message = i.Message,
                 RowKey = i.RowKey,
                 Timestamp = i.Timestamp,
-                Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<string>(i.Body),
             }), "Entries", links);
     }
 
@@ -425,7 +423,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
                 Message = i.Message,
                 RowKey = i.RowKey,
                 Timestamp = i.Timestamp,
-                Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<string>(i.Body),
             }), "Entries", links);
     }
 
@@ -465,7 +463,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             Message = entry.Message,
             RowKey = entry.RowKey,
             Timestamp = entry.Timestamp,
-            Body = entry.Body == null ? null : JsonSerializer.Deserialize<object>(entry.Body),
+            Body = entry.Body == null ? null : JsonSerializer.Deserialize<string>(entry.Body),
         };
     }
 

@@ -9,4 +9,5 @@ public class QueueEntry
     public object? State { get; set; }
     public string? Formatted { get; set; }
     public Exception? Exception { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }

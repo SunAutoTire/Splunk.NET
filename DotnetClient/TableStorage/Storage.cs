@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using SunAuto.Logging.Common;
-using System.Net.Http.Headers;
 using System.Text;
+using System.Text.Json;
+using System.Net.Http.Headers;
+using SunAuto.Logging.Common;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
@@ -13,8 +13,14 @@ public class Storage : IStorage
     readonly List<Task> UploadTasks = [];
     readonly string Application;
     readonly string ApiKey;
-    //readonly JsonSerializerOptions JsonSerializerOptions;
-    //readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerOptions.Default);
+    readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        Converters =
+        {
+            new ExceptionConverter()
+        }
+    };
 
     readonly List<QueueEntry> Queue = [];
 
@@ -58,11 +64,10 @@ public class Storage : IStorage
     {
         try
         {
-            var entries = Queue
-                .ToArray()
+            var entries = items
                 .Select(i =>
                 {
-                    var serializedex = JsonConvert.SerializeObject(i.Exception);
+                    var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
 
                     return new Entry
                     {
@@ -70,10 +75,11 @@ public class Storage : IStorage
                         Body = serializedex,
                         Level = i.Loglevel.ToString(),
                         Message = i.Formatted,
+                        Timestamp = i.Timestamp
                     };
                 });
 
-            var serialized = JsonConvert.SerializeObject(items);
+            var serialized = JsonSerializer.Serialize(items, JsonSerializerOptions);
             var buffer = Encoding.UTF8.GetBytes(serialized);
             var byteContent = new ByteArrayContent(buffer);
 
@@ -123,7 +129,7 @@ public class Storage : IStorage
             EventId = eventId,
             State = state,
             Exception = exception,
-            Formatted = formatter(state!, exception)
+            Formatted = formatter(state!, exception),
         };
 
         Queue.Add(entry);
@@ -184,12 +190,15 @@ public class Storage : IStorage
         {
             if (disposing)
             {
-                var items = Queue.ToArray();
-                Queue.Clear();
+                if (Queue.Count > 0)
+                {
+                    var items = Queue.ToArray();
+                    Queue.Clear();
 
-                UploadTasks.Add(UploadAsync(items));
+                    UploadTasks.Add(UploadAsync(items));
 
-                Task.Run(async () => await Task.WhenAll(UploadTasks));
+                    Task.Run(async () => await Task.WhenAll(UploadTasks));
+                }
 
                 Client?.Dispose();
             }
