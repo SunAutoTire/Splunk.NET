@@ -4,10 +4,10 @@ using SunAuto.Extensions;
 
 namespace SunAuto.Logging.Client;
 
-public class Logger(IStorage storage,IConfiguration configuration) : ILogger
+public class Logger(IStorage storage, IConfiguration configuration) : ILogger, IDisposable
 {
     readonly IStorage Storage = storage;
-    readonly IConfiguration Configuration = configuration;
+    //readonly IConfiguration Configuration = configuration;
     //IStorage? Storage;
 
     //IStorage GetStorage()
@@ -55,4 +55,39 @@ public class Logger(IStorage storage,IConfiguration configuration) : ILogger
         if (IsEnabled(logLevel))
             Storage.Add(logLevel, eventId, state, exception, formatter);
     }
+
+    #region IDisposable
+
+    private bool disposedValue;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+                Storage?.Dispose();
+            }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            disposedValue = true;
+        }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~Logger()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion
 }

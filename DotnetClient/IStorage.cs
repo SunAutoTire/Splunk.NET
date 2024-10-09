@@ -6,7 +6,7 @@ namespace SunAuto.Logging.Client;
 /// File manager for local development file-based logging.
 /// </summary>
 /// <param name="path">File path of log file.</param>
-public interface IStorage
+public interface IStorage:IDisposable
 {
     /// <summary>
     /// Add a log item.

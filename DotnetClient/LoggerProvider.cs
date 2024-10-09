@@ -18,5 +18,5 @@ public sealed class LoggerProvider(Logger logger) :
         return logger;
     }
 
-    public void Dispose() { }
+    public void Dispose()=>logger?.Dispose();
 }

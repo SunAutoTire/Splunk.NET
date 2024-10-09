@@ -9,6 +9,7 @@ using SunAuto.Hateoas;
 using SunAuto.Logging.Api.Models;
 using System.Net;
 using System.Text.Json;
+using static System.Net.Mime.MediaTypeNames;
 using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
@@ -21,7 +22,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
     [Function("CreateLoggerItems")]
-    public async Task<HttpResponseData> CreateBatchAsync([HttpTrigger(AuthorizationLevel.Function, "post",Route ="")] HttpRequestData req)
+    public async Task<HttpResponseData> CreateBatchAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "")] HttpRequestData req)
     {
         Logger.LogInformation("POST Log item {url}.", req.Url);
 
@@ -244,11 +245,28 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
     private async Task<HttpResponseData> HandlePostRequest(HttpRequestData req, string? application, string? level)
     {
-        if (string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(level))
-            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and level must be provided.");
+        if (String.IsNullOrWhiteSpace(application) && String.IsNullOrWhiteSpace(level))
+            await CreateAsync(req.Body);
+        else if (String.IsNullOrWhiteSpace(application) || String.IsNullOrWhiteSpace(level))
+            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and rowKey must be provided.");
+        else
+            await CreateAsync(application!, level!, req.Body);
 
-        await CreateAsync(application, level, req.Body);
         return await CreateResponseAsync(req, HttpStatusCode.Created, new { Message = "Entry logged." });
+    }
+
+    private async Task CreateAsync(Stream body)
+    {
+        using var reader = new StreamReader(body);
+        var bodystring = await reader.ReadToEndAsync();
+        var entry = JsonSerializer.Deserialize<IEnumerable<TableEntry>>(bodystring);
+
+        foreach (var item in entry!)
+        {
+            var message = JsonSerializer.Serialize(item);
+
+            await QueueClient.SendMessageAsync(message);
+        }
     }
 
     private async Task<HttpResponseData> HandleDeleteRequest(HttpRequestData req, string? application, string? rowKey)
@@ -475,11 +493,8 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return response;
     }
 
-    async Task CreateAsync(string? application, string? level, Stream body)
+    async Task CreateAsync(string application, string level, Stream body)
     {
-        if (String.IsNullOrWhiteSpace(application)) throw new ArgumentException("Application must be set in the route.", nameof(application));
-        if (String.IsNullOrWhiteSpace(level)) throw new ArgumentException("Level must be set in the route.", nameof(level));
-
         var reader = new StreamReader(body);
         var bodystring = await reader.ReadToEndAsync();
         var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
@@ -487,6 +502,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         entry!.Application = application;
 
         var message = JsonSerializer.Serialize(entry);
+        entry.Level = level;
 
         await QueueClient.SendMessageAsync(message);
     }

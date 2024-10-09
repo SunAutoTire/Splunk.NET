@@ -1,9 +1,9 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using SunAuto.Logging.Common;
+using System.Net.Http.Headers;
+using System.Text;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
@@ -14,7 +14,7 @@ public class Storage : IStorage
     readonly string Application;
     readonly string ApiKey;
     //readonly JsonSerializerOptions JsonSerializerOptions;
-    readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerOptions.Default);
+    //readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerOptions.Default);
 
     readonly List<QueueEntry> Queue = [];
 
