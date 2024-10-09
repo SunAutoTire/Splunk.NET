@@ -14,7 +14,7 @@ public static class StartupExtensions
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
         builder.Services.AddSingleton<Logger>();
         builder.Services.AddScoped<IStorage,Storage>();
-        builder.Services.AddScoped<EntryStack>();
+        // builder.Services.AddScoped<EntryQueue>();
         builder.Services.AddHttpClient();
 
 

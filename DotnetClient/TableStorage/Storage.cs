@@ -1,16 +1,68 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
-public class Storage(EntryStack stack) :
-    IStorage, IDisposable
+public class Storage(IConfiguration configuration) : IStorage
 {
-    //readonly HttpClient Client = null!;
-    //readonly string Application= configurationSection["Application"]!.ToString();
-    //readonly string ApiKey;
+    readonly HttpClient Client = null!;
+    readonly List<Task> UploadTasks = [];
+    readonly string Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
+    readonly string ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
     //readonly JsonSerializerOptions JsonSerializerOptions;
-    bool disposedValue;
-    readonly EntryStack Stack = stack;
+    readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerOptions.Default);
+
+    readonly List<QueueEntry> Queue = [];
+
+    // public void Push<TState>(QueueEntry<TState> entry)
+    // {
+    //     Queue.Add(entry);
+
+    //     if (Queue.Count > 9)
+    //     {
+    //         var items = Queue.ToArray();
+    //         Queue.RemoveRange(0, 9);
+
+    //         UploadTasks.Add(UploadAsync(items));
+    //     }
+    // }
+
+    async Task UploadAsync(QueueEntry[] items)
+    {
+        try
+        {
+            var entries = Queue
+                .ToArray()
+                .Select(i =>
+                {
+                    var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
+
+                    return new Entry
+                    {
+                        Application = Application,
+                        Body = serializedex,
+                        Level = i.Loglevel.ToString(),
+                        Message = i.Formatted,
+                    };
+                });
+
+            var serialized = JsonSerializer.Serialize(items);
+            var buffer = Encoding.UTF8.GetBytes(serialized);
+            var byteContent = new ByteArrayContent(buffer);
+
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            await Client.PostAsync($"api?code={ApiKey}", byteContent);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
+        }
+    }
+
 
     //public Storage(IConfigurationSection configurationSection)
     //{
@@ -42,14 +94,24 @@ public class Storage(EntryStack stack) :
 
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        Stack.Push(new QueueEntry<object>
+        var entry = new QueueEntry
         {
             Loglevel = logLevel,
             EventId = eventId,
             State = state,
             Exception = exception,
             Formatted = formatter(state!, exception)
-        });
+        };
+
+        Queue.Add(entry);
+
+        if (Queue.Count > 9)
+        {
+            var items = Queue.ToArray();
+            Queue.RemoveRange(0, 9);
+
+            UploadTasks.Add(UploadAsync(items));
+        }
 
         //var formatted = formatter(state!, exception);
 
@@ -91,6 +153,7 @@ public class Storage(EntryStack stack) :
     }
 
 
+    private bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {
@@ -98,8 +161,14 @@ public class Storage(EntryStack stack) :
         {
             if (disposing)
             {
-                //Client?.Dispose();
-                Stack?.Dispose();
+                var items = Queue.ToArray();
+                Queue.Clear();
+
+                UploadTasks.Add(UploadAsync(items));
+
+                Task.Run(async () => await Task.WhenAll(UploadTasks));
+
+                Client?.Dispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
