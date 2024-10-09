@@ -3,19 +3,43 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace SunAuto.Logging.Client.TableStorage;
 
-public class Storage(IConfiguration configuration) : IStorage
+public class Storage : IStorage
 {
-    readonly HttpClient Client = null!;
+    readonly HttpClient Client = new();
     readonly List<Task> UploadTasks = [];
-    readonly string Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
-    readonly string ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
+    readonly string Application;
+    readonly string ApiKey;
     //readonly JsonSerializerOptions JsonSerializerOptions;
     readonly JsonSerializerOptions JsonSerializerOptions = new(JsonSerializerOptions.Default);
 
     readonly List<QueueEntry> Queue = [];
+
+    public Storage(IConfiguration configuration)
+    {
+        Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
+        ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
+        var baseurl = configuration.GetSection("Logging:SunAuto")["BaseUrl"]!.ToString();
+
+        try
+        {
+            Client = new HttpClient
+            {
+                BaseAddress = new Uri(baseurl),
+            };
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
+            // We must handle this in CAR-403 ticket 
+
+            //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
+
+        }
+    }
 
     // public void Push<TState>(QueueEntry<TState> entry)
     // {
@@ -38,7 +62,7 @@ public class Storage(IConfiguration configuration) : IStorage
                 .ToArray()
                 .Select(i =>
                 {
-                    var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
+                    var serializedex = JsonConvert.SerializeObject(i.Exception);
 
                     return new Entry
                     {
@@ -49,7 +73,7 @@ public class Storage(IConfiguration configuration) : IStorage
                     };
                 });
 
-            var serialized = JsonSerializer.Serialize(items);
+            var serialized = JsonConvert.SerializeObject(items);
             var buffer = Encoding.UTF8.GetBytes(serialized);
             var byteContent = new ByteArrayContent(buffer);
 
@@ -70,7 +94,6 @@ public class Storage(IConfiguration configuration) : IStorage
     //    Application = configurationSection["Application"]!.ToString();
     //    ApiKey = configurationSection["ApiKey"]!.ToString();
 
-    //    var baseurl = configurationSection["BaseUrl"]!.ToString();
 
     //    try
     //    {
