@@ -2,7 +2,7 @@
   "profiles": {
     "Ping": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7162",
+      "commandLineArgs": "--port 7144",
       "launchBrowser": false
     }
   }
