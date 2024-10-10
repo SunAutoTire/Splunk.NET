@@ -21,7 +21,7 @@ namespace Ping
         }
 
         [Function("Carify")]
-        public async Task RunAsync([TimerTrigger("0 0 7-21 * * 1-5", RunOnStartup = true)] TimerInfo myTimer, CancellationToken cancellationToken)
+        public async Task RunAsync([TimerTrigger("0 0 7-21 * * 1-5", RunOnStartup = false)] TimerInfo myTimer, CancellationToken cancellationToken)
         {
             var currentTime = DateTime.UtcNow;
 
