@@ -97,15 +97,9 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         DateTime startDate,
         DateTime endDate,
         string? application,
-        int? pageNumber,
-        int? pageSize,
         string? next)
     {
-        var currentPageNumber = pageNumber ?? 0;
-        // If pageSize is 0 or null, pageSize will be 100;
-        var currentPageSize = (pageSize ?? 0) < 1 ? 100 : pageSize.Value;
-
-        return await HandleDateRangeSearchAsync(req, next, application, startDate, endDate, currentPageNumber, currentPageSize);
+        return await HandleDateRangeSearchAsync(req, next, application, startDate, endDate);
     }
 
 
@@ -143,11 +137,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     {
         //Logger.LogInformation("Search logs for application {application} level {level}.", application, level);
 
-        var currentPageNumber = pageNumber ?? 0;
-        // If pageSize is 0 or null, pageSize will be 100;
-        var currentPageSize = (pageSize ?? 0) < 1 ? 100 : pageSize.Value;
-
-        return await HandleLevelSearchAsync(req, next, application, level, currentPageNumber, currentPageSize);
+        return await HandleLevelSearchAsync(req, next, application, level);
     }
 
     //TODO: THis could be merged w/ endpoint on line 56
@@ -262,19 +252,19 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
-    private async Task<HttpResponseData> HandleDateRangeSearchAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate, int pageNumber, int pageSize)
+    private async Task<HttpResponseData> HandleDateRangeSearchAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate)
     {
-        var output = ListByDateRangeAsync(req, next, application, startDate, endDate,pageNumber,pageSize, CancellationToken.None);
+        var output = ListByDateRangeAsync(req, next, application, startDate, endDate, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
-    private async Task<HttpResponseData> HandleLevelSearchAsync(HttpRequestData req, string? next, string? application, string? level, int pageNumber,int pageSize)
+    private async Task<HttpResponseData> HandleLevelSearchAsync(HttpRequestData req, string? next, string? application, string? level)
     {
-        var output = ListByLevelAsync(req, next, application, level, pageNumber, pageSize, CancellationToken.None);
+        var output = ListByLevelAsync(req, next, application, level, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
-    private Linked<IEnumerable<Entry>> ListByLevelAsync(HttpRequestData req, string? next, string? application, string? level, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    private Linked<IEnumerable<Entry>> ListByLevelAsync(HttpRequestData req, string? next, string? application, string? level, CancellationToken cancellationToken)
     {
         var applications = String.IsNullOrWhiteSpace(application) ? null : application.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
@@ -296,7 +286,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var output = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
 
-        var allEntries = output.Select(i => new Entry
+        var page = output.Select(i => new Entry
         {
             Application = i.PartitionKey,
             Level = i.Level,
@@ -306,10 +296,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
         }).OrderByDescending(x => x.Timestamp);
 
-        var page = allEntries
-        .Skip((pageNumber - 1) * pageSize)
-        .Take(pageSize);
-
         var links = new List<Link> { new(req.Url.PathAndQuery) };
 
         if (!String.IsNullOrWhiteSpace(next))
@@ -318,7 +304,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return new Linked<IEnumerable<Entry>>(page, "Entries", links);
     }
 
-    private Linked<IEnumerable<Entry>> ListByDateRangeAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    private Linked<IEnumerable<Entry>> ListByDateRangeAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
         var applications = String.IsNullOrWhiteSpace(application) ? null : application.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
@@ -336,7 +322,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var output = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
 
-        var allEntries = output.Select(i => new Entry
+        var page = output.Select(i => new Entry
         {
             Application = i.PartitionKey,
             Level = i.Level,
@@ -345,10 +331,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             Timestamp = i.Timestamp,
             Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
         }).OrderByDescending(x => x.Timestamp);
-
-        var page = allEntries
-        .Skip((pageNumber - 1) * pageSize)
-        .Take(pageSize);
 
         var links = new List<Link> { new(req.Url.PathAndQuery) };
 
