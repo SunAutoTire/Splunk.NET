@@ -19,4 +19,7 @@ public class Entry : ITableEntity
     public ETag ETag { get; set; }
     public DateTimeOffset? Timestamp { get; set; } = DateTime.UtcNow;
     public string RowKey { get; set; } = Guid.NewGuid().ToString();
+    public string? Body { get; set; } = null!;
+    public string Level { get; set; } = null!;
+    public string Message { get; set; } = null!;
 }

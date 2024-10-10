@@ -2,8 +2,9 @@ using Azure.Data.Tables;
 using Azure.Storage.Queues.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-// using SunAuto.Logging.Api.Services;
+using SunAuto.Logging.Common;
 using System.Text.Json;
+using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 
@@ -22,7 +23,22 @@ public class LogQueue(TableClient tableClient, ILoggerFactory loggerFactory)
             var body = message.Body.ToString();
             var entry = JsonSerializer.Deserialize<Entry>(body);
 
-            await TableClient.AddEntityAsync(entry!, default);
+            if (entry == null)
+                throw new InvalidOperationException();
+            else
+            {
+                var tableentry = new TableEntry()
+                {
+                    Body = entry.Body,
+                    Level = entry.Level,
+                    Message = entry.Message,
+                    PartitionKey = entry.Application,
+                    RowKey = entry.RowKey,
+                    Timestamp = entry.Timestamp,
+                };
+
+                await TableClient.AddEntityAsync(tableentry, default);
+            }
         }
         catch (Exception ex)
         {

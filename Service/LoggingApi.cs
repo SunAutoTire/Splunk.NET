@@ -8,7 +8,7 @@ using SunAuto.Hateoas;
 using SunAuto.Logging.Common;
 using System.Net;
 using System.Text.Json;
-// using TableEntry = SunAuto.Logging.Api.Services.Entry;
+ using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 

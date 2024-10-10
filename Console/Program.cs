@@ -64,15 +64,15 @@ try
         {
             case ("a"):
                 var tasks = new List<Task>{
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireData", "ABDGTireServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "ABDGTireDataAPI", "ABDGTireServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "CarifyAPI", "CarifyBusinessAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "SatsIntegrationAPI", "SatsIntSatsMainServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireData", "TireDataServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "TireDataServices", "TireDataServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "WebpageResourcesAPI", "WebResourcesServiceAPI", cancellationtoken),
-                utilities.RenamePartitionKeysAsync(Environment.GetEnvironmentVariable("LoggingEnvironment"), "VastVastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "ABDGTireData", "ABDGTireServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "ABDGTireDataAPI", "ABDGTireServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "CarifyAPI", "CarifyBusinessAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "SatsIntegrationAPI", "SatsIntSatsMainServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "TireData", "TireDataServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "TireDataServices", "TireDataServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "VastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "WebpageResourcesAPI", "WebResourcesServiceAPI", cancellationtoken),
+                utilities.RenamePartitionKeysAsync( "VastVastOfficeAPI", "VastVastOfficeServiceApi", cancellationtoken),
                 };
 
                 await Task.WhenAll(tasks);
