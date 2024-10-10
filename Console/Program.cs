@@ -32,7 +32,7 @@ try
 
     var isexit = await ChooseAsync(0, cancellationtoken);
 
-    if (isexit) Exit();
+    if (isexit) cancellationTokenSource.Cancel();
 
     await host.RunAsync(cancellationtoken);
 }

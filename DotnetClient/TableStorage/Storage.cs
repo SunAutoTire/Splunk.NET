@@ -47,19 +47,6 @@ public class Storage : IStorage
         }
     }
 
-    // public void Push<TState>(QueueEntry<TState> entry)
-    // {
-    //     Queue.Add(entry);
-
-    //     if (Queue.Count > 9)
-    //     {
-    //         var items = Queue.ToArray();
-    //         Queue.RemoveRange(0, 9);
-
-    //         UploadTasks.Add(UploadAsync(items));
-    //     }
-    // }
-
     async Task UploadAsync(QueueEntry[] items)
     {
         try
@@ -134,41 +121,13 @@ public class Storage : IStorage
 
         Queue.Add(entry);
 
-        if (Queue.Count > 9)
+        if (Queue.Count > 0)
         {
             var items = Queue.ToArray();
-            Queue.RemoveRange(0, 9);
+            Queue.RemoveRange(0, Queue.Count);
 
             UploadTasks.Add(UploadAsync(items));
         }
-
-        //var formatted = formatter(state!, exception);
-
-        //var serializedex = JsonSerializer.Serialize(exception, JsonSerializerOptions);
-
-        //var entry = new Entry
-        //{
-        //    Application = Application,
-        //    Body = serializedex,
-        //    Level = logLevel.ToString(),
-        //    Message = formatted,
-        //};
-
-        //var serialized = JsonSerializer.Serialize(entry);
-        //var buffer = System.Text.Encoding.UTF8.GetBytes(serialized);
-        //var byteContent = new ByteArrayContent(buffer);
-
-        //byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-        //try
-        //{
-        //    Client.PostAsync($"api/{Application}/{logLevel}?code={ApiKey}", byteContent)
-        //        .GetAwaiter()
-        //        .GetResult();
-        //}
-        //catch (Exception ex)
-        //{
-        //    System.Diagnostics.Debug.WriteLine(ex.Message);
-        //}
     }
 
     public void Delete(EventId eventId)

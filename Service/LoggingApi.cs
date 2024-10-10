@@ -19,45 +19,45 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
 
-    [Function("CreateLoggerItems")]
-    public async Task<HttpResponseData> CreateBatchAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "")] HttpRequestData req)
-    {
-        Logger.LogInformation("POST Log item {url}.", req.Url);
+    //[Function("CreateLoggerItems")]
+    //public async Task<HttpResponseData> CreateBatchAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "")] HttpRequestData req)
+    //{
+    //    Logger.LogInformation("POST Log item {url}.", req.Url);
 
-        try
-        {
-            if (req.Body == null)
-                return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Post body must be present.");
+    //    try
+    //    {
+    //        if (req.Body == null)
+    //            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Post body must be present.");
 
-            var receipt = req.Method switch
-            {
-                "POST" => await HandlePostBatchRequest(req.Body),
-                _ => null
-            };
+    //        var receipt = req.Method switch
+    //        {
+    //            "POST" => await HandlePostBatchRequest(req.Body),
+    //            _ => null
+    //        };
 
-            return receipt == null
-                ? await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
-                : await CreateResponseAsync(req, HttpStatusCode.Created, new { Message = "Entry logged." });
+    //        return receipt == null
+    //            ? await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
+    //            : await CreateResponseAsync(req, HttpStatusCode.Created, new { Message = "Entry logged." });
 
-        }
-        catch (ArgumentException ex)
-        {
-            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
-        }
-        catch (NullReferenceException ex)
-        {
-            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
-        }
-        catch (Exception ex)
-        {
-            Logger.LogError(ex, "An unhandled exception occurred during processing.");
-            return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
-        }
-    }
+    //    }
+    //    catch (ArgumentException ex)
+    //    {
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
+    //    }
+    //    catch (NullReferenceException ex)
+    //    {
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
+    //    }
+    //    catch (InvalidOperationException ex)
+    //    {
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Logger.LogError(ex, "An unhandled exception occurred during processing.");
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
+    //    }
+    //}
 
     [Function("CreateLoggerItem")]
     public async Task<HttpResponseData> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "{application:alpha?}/{Level:alpha?}")] HttpRequestData req,
