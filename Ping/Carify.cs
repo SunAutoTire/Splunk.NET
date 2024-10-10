@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Net;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Ping
@@ -10,35 +11,34 @@ namespace Ping
     {
         private readonly ILogger _logger;
         private readonly HttpClient _httpClient;
+        private readonly string _requestUrl;
 
-        public Carify(ILoggerFactory loggerFactory, HttpClient httpClient)
+        public Carify(ILoggerFactory loggerFactory, HttpClient httpClient, IConfiguration configuration)
         {
             _logger = loggerFactory.CreateLogger<Carify>();
-            _httpClient = httpClient;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _requestUrl = configuration["RequestUrl"] ?? throw new ArgumentNullException("RequestUrl is missing in configuration");
         }
 
-        [Function("CarifyHourlyPing")]
-        public async Task RunAsync([Microsoft.Azure.Functions.Worker.TimerTrigger("0 0 7-21 * * 1-5", RunOnStartup = true)] TimerInfo myTimer, CancellationToken cancellationToken)
+        [Function("Carify")]
+        public async Task RunAsync([TimerTrigger("0 0 7-21 * * 1-5", RunOnStartup = true)] TimerInfo myTimer, CancellationToken cancellationToken)
         {
             var currentTime = DateTime.UtcNow;
 
             _logger.LogInformation("CarifyHourlyPing function starting at: {now}", currentTime);
 
-            var requestUrl = "https://sunautocarifyn.azurewebsites.net/";
-
             try
             {
-                var response = await _httpClient.GetAsync(requestUrl, cancellationToken);
+                var response = await _httpClient.GetAsync(_requestUrl, cancellationToken);
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogWarning("Ping to {url} failed with status code {statusCode} at: {now}", requestUrl, response.StatusCode, currentTime);
-                    // Notify only if there’s an issue
+                    _logger.LogWarning("Ping to {url} failed with status code {statusCode} at: {now}", _requestUrl, response.StatusCode, currentTime);
                     await NotifyIfDownAsync(response.StatusCode, currentTime, _logger);
                 }
                 else
                 {
-                    _logger.LogInformation("Ping successful to {url} at: {now}", requestUrl, currentTime);
+                    _logger.LogInformation("Ping successful to {url} at: {now}", _requestUrl, currentTime);
                 }
             }
             catch (Exception ex)
