@@ -20,8 +20,8 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "QueueSas": "QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1/logentrylocal?sv=2020-08-04&spr=https%2Chttp&st=2024-10-10T21%3A13%3A55Z&se=2027-10-11T21%3A13%3A00Z&sp=raup&sig=4qdXkI0JjFAwAMaRj9xg01S3onB6k1PrwW8m1YNVjT4%3D",
-    "QueueAddSas": "http://127.0.0.1:10001/devstoreaccount1/logentrylocal?sv=2020-08-04&spr=https%2Chttp&st=2024-10-10T21%3A13%3A55Z&se=2027-10-11T21%3A13%3A00Z&sp=raup&sig=4qdXkI0JjFAwAMaRj9xg01S3onB6k1PrwW8m1YNVjT4%3D",
+    "QueueSas": "QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1?sv=2020-08-04&spr=https%2Chttp&st=2024-10-11T02%3A49%3A59Z&se=2025-10-12T02%3A49%3A00Z&sp=raup&sig=W%2FfLnktpGFd2cSUQqBUdwH4gvTRh33i9susgoH6smuc%3D",
+    "QueueAddSas": "http://127.0.0.1:10001/devstoreaccount1/logentrylocal?sv=2020-08-04&spr=https%2Chttp&st=2024-10-11T02%3A49%3A59Z&se=2025-10-12T02%3A49%3A00Z&sp=raup&sig=W%2FfLnktpGFd2cSUQqBUdwH4gvTRh33i9susgoH6smuc%3D",
     "TableSas": "http://127.0.0.1:10002/devstoreaccount1/local?sv=2018-03-28&spr=https%2Chttp&st=2024-10-10T20%3A45%3A30Z&se=2027-10-11T20%3A45%3A00Z&sp=raud&sig=vxAVTFojq4gailudjUeMaTWTgscUofzHHpgdD6HGB5c%3D&tn=local",
     "LogQueueName": "logentrylocal"
   }

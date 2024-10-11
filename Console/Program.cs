@@ -3,7 +3,6 @@ using Azure.Data.Tables;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
 using SunAuto.Development.Library.Banners;
 using SunAuto.Logging.Client;
@@ -25,10 +24,11 @@ var services = builder.Services;
 AddServices(builder, environment, configuration);
 
 using var host = builder.Build();
+string? UserId = null;
 
 try
 {
-    await AuthenticateAndWelcomeAsync(cancellationtoken);
+    UserId = await AuthenticateAndWelcomeAsync(cancellationtoken);
 
     var isexit = await ChooseAsync(0, cancellationtoken);
 
@@ -75,6 +75,7 @@ async Task<bool> ChooseAsync(short tries = 0, CancellationToken cancellationtoke
             break;
         case "b":
             var generator = host.Services.GetRequiredService<LogGenerator>();
+            generator.UserId = UserId;
             generator.Run();
             break;
         case "c":
@@ -99,14 +100,17 @@ async Task<bool> ChooseAsync(short tries = 0, CancellationToken cancellationtoke
     return await ChooseAsync(tries, cancellationtoken);
 }
 
-async Task AuthenticateAndWelcomeAsync(CancellationToken cancellationtoken)
+async Task<string?> AuthenticateAndWelcomeAsync(CancellationToken cancellationtoken)
 {
     var authentication = host.Services.GetService<Authentication>();
     var welcome = host.Services.GetService<Welcome>();
 
     var result = await authentication!.LogInAsync();
+    var userId = result?.Account.HomeAccountId.ObjectId;
     var roll = welcome!.RollAsync(result!);
     await roll;
+
+    return userId;
 }
 
 string DetermineEnvironment(int tries = 0)
@@ -162,7 +166,7 @@ void AddServices(HostApplicationBuilder builder, string environment, IConfigurat
 
 void Exit()
 {
-    Console.WriteLine(Environment.NewLine+"Later!" + Environment.NewLine);
+    Console.WriteLine(Environment.NewLine + "Later!" + Environment.NewLine);
 
     Environment.Exit(0);
 }

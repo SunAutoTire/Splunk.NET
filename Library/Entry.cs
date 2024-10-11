@@ -10,4 +10,6 @@ public class Entry
 
     public DateTimeOffset? Timestamp { get; set; }
     public string RowKey { get; set; } = Guid.NewGuid().ToString();
+    public int EventId { get; set; }
+    public string? EventName { get; set; }
 }

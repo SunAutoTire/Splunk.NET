@@ -62,11 +62,13 @@ public class Storage : IStorage
                         Body = serializedex,
                         Level = i.Loglevel.ToString(),
                         Message = i.Formatted,
-                        Timestamp = i.Timestamp
+                        Timestamp = i.Timestamp,
+                        EventId = i.EventId.Id,
+                        EventName = i.EventId.Name
                     };
                 });
 
-            var serialized = JsonSerializer.Serialize(items, JsonSerializerOptions);
+            var serialized = JsonSerializer.Serialize(entries, JsonSerializerOptions);
             var buffer = Encoding.UTF8.GetBytes(serialized);
             var byteContent = new ByteArrayContent(buffer);
 
@@ -121,7 +123,12 @@ public class Storage : IStorage
 
         Queue.Add(entry);
 
-        if (Queue.Count > 0)
+        HandleQueue();
+    }
+
+    void HandleQueue(bool handleAll = false)
+    {
+        while (Queue.Count > 9)
         {
             var items = Queue.ToArray();
             Queue.RemoveRange(0, Queue.Count);
@@ -140,7 +147,6 @@ public class Storage : IStorage
         throw new NotImplementedException();
     }
 
-
     private bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
@@ -149,15 +155,9 @@ public class Storage : IStorage
         {
             if (disposing)
             {
-                if (Queue.Count > 0)
-                {
-                    var items = Queue.ToArray();
-                    Queue.Clear();
+                HandleQueue(true);
 
-                    UploadTasks.Add(UploadAsync(items));
-
-                    Task.Run(async () => await Task.WhenAll(UploadTasks));
-                }
+                Task.WhenAll(UploadTasks).GetAwaiter().GetResult();
 
                 Client?.Dispose();
             }
