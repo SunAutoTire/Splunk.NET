@@ -231,16 +231,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
-    private async Task<SendReceipt> HandlePostBatchRequest(Stream body)
-    {
-        using var reader = new StreamReader(body);
-        var bodystring = await reader.ReadToEndAsync();
-        var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
-        var message = JsonSerializer.Serialize(entry);
-
-        return await QueueClient.SendMessageAsync(message);
-    }
-
     private async Task<HttpResponseData> HandlePostRequest(HttpRequestData req, string? application, string? level)
     {
         if (String.IsNullOrWhiteSpace(application) && String.IsNullOrWhiteSpace(level))

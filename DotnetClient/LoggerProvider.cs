@@ -23,5 +23,5 @@ public sealed class LoggerProvider(IStorage storage, IConfiguration configuratio
         }
     }
 
-    public void Dispose() => storage.Dispose();
+    public void Dispose() { }// => storage.Dispose();
 }

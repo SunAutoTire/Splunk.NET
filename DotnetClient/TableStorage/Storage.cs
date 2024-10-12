@@ -10,7 +10,7 @@ namespace SunAuto.Logging.Client.TableStorage;
 public class Storage : IStorage
 {
     readonly HttpClient Client = new();
-    readonly List<Task> UploadTasks = [];
+    Task Handler = Task.CompletedTask;
     readonly string Application;
     readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions = new()
@@ -45,6 +45,17 @@ public class Storage : IStorage
             // We must handle this in CAR-403 ticket 
 
             //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
+        }
+    }
+
+    async Task HandleQueueAsync()
+    {
+        while (Queue.Count > 0)
+        {
+            var items = Queue.ToArray();
+            Queue.RemoveRange(0, Queue.Count);
+
+            await UploadAsync(items);
         }
     }
 
@@ -96,21 +107,8 @@ public class Storage : IStorage
 
         Queue.Add(entry);
 
-        HandleQueue();
-    }
-
-    void HandleQueue(bool handleAll = false)
-    {
-        if (handleAll || Queue.Count > 9)
-        {
-            while (Queue.Count > 0)
-            {
-                var items = Queue.ToArray();
-                Queue.RemoveRange(0, Queue.Count);
-
-                UploadTasks.Add(UploadAsync(items));
-            }
-        }
+        if (Handler.IsCanceled || Handler.IsFaulted || Handler.IsCompleted)
+            Handler = HandleQueueAsync();
     }
 
     bool disposedValue;
@@ -121,9 +119,7 @@ public class Storage : IStorage
         {
             if (disposing)
             {
-                HandleQueue(true);
-
-                Task.WhenAll(UploadTasks).GetAwaiter().GetResult();
+                Handler.GetAwaiter().GetResult();
 
                 Client?.Dispose();
             }
