@@ -24,11 +24,13 @@ public class Storage : IStorage
 
     readonly List<QueueEntry> Queue = [];
 
-    public Storage(IConfiguration configuration)
+    public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
-        Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
-        ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
-        var baseurl = configuration.GetSection("Logging:SunAuto")["BaseUrl"]!.ToString();
+        var section = configuration.GetSection(sectionName);
+
+        Application = section["Application"]!.ToString();
+        ApiKey = section["ApiKey"]!.ToString();
+        var baseurl = section["BaseUrl"]!.ToString();
 
         try
         {
@@ -43,7 +45,6 @@ public class Storage : IStorage
             // We must handle this in CAR-403 ticket 
 
             //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
-
         }
     }
 
@@ -82,34 +83,6 @@ public class Storage : IStorage
         }
     }
 
-
-    //public Storage(IConfigurationSection configurationSection)
-    //{
-
-    //    Application = configurationSection["Application"]!.ToString();
-    //    ApiKey = configurationSection["ApiKey"]!.ToString();
-
-
-    //    try
-    //    {
-    //        Client = new HttpClient
-    //        {
-    //            BaseAddress = new Uri(baseurl),
-    //        };
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        System.Diagnostics.Debug.WriteLine(ex.Message);
-    //        // We must handle this in CAR-403 ticket 
-
-    //        //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
-
-    //    }
-
-    //    JsonSerializerOptions = new JsonSerializerOptions(JsonSerializerOptions.Default);
-    //    JsonSerializerOptions.Converters.Add(new ExceptionConverter());
-    //}
-
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         var entry = new QueueEntry
@@ -128,26 +101,19 @@ public class Storage : IStorage
 
     void HandleQueue(bool handleAll = false)
     {
-        while (handleAll || Queue.Count > 9)
+        if (handleAll || Queue.Count > 9)
         {
-            var items = Queue.ToArray();
-            Queue.RemoveRange(0, Queue.Count);
+            while (Queue.Count > 0)
+            {
+                var items = Queue.ToArray();
+                Queue.RemoveRange(0, Queue.Count);
 
-            UploadTasks.Add(UploadAsync(items));
+                UploadTasks.Add(UploadAsync(items));
+            }
         }
     }
 
-    public void Delete(EventId eventId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IEnumerable<LogItem> List()
-    {
-        throw new NotImplementedException();
-    }
-
-    private bool disposedValue;
+    bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {

@@ -11,8 +11,7 @@ public static class StartupExtensions
     public static ILoggingBuilder AddSunAutoLogging(this ILoggingBuilder builder)
     {
         builder.AddConfiguration();
-        builder.Services.AddScoped<IStorage, Storage>();
-        builder.Services.AddScoped<ILogger, Logger>();
+        builder.Services.AddTransient<IStorage, Storage>();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
 
 

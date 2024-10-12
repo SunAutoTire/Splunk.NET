@@ -1,9 +1,10 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace SunAuto.Logging.Client;
 
 [ProviderAlias("SunAuto")]
-public sealed class LoggerProvider :
+public sealed class LoggerProvider(IStorage storage, IConfiguration configuration) :
     ILoggerProvider
 {
     readonly Dictionary<string, ILogger> _loggers = [];
@@ -16,11 +17,11 @@ public sealed class LoggerProvider :
             return dictionarylogger!;
         else
         {
-            _loggers.Add(categoryName, new Logger(new());
+            _loggers.Add(categoryName, new Logger(storage, configuration));
 
             return _loggers[categoryName];
         }
     }
 
-    public void Dispose() { }
+    public void Dispose() => storage.Dispose();
 }
