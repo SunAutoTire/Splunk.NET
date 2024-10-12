@@ -11,11 +11,9 @@ public static class StartupExtensions
     public static ILoggingBuilder AddSunAutoLogging(this ILoggingBuilder builder)
     {
         builder.AddConfiguration();
+        builder.Services.AddScoped<IStorage, Storage>();
+        builder.Services.AddScoped<ILogger, Logger>();
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
-        builder.Services.AddSingleton<Logger>();
-        builder.Services.AddScoped<IStorage,Storage>();
-        // builder.Services.AddScoped<EntryQueue>();
-        builder.Services.AddHttpClient();
 
 
         LoggerProviderOptions.RegisterProviderOptions<LoggerConfiguration, LoggerProvider>(builder.Services);
@@ -23,12 +21,12 @@ public static class StartupExtensions
         return builder;
     }
 
-    public static ILoggingBuilder AddSunAutoLogging(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
-    {
-        builder.AddSunAutoLogging();
-        builder.Services.Configure(configure);
+    //public static ILoggingBuilder AddSunAutoLogging(this ILoggingBuilder builder, Action<LoggerConfiguration> configure)
+    //{
+    //    builder.AddSunAutoLogging();
+    //    builder.Services.Configure(configure);
 
-        return builder;
-    }
+    //    return builder;
+    //}
 }
 

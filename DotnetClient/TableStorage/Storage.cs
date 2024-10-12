@@ -128,7 +128,7 @@ public class Storage : IStorage
 
     void HandleQueue(bool handleAll = false)
     {
-        while (Queue.Count > 9)
+        while (handleAll || Queue.Count > 9)
         {
             var items = Queue.ToArray();
             Queue.RemoveRange(0, Queue.Count);
