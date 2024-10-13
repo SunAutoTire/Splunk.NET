@@ -8,7 +8,21 @@ public class LogGenerator(ILoggerFactory loggerFactory)
 
     public string? UserId { get; set; }
 
-    public void Run()
+    public async void Run()
+    {
+        var task1 = LogAsync();
+        var task2 = LogAsync();
+        var task3 = LogAsync();
+        var task4 = LogAsync();
+        var task5 = LogAsync();
+        var task6 = LogAsync();
+        var task7 = LogAsync();
+        var task8 = LogAsync();
+
+        await Task.WhenAll([task1, task2, task3, task4, task5, task6, task7, task8]);
+    }
+
+    public async Task LogAsync()
     {
         Logger.LogDebug(1, "Does this line get hit? [user={user}]", UserId);    // Not logged
         Logger.LogDebug(1, "Does this line get hit?");    // Not logged
@@ -36,5 +50,7 @@ public class LogGenerator(ILoggerFactory loggerFactory)
 
         // foreach (var item in check)
         //     Console.WriteLine(item.TimeStamp);
+
+        await Task.CompletedTask;
     }
 }

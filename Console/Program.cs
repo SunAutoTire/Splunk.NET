@@ -143,7 +143,7 @@ string DetermineEnvironment(int tries = 0)
 void AddServices(HostApplicationBuilder builder, string environment, IConfigurationRoot configuration)
 {
     //builder.Logging.ClearProviders();
-    builder.Logging.AddSunAutoLogging();
+    builder.Logging.AddSunAutoLogging(configuration);
 
     services.AddLogging();
     services.AddSingleton<Authentication>();
