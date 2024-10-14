@@ -20,13 +20,9 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    //"LogEntryProcessSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&si=QueueReadAddProcess&sig=%2BOrLJJJkq7JFtozusW0dNHRDM950ebNX30pm0221DZI%3D",
-    //"LogEntryAddQueue": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T20%3A47%3A00Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=mM%2ByyM1jqRu2tFMZ9Ywlq4TPphnW8BgBN2lkLL19AK4%3D",
-    //"LogTable": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&si=TableQueryAddDelete&sig=Gc3Aiu9k3BkTHeW2KkbjZF4cvpvW2VEjD%2FcHwhCleqQ%3D&tn=Development",
-    //"LogQueueName": "logentrydev",
-    "QueueSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&st=2024-07-18T20%3A44%3A27Z&se=2027-07-19T20%3A44%3A00Z&sp=rap&sig=EE3RiqaVAr9FwPDuE0lzW21flRvij7tBQJLdvKYXz1U%3D",
-    "QueueAddSas": "https://sunautologging.queue.core.windows.net/logentry?sv=2020-08-04&st=2024-07-18T20%3A44%3A27Z&se=2027-07-19T20%3A44%3A00Z&sp=rap&sig=EE3RiqaVAr9FwPDuE0lzW21flRvij7tBQJLdvKYXz1U%3D",
-    "TableSas": "https://sunautologging.table.core.windows.net/Production?sv=2019-02-02&st=2024-07-18T20%3A41%3A33Z&se=2027-07-19T20%3A41%3A00Z&sp=ra&sig=m9Y2c1wUHHYmsoPqhG0GCkmOQ1gz%2FCLsdciKWjSPv2A%3D&tn=Production",
-    "LogQueueName": "logentry"
+    "QueueSas": "QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1?sv=2020-08-04&spr=https%2Chttp&st=2024-10-11T02%3A49%3A59Z&se=2025-10-12T02%3A49%3A00Z&sp=raup&sig=W%2FfLnktpGFd2cSUQqBUdwH4gvTRh33i9susgoH6smuc%3D",
+    "QueueAddSas": "http://127.0.0.1:10001/devstoreaccount1/logentrylocal?sv=2020-08-04&spr=https%2Chttp&st=2024-10-11T02%3A49%3A59Z&se=2025-10-12T02%3A49%3A00Z&sp=raup&sig=W%2FfLnktpGFd2cSUQqBUdwH4gvTRh33i9susgoH6smuc%3D",
+    "TableSas": "http://127.0.0.1:10002/devstoreaccount1/local?sv=2018-03-28&spr=https%2Chttp&st=2024-10-10T20%3A45%3A30Z&se=2027-10-11T20%3A45%3A00Z&sp=raud&sig=vxAVTFojq4gailudjUeMaTWTgscUofzHHpgdD6HGB5c%3D&tn=local",
+    "LogQueueName": "logentrylocal"
   }
 }
