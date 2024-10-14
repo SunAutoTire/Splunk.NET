@@ -10,17 +10,12 @@ var configuration = new ConfigurationBuilder()
     .AddEnvironmentVariables()
     .Build();
 
-var environment = Environment.GetEnvironmentVariable("LoggingEnvironment") ?? "Development";
-var tableSasUri = configuration[$"Values:{environment}:TableSas"];
-
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
-        services.AddScoped(options => new TableClient(new Uri(tableSasUri)));
-        services.AddScoped<LogUtilities>();
+        services.AddSingleton<IConfiguration>(configuration); // Register configuration for DI
+        services.AddSingleton<LogUtilities>();
     })
     .Build();
 

@@ -15,31 +15,28 @@ namespace CleanTableLogs
             _logger = logger;
         }
 
-        internal async Task CleanupOldEntriesAsync(string? environment, CancellationToken cancellationToken)
+        internal async Task CleanupOldEntriesAsync(TableClient client, string environment, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Deleting old entries for environment: {environment}...");
 
-            var check = true;
+            var time = DateTime.UtcNow - TimeSpan.FromDays(30); // One month ago
             var result = 0;
-            var time = DateTime.UtcNow - TimeSpan.FromDays(30);
 
-            while (check)
+            while (true)
             {
                 var tasks = new List<Task>();
-                string filter = environment switch
-                {
-                    "Production" => $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}' and (Level eq 'Debug' or Level eq 'Trace')",
-                    _ => $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}'"
-                };
+                string filter = environment == "Production"
+                    ? $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}' and (Level eq 'Debug' or Level eq 'Trace')"
+                    : $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}'";
 
-                var output = _client.Query<Entry>(filter, 1000, null, cancellationToken);
+                var output = client.Query<Entry>(filter, 1000, null, cancellationToken);
                 var page = output.AsPages().FirstOrDefault();
 
                 if (page == null || !page.Values.Any()) break;
 
                 foreach (var value in page.Values)
                 {
-                    tasks.Add(_client.DeleteEntityAsync(entity: value, cancellationToken: cancellationToken));
+                    tasks.Add(client.DeleteEntityAsync(value, cancellationToken: cancellationToken));
                 }
 
                 await Task.WhenAll(tasks);
