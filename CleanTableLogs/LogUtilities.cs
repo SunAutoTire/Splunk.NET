@@ -15,7 +15,7 @@ namespace CleanTableLogs
             _logger = logger;
         }
 
-        internal async Task CleanupOldEntriesAsync(TableClient client, string environment, CancellationToken cancellationToken)
+        internal async Task CleanupOldEntriesAsync(string environment, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Deleting old entries for environment: {environment}...");
 
@@ -29,14 +29,14 @@ namespace CleanTableLogs
                     ? $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}' and (Level eq 'Debug' or Level eq 'Trace')"
                     : $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}'";
 
-                var output = client.Query<Entry>(filter, 1000, null, cancellationToken);
+                var output = _client.Query<Entry>(filter, 1000, null, cancellationToken);
                 var page = output.AsPages().FirstOrDefault();
 
                 if (page == null || !page.Values.Any()) break;
 
                 foreach (var value in page.Values)
                 {
-                    tasks.Add(client.DeleteEntityAsync(value, cancellationToken: cancellationToken));
+                    tasks.Add(_client.DeleteEntityAsync(value, cancellationToken: cancellationToken));
                 }
 
                 await Task.WhenAll(tasks);

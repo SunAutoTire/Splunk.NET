@@ -5,16 +5,29 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables()
-    .Build();
-
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()
-    .ConfigureServices(services =>
+    .ConfigureAppConfiguration((context, config) =>
     {
-        services.AddSingleton<IConfiguration>(configuration); // Register configuration for DI
+        // Add configuration sources within the host builder
+        config.AddJsonFile("local.settings.json", optional: true, reloadOnChange: true)
+              .AddEnvironmentVariables();
+    })
+    .ConfigureServices((context, services) =>
+    {
+        var configuration = context.Configuration;
+
+        // Register each TableClient for Development, Staging, and Production
+        services.AddSingleton<TableClient>(provider =>
+            new TableClient(new Uri(configuration["Values:TableSasDevelopment"])));
+
+        services.AddSingleton<TableClient>(provider =>
+            new TableClient(new Uri(configuration["Values:TableSasStaging"])));
+
+        services.AddSingleton<TableClient>(provider =>
+            new TableClient(new Uri(configuration["Values:TableSasProduction"])));
+
+        // Register LogUtilities with injected dependencies
         services.AddSingleton<LogUtilities>();
     })
     .Build();

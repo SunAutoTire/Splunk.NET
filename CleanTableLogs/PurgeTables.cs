@@ -1,9 +1,10 @@
 using System;
 using System.Threading;
-using Azure.Data.Tables;
+using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+
 namespace CleanTableLogs
 {
     public class PurgeTables
@@ -19,9 +20,8 @@ namespace CleanTableLogs
             _utilities = logUtilities;
         }
 
-
         [Function("PurgeTables")]
-        public async Task Run([TimerTrigger("0 0 0 1 * *",RunOnStartup = true)] TimerInfo myTimer) 
+        public async Task Run([TimerTrigger("0 0 0 1 * *", RunOnStartup = true)] TimerInfo myTimer)
         {
             _logger.LogInformation("PurgeTables function started.");
 
@@ -29,22 +29,15 @@ namespace CleanTableLogs
             {
                 var cancellationToken = new CancellationTokenSource().Token;
 
-                // Obtenemos las URIs de cada tabla del archivo de configuración
-                var tableUris = new[]
+                var environments = new[] { "Development", "Staging", "Production" };
+
+                foreach (var environment in environments)
                 {
-                    new { Environment = "Development", Uri = _configuration["Values:TableSasDevelopment"] },
-                    new { Environment = "Staging", Uri = _configuration["Values:TableSasStaging"] },
-                    new { Environment = "Production", Uri = _configuration["Values:TableSasProduction"] }
-                };
+                    _logger.LogInformation($"Starting cleanup for {environment} environment.");
 
-                foreach (var table in tableUris)
-                {
-                    _logger.LogInformation($"Starting cleanup for {table.Environment} environment.");
+                    await _utilities.CleanupOldEntriesAsync(environment, cancellationToken);
 
-                    var tableClient = new TableClient(new Uri(table.Uri));
-                    await _utilities.CleanupOldEntriesAsync(tableClient, table.Environment, cancellationToken);
-
-                    _logger.LogInformation($"Cleanup completed for {table.Environment} environment.");
+                    _logger.LogInformation($"Cleanup completed for {environment} environment.");
                 }
 
                 _logger.LogInformation("PurgeTables function completed.");
