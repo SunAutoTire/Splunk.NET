@@ -399,3 +399,4 @@ FodyWeavers.xsd
 
 # SunAuto.Logging
 *.log
+/CleanTableLogs/local.settings.json
