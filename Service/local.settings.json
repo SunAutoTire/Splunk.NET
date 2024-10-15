@@ -20,6 +20,7 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "Applications": "[\"CarifyApplication\",\"CarifyBusinessAPI\",\"ABDGTireServiceAPI\",\"TireDataServiceAPI\",\"SatsIntSatsMainServiceAPI\",\"VastVastOfficeServiceAPI\",\"WebResourcesServiceAPI\"]",
     //"LogEntryProcessSas": "QueueEndpoint=https://sunautologging.queue.core.windows.net/?sv=2020-08-04&si=QueueReadAddProcess&sig=%2BOrLJJJkq7JFtozusW0dNHRDM950ebNX30pm0221DZI%3D",
     //"LogEntryAddQueue": "https://sunautologging.queue.core.windows.net/logentrydev?sv=2020-08-04&st=2024-07-17T20%3A47%3A00Z&se=2027-07-18T20%3A47%3A00Z&sp=a&sig=mM%2ByyM1jqRu2tFMZ9Ywlq4TPphnW8BgBN2lkLL19AK4%3D",
     //"LogTable": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&si=TableQueryAddDelete&sig=Gc3Aiu9k3BkTHeW2KkbjZF4cvpvW2VEjD%2FcHwhCleqQ%3D&tn=Development",

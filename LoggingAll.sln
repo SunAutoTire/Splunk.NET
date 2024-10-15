@@ -26,7 +26,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetClient", "DotnetClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetClientTest", "DotnetClientTest\DotnetClientTest.csproj", "{82CB61CC-1C9A-48B0-AA08-41359F170CAA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CleanTableLogs", "CleanTableLogs\CleanTableLogs.csproj", "{70E45D9A-859A-4A10-8F73-FFEB59950A6A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ping", "Ping\Ping.csproj", "{E7A55932-BC38-45D8-B95D-1B3DD19F48EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,10 +58,10 @@ Global
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70E45D9A-859A-4A10-8F73-FFEB59950A6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70E45D9A-859A-4A10-8F73-FFEB59950A6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70E45D9A-859A-4A10-8F73-FFEB59950A6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70E45D9A-859A-4A10-8F73-FFEB59950A6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E7A55932-BC38-45D8-B95D-1B3DD19F48EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E7A55932-BC38-45D8-B95D-1B3DD19F48EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E7A55932-BC38-45D8-B95D-1B3DD19F48EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E7A55932-BC38-45D8-B95D-1B3DD19F48EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
