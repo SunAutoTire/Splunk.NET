@@ -17,17 +17,9 @@ var host = new HostBuilder()
     {
         var configuration = context.Configuration;
 
-        // Register each TableClient for Development, Staging, and Production
         services.AddSingleton<TableClient>(provider =>
-            new TableClient(new Uri(configuration["Values:TableSasDevelopment"])));
+            new TableClient(new Uri(configuration["Values:TableSas"])));
 
-        services.AddSingleton<TableClient>(provider =>
-            new TableClient(new Uri(configuration["Values:TableSasStaging"])));
-
-        services.AddSingleton<TableClient>(provider =>
-            new TableClient(new Uri(configuration["Values:TableSasProduction"])));
-
-        // Register LogUtilities with injected dependencies
         services.AddSingleton<LogUtilities>();
     })
     .Build();

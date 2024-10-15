@@ -15,19 +15,19 @@ namespace CleanTableLogs
             _logger = logger;
         }
 
-        internal async Task CleanupOldEntriesAsync(string environment, CancellationToken cancellationToken)
+        internal async Task CleanupOldEntriesAsync(string environment, int purgeDays, string purgeLevels, CancellationToken cancellationToken = default)
         {
-            _logger.LogInformation($"Deleting old entries for environment: {environment}...");
+            _logger.LogInformation("Deleting old entries...");
 
-            var time = DateTime.UtcNow - TimeSpan.FromDays(30); // One month ago
+            var time = DateTime.UtcNow - TimeSpan.FromDays(purgeDays);
+            var levels = purgeLevels.Split('|');
             var result = 0;
 
             while (true)
             {
                 var tasks = new List<Task>();
-                string filter = environment == "Production"
-                    ? $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}' and (Level eq 'Debug' or Level eq 'Trace')"
-                    : $"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}'";
+                string filter = $@"Timestamp le datetime'{time:yyyy-MM-ddTHH:mm:ssZ}' 
+                    and ({string.Join(" or ", levels.Select(level => $"Level eq '{level}'"))})";
 
                 var output = _client.Query<Entry>(filter, 1000, null, cancellationToken);
                 var page = output.AsPages().FirstOrDefault();

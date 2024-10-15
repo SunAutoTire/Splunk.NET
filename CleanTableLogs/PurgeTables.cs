@@ -7,18 +7,9 @@ using Microsoft.Extensions.Logging;
 
 namespace CleanTableLogs
 {
-    public class PurgeTables
+    public class PurgeTables(ILoggerFactory loggerFactory, IConfiguration configuration, LogUtilities logUtilities)
     {
-        private readonly ILogger _logger;
-        private readonly IConfiguration _configuration;
-        private readonly LogUtilities _utilities;
-
-        public PurgeTables(ILoggerFactory loggerFactory, IConfiguration configuration, LogUtilities logUtilities)
-        {
-            _logger = loggerFactory.CreateLogger<PurgeTables>();
-            _configuration = configuration;
-            _utilities = logUtilities;
-        }
+        private readonly ILogger _logger = loggerFactory.CreateLogger<PurgeTables>();
 
         [Function("PurgeTables")]
         public async Task Run([TimerTrigger("0 0 0 1 * *", RunOnStartup = true)] TimerInfo myTimer)
@@ -27,18 +18,15 @@ namespace CleanTableLogs
 
             try
             {
-                var cancellationToken = new CancellationTokenSource().Token;
+                var environment = configuration["Values:LoggingEnvironment"];
+                var purgeDays = int.Parse(configuration["Values:PurgeDays"]);
+                var purgeLevels = configuration["Values:PurgeLevels"];
 
-                var environments = new[] { "Development", "Staging", "Production" };
+                _logger.LogInformation($"Starting cleanup");
 
-                foreach (var environment in environments)
-                {
-                    _logger.LogInformation($"Starting cleanup for {environment} environment.");
+                await logUtilities.CleanupOldEntriesAsync(environment, purgeDays, purgeLevels, default);
 
-                    await _utilities.CleanupOldEntriesAsync(environment, cancellationToken);
-
-                    _logger.LogInformation($"Cleanup completed for {environment} environment.");
-                }
+                _logger.LogInformation($"Cleanup completed");
 
                 _logger.LogInformation("PurgeTables function completed.");
             }
