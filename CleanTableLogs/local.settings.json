@@ -3,7 +3,8 @@
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "AzureWebJobsStorage": "UseDevelopmentStorage=true",
-    "LoggingEnvironment": "Develomenpt",
+    "ConnectionString": "https://sunautologging.table.core.windows.net/Development?sv=2019-02-02&st=2024-10-15T20%3A17%3A33Z&se=2027-10-16T20%3A17%3A00Z&sp=rd&sig=sd4l%2FEDmUOpko%2FJkqMj%2F9vtzaAsxSzaSmjRB5eaiS%2F4%3D&tn=Development",
+    "LoggingEnvironment": "Development",
     "PurgeDays": "30",
     "PurgeLevels": "Debug"
   }
