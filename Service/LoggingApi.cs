@@ -102,30 +102,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return await HandleDateRangeSearchAsync(req, next, application, startDate, endDate);
     }
 
-
-    [Function("GetApplications")]
-    public async Task<HttpResponseData> GetApplicationsAsync(
-        [HttpTrigger(AuthorizationLevel.Function, "get", Route = "applications")] HttpRequestData req)
-    {
-
-        // Fetch applications from the "Applications" section of appsettings.json
-        var applications = Environment.GetEnvironmentVariable("Applications");
-
-        if (!string.IsNullOrWhiteSpace(applications))
-        {
-            var applicationsList = JsonSerializer.Deserialize<List<string>>(applications);
-            var response = req.CreateResponse(HttpStatusCode.OK);
-            await response.WriteAsJsonAsync(applicationsList);
-            return response;
-        }
-
-        var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
-        await notFoundResponse.WriteStringAsync("No applications found in configuration.");
-        return notFoundResponse;
-    }
-
-
-
     [Function("SearchLogsByLevel")]
     public async Task<HttpResponseData> SearchLogsByLevelAsync(
     [HttpTrigger(AuthorizationLevel.Function, "get", Route = "logs/level")] HttpRequestData req,
