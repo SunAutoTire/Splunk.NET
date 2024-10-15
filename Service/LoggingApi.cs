@@ -131,8 +131,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     [HttpTrigger(AuthorizationLevel.Function, "get", Route = "logs/level")] HttpRequestData req,
     string? application,
     string? level,
-    int? pageNumber,
-    int? pageSize,
     string? next)
     {
         //Logger.LogInformation("Search logs for application {application} level {level}.", application, level);
@@ -140,9 +138,8 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return await HandleLevelSearchAsync(req, next, application, level);
     }
 
-    //TODO: THis could be merged w/ endpoint on line 56
     [Function("SearchSingleLoggerItem")]
-    public async Task<HttpResponseData> GetAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetSingleAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
                                string? application,
                                string? rowKey)
     {
@@ -181,21 +178,16 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
                                string? application,
                                string? Level,
                                DateTime? startDate, DateTime? endDate,
-                               int? pageNumber, 
-                               int? pageSize,
                                string? next)
     {
         Logger.LogInformation("Get Log item {url}.", req.Url);
 
-        var currentPageNumber = pageNumber ?? 0;
-        // If pageSize is 0 or null, pageSize will be 100;
-        var currentPageSize = (pageSize ?? 0) < 1 ? 100 : pageSize.Value;
 
         try
         {
             return req.Method switch
             {
-                "GET" => await HandleGetRequest(req, application, Level, startDate, endDate, currentPageNumber, currentPageSize, next),
+                "GET" => await HandleGetRequest(req, application, Level, startDate, endDate, next),
                 _ => await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
             };
         }
@@ -219,9 +211,9 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     }
 
 
-    private async Task<HttpResponseData> HandleGetRequest(HttpRequestData req, string? application, string? level, DateTime? startDate, DateTime? endDate, int pageNumber, int pageSize, string? next)
+    private async Task<HttpResponseData> HandleGetRequest(HttpRequestData req, string? application, string? level, DateTime? startDate, DateTime? endDate, string? next)
     {
-        var output = ListAsync(req, next, application, level, startDate, endDate, pageNumber, pageSize, CancellationToken.None);
+        var output = ListAsync(req, next, application, level, startDate, endDate, CancellationToken.None);
         return await CreateResponseAsync(req, HttpStatusCode.OK, output);
     }
 
@@ -340,7 +332,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return new Linked<IEnumerable<Entry>>(page, "Entries", links);
     }
 
-    private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
     {
         var applications = String.IsNullOrWhiteSpace(application) ? null : application.Split('|', StringSplitOptions.RemoveEmptyEntries);
 
@@ -364,7 +356,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var output = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
 
-        var allEntries = output.Select(i => new Entry
+        var page = output.Select(i => new Entry
         {
             Application = i.PartitionKey,
             Level = i.Level,
@@ -373,10 +365,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             Timestamp = i.Timestamp,
             Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
         }).OrderByDescending(x=>x.Timestamp);
-
-        var page = allEntries
-        .Skip((pageNumber - 1) * pageSize)
-        .Take(pageSize);
 
         var links = new List<Link> { new(req.Url.PathAndQuery) };
 
