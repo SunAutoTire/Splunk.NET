@@ -1,13 +1,12 @@
-﻿
-using Azure;
+﻿using Azure;
 using Azure.Data.Tables;
 using System.Runtime.Serialization;
 
-namespace SunAuto.Logging.Api.Services;
+namespace SunAuto.Logging.Console;
 
 public class Entry : Common.Entry, ITableEntity
 {
-    public Entry() =>Timestamp = DateTime.UtcNow;
+    public Entry() => Timestamp = DateTime.UtcNow;
 
     [IgnoreDataMember]
     public new string Application

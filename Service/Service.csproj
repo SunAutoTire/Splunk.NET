@@ -8,6 +8,10 @@
 		<AssemblyName>SunAuto.Logging.Api</AssemblyName>
 		<RootNamespace>SunAuto.Logging.Api</RootNamespace>
 		<UserSecretsId>f9e5ccd8-bf88-4062-b1b0-5c76a331e983</UserSecretsId>
+		<PackageId>SunAuto.NuGetDemo.AppLogger</PackageId>
+		<IsPackable>true</IsPackable>
+		<Version>1.0.0</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
 	</PropertyGroup>
 	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.22.1" />
@@ -26,6 +30,10 @@
 		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
 		<PackageReference Include="SunAuto.Hateoas" Version="1.0.4" />
 	</ItemGroup>
+	
+	<ItemGroup>
+    	<None Include="README.md" Pack="true" PackagePath=""/>
+  	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\Library\Library.csproj" />
 	</ItemGroup>
