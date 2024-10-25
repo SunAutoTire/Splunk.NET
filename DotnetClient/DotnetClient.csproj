@@ -50,7 +50,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Library\Library.csproj" />
+	  <ProjectReference Include="..\..\UniversalLogging\Library\Library.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
