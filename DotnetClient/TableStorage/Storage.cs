@@ -9,8 +9,8 @@ namespace SunAuto.Logging.Client.TableStorage;
 
 public class Storage : IStorage
 {
-    readonly HttpClient Client = new();
-    readonly List<Task> UploadTasks = [];
+    readonly HttpClient Client;
+    readonly List<Task> UploadTasks = new();
     readonly string Application;
     readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions = new()
@@ -22,13 +22,20 @@ public class Storage : IStorage
         }
     };
 
-    readonly List<QueueEntry> Queue = [];
+    readonly List<QueueEntry> PreQueue = new();
+    readonly List<QueueEntry> Queue = new();
+    private readonly TimeSpan FlushInterval;
+    private readonly int MaxPreQueueSize;
 
     public Storage(IConfiguration configuration)
     {
         Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
         ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
         var baseurl = configuration.GetSection("Logging:SunAuto")["BaseUrl"]!.ToString();
+
+        int flushIntervalSeconds = int.Parse(configuration.GetSection("Logging:SunAuto")["FlushInterval"] ?? "10");
+        FlushInterval = TimeSpan.FromSeconds(flushIntervalSeconds);
+        MaxPreQueueSize = int.Parse(configuration.GetSection("Logging:SunAuto")["MaxPreQueueSize"] ?? "100");
 
         try
         {
@@ -40,75 +47,10 @@ public class Storage : IStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.Message);
-            // We must handle this in CAR-403 ticket 
-
-            //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
-
         }
+
+        StartPeriodicFlush();
     }
-
-    async Task UploadAsync(QueueEntry[] items)
-    {
-        try
-        {
-            var entries = items
-                .Select(i =>
-                {
-                    var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
-
-                    return new Entry
-                    {
-                        Application = Application,
-                        Body = serializedex,
-                        Level = i.Loglevel.ToString(),
-                        Message = i.Formatted,
-                        Timestamp = i.Timestamp,
-                        EventId = i.EventId.Id,
-                        EventName = i.EventId.Name
-                    };
-                });
-
-            var serialized = JsonSerializer.Serialize(entries, JsonSerializerOptions);
-            var buffer = Encoding.UTF8.GetBytes(serialized);
-            var byteContent = new ByteArrayContent(buffer);
-
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            await Client.PostAsync($"api?code={ApiKey}", byteContent);
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine(ex.Message);
-        }
-    }
-
-
-    //public Storage(IConfigurationSection configurationSection)
-    //{
-
-    //    Application = configurationSection["Application"]!.ToString();
-    //    ApiKey = configurationSection["ApiKey"]!.ToString();
-
-
-    //    try
-    //    {
-    //        Client = new HttpClient
-    //        {
-    //            BaseAddress = new Uri(baseurl),
-    //        };
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        System.Diagnostics.Debug.WriteLine(ex.Message);
-    //        // We must handle this in CAR-403 ticket 
-
-    //        //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
-
-    //    }
-
-    //    JsonSerializerOptions = new JsonSerializerOptions(JsonSerializerOptions.Default);
-    //    JsonSerializerOptions.Converters.Add(new ExceptionConverter());
-    //}
 
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
@@ -121,19 +63,74 @@ public class Storage : IStorage
             Formatted = formatter(state!, exception),
         };
 
-        Queue.Add(entry);
+        PreQueue.Add(entry);
 
+        if (PreQueue.Count >= MaxPreQueueSize)
+        {
+            FlushPreQueueToMainQueue();
+        }
+    }
+
+    private void FlushPreQueueToMainQueue()
+    {
+        Queue.AddRange(PreQueue);
+        PreQueue.Clear();
         HandleQueue();
+    }
+
+    private void StartPeriodicFlush()
+    {
+        Task.Run(async () =>
+        {
+            while (true)
+            {
+                await Task.Delay(FlushInterval);
+                FlushPreQueueToMainQueue();
+            }
+        });
     }
 
     void HandleQueue(bool handleAll = false)
     {
-        while (Queue.Count > 9)
+        while (Queue.Count > 9 || handleAll)
         {
             var items = Queue.ToArray();
-            Queue.RemoveRange(0, Queue.Count);
-
+            Queue.Clear();
             UploadTasks.Add(UploadAsync(items));
+        }
+    }
+
+    async Task UploadAsync(QueueEntry[] items)
+    {
+        try
+        {
+            var entries = items.Select(i =>
+            {
+                var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
+
+                return new EntryUpdateRequest
+                {
+                    Application = Application,
+                    Body = serializedex,
+                    Level = i.Loglevel.ToString(),
+                    Message = i.Formatted,
+                    Timestamp = i.Timestamp,
+                    EventId = i.EventId.Id,
+                    EventName = i.EventId.Name
+                };
+            });
+
+            var serialized = JsonSerializer.Serialize(entries, JsonSerializerOptions);
+            var buffer = Encoding.UTF8.GetBytes(serialized);
+            var byteContent = new ByteArrayContent(buffer);
+
+            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+            await Client.PostAsync($"api?code={ApiKey}", byteContent);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine(ex.Message);
         }
     }
 
@@ -155,29 +152,18 @@ public class Storage : IStorage
         {
             if (disposing)
             {
+                FlushPreQueueToMainQueue();
                 HandleQueue(true);
 
                 Task.WhenAll(UploadTasks).GetAwaiter().GetResult();
-
                 Client?.Dispose();
             }
-
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             disposedValue = true;
         }
     }
 
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~Storage()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
-
     public void Dispose()
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
