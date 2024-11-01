@@ -1,16 +1,15 @@
-﻿//namespace SunAuto.Logging.Client.TableStorage;
+﻿using SunAuto.Logging.Common;
 
-//public class Entry 
-//{
-//    public string Application { get; set; } = null!;
+namespace SunAuto.Logging.Client.TableStorage;
 
-//    public string? Message { get; set; }
-//    public string Level { get; set; } = null!;
-//    public object? Body { get; set; } 
-
-//    /// <summary>
-//    /// AKA ApplicationName
-//    /// </summary>
-//    public string RowKey { get; set; } =null!;
-//    public DateTimeOffset? Timestamp { get; set; }
-//}
+public class Entry : IEntry
+{
+    public string Application { get; set; }
+    public string Body { get; set; }
+    public string Level { get; set; }
+    public string Message { get; set; }
+    public Guid Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public DateTime Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public int? EventId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public string? EventName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+}
