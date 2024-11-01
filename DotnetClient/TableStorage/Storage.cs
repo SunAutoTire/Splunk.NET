@@ -9,8 +9,8 @@ namespace SunAuto.Logging.Client.TableStorage;
 
 public class Storage : IStorage
 {
-    readonly HttpClient Client;
-    readonly List<Task> UploadTasks = new();
+    readonly HttpClient Client = new();
+    Task Handler = Task.CompletedTask;
     readonly string Application;
     readonly string ApiKey;
     readonly JsonSerializerOptions JsonSerializerOptions = new()
@@ -22,20 +22,15 @@ public class Storage : IStorage
         }
     };
 
-    readonly List<QueueEntry> PreQueue = new();
-    readonly List<QueueEntry> Queue = new();
-    private readonly TimeSpan FlushInterval;
-    private readonly int MaxPreQueueSize;
+    readonly List<QueueEntry> Queue = [];
 
-    public Storage(IConfiguration configuration)
+    public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
-        Application = configuration.GetSection("Logging:SunAuto")["Application"]!.ToString();
-        ApiKey = configuration.GetSection("Logging:SunAuto")["ApiKey"]!.ToString();
-        var baseurl = configuration.GetSection("Logging:SunAuto")["BaseUrl"]!.ToString();
+        var section = configuration.GetSection(sectionName);
 
-        int flushIntervalSeconds = int.Parse(configuration.GetSection("Logging:SunAuto")["FlushInterval"] ?? "10");
-        FlushInterval = TimeSpan.FromSeconds(flushIntervalSeconds);
-        MaxPreQueueSize = int.Parse(configuration.GetSection("Logging:SunAuto")["MaxPreQueueSize"] ?? "100");
+        Application = section["Application"]!.ToString();
+        ApiKey = section["ApiKey"]!.ToString();
+        var baseurl = section["BaseUrl"]!.ToString();
 
         try
         {
@@ -47,56 +42,20 @@ public class Storage : IStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.Message);
-        }
+            // We must handle this in CAR-403 ticket 
 
-        StartPeriodicFlush();
-    }
-
-    public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
-    {
-        var entry = new QueueEntry
-        {
-            Loglevel = logLevel,
-            EventId = eventId,
-            State = state,
-            Exception = exception,
-            Formatted = formatter(state!, exception),
-        };
-
-        PreQueue.Add(entry);
-
-        if (PreQueue.Count >= MaxPreQueueSize)
-        {
-            FlushPreQueueToMainQueue();
+            //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
         }
     }
 
-    private void FlushPreQueueToMainQueue()
+    async Task HandleQueueAsync()
     {
-        Queue.AddRange(PreQueue);
-        PreQueue.Clear();
-        HandleQueue();
-    }
-
-    private void StartPeriodicFlush()
-    {
-        Task.Run(async () =>
-        {
-            while (true)
-            {
-                await Task.Delay(FlushInterval);
-                FlushPreQueueToMainQueue();
-            }
-        });
-    }
-
-    void HandleQueue(bool handleAll = false)
-    {
-        while (Queue.Count > 9 || handleAll)
+        while (Queue.Count > 0)
         {
             var items = Queue.ToArray();
-            Queue.Clear();
-            UploadTasks.Add(UploadAsync(items));
+            Queue.RemoveRange(0, Queue.Count);
+
+            await UploadAsync(items);
         }
     }
 
@@ -104,21 +63,22 @@ public class Storage : IStorage
     {
         try
         {
-            var entries = items.Select(i =>
-            {
-                var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
-
-                return new EntryUpdateRequest
+            var entries = items
+                .Select(i =>
                 {
-                    Application = Application,
-                    Body = serializedex,
-                    Level = i.Loglevel.ToString(),
-                    Message = i.Formatted,
-                    Timestamp = i.Timestamp,
-                    EventId = i.EventId.Id,
-                    EventName = i.EventId.Name
-                };
-            });
+                    var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
+
+                    return new Entry
+                    {
+                        Application = Application,
+                        Body = serializedex,
+                        Level = i.Loglevel.ToString(),
+                        Message = i.Formatted,
+                        Timestamp = i.Timestamp,
+                        EventId = i.EventId.Id,
+                        EventName = i.EventId.Name
+                    };
+                });
 
             var serialized = JsonSerializer.Serialize(entries, JsonSerializerOptions);
             var buffer = Encoding.UTF8.GetBytes(serialized);
@@ -134,17 +94,24 @@ public class Storage : IStorage
         }
     }
 
-    public void Delete(EventId eventId)
+    public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        throw new NotImplementedException();
+        var entry = new QueueEntry
+        {
+            Loglevel = logLevel,
+            EventId = eventId,
+            State = state,
+            Exception = exception,
+            Formatted = formatter(state!, exception),
+        };
+
+        Queue.Add(entry);
+
+        if (Handler.IsCanceled || Handler.IsFaulted || Handler.IsCompleted)
+            Handler = HandleQueueAsync();
     }
 
-    public IEnumerable<LogItem> List()
-    {
-        throw new NotImplementedException();
-    }
-
-    private bool disposedValue;
+    bool disposedValue;
 
     protected virtual void Dispose(bool disposing)
     {
@@ -152,18 +119,27 @@ public class Storage : IStorage
         {
             if (disposing)
             {
-                FlushPreQueueToMainQueue();
-                HandleQueue(true);
+                Handler.GetAwaiter().GetResult();
 
-                Task.WhenAll(UploadTasks).GetAwaiter().GetResult();
                 Client?.Dispose();
             }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
             disposedValue = true;
         }
     }
 
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~Storage()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
     public void Dispose()
     {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
