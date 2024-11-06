@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Text;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Net.Http.Headers;
 using SunAuto.Logging.Common;
