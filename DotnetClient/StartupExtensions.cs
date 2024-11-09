@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
+using SunAuto.Logging.Client.StorageService;
 
 namespace SunAuto.Logging.Client;
 
@@ -15,7 +16,7 @@ public static class StartupExtensions
         if (configuration.GetSection(sectionName)["Environment"] == "File")
             builder.Services.AddSingleton<IStorage, FileStorage.Storage>();
         else
-            builder.Services.AddScoped<IStorage, TableStorage.Storage>();
+            builder.Services.AddScoped<IStorage, Storage>();
 
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
 

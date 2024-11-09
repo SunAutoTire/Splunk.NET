@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging.Client.TableStorage;
+namespace SunAuto.Logging.Client.StorageService;
 
 public class QueueEntry
 {

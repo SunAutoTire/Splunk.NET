@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SunAuto.Logging.Client.TableStorage
+namespace SunAuto.Logging.Client.StorageService
 {
     public class EntryUpdateRequest : Entry
     {

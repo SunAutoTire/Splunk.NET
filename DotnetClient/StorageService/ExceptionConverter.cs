@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SunAuto.Logging.Client.TableStorage;
+namespace SunAuto.Logging.Client.StorageService;
 
 public class ExceptionConverter : JsonConverter<Exception>
 {

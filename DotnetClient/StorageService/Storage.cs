@@ -4,8 +4,9 @@ using System.Net.Http.Headers;
 using System.Text.Json;
 using System.Net.Http.Headers;
 using SunAuto.Logging.Common;
+using System.Text;
 
-namespace SunAuto.Logging.Client.TableStorage;
+namespace SunAuto.Logging.Client.StorageService;
 
 public class Storage : IStorage
 {
