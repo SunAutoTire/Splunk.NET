@@ -8,8 +8,8 @@ public class Entry : IEntry
     public string? Body { get; set; }
     public string Level { get; set; } = null!;
     public string Message { get; set; } = null!;
-    public Guid Id { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public DateTime Timestamp { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public int? EventId { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
-    public string? EventName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public Guid Id { get; set; }
+    public DateTime Timestamp { get; set; }
+    public int? EventId { get; set; }
+    public string? EventName { get; set; }
 }

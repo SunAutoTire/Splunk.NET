@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Net.Http.Headers;
-using SunAuto.Logging.Common;
 using System.Text;
+using System.Text.Json;
 
 namespace SunAuto.Logging.Client.StorageService;
 
@@ -74,7 +72,7 @@ public class Storage : IStorage
                         Application = Application,
                         Body = serializedex,
                         Level = i.Loglevel.ToString(),
-                        Message = i.Formatted,
+                        Message = i.Formatted!,
                         Timestamp = i.Timestamp,
                         EventId = i.EventId.Id,
                         EventName = i.EventId.Name
@@ -87,7 +85,9 @@ public class Storage : IStorage
 
             byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            await Client.PostAsync($"api?code={ApiKey}", byteContent);
+            var response = await Client.PostAsync($"api?code={ApiKey}", byteContent);
+
+            var content = await response.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
