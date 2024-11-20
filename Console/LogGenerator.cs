@@ -6,9 +6,25 @@ public class LogGenerator(ILoggerFactory loggerFactory)
 {
     private readonly ILogger Logger = loggerFactory.CreateLogger<LogGenerator>();
 
-    public void Run()
+    public string? UserId { get; set; }
+
+    public async void Run()
     {
-        Logger.LogDebug(1, "Does this line get hit?");    // Not logged
+        var task1 = LogAsync();
+        var task2 = LogAsync();
+        var task3 = LogAsync();
+        var task4 = LogAsync();
+        var task5 = LogAsync();
+        var task6 = LogAsync();
+        var task7 = LogAsync();
+        var task8 = LogAsync();
+
+        await Task.WhenAll([task1, task2, task3, task4, task5, task6, task7, task8]);
+    }
+
+    public async Task LogAsync()
+    {
+        Logger.LogDebug(1, "Does this line get hit? [user={user}]", UserId);    // Not logged
         Logger.LogDebug(1, "Does this line get hit?");    // Not logged
         Logger.LogInformation(3, "Nothing to see here."); // Logs in ConsoleColor.DarkGreen
         Logger.LogWarning(5, "Warning... that was odd."); // Logs in ConsoleColor.DarkCyan
@@ -34,5 +50,7 @@ public class LogGenerator(ILoggerFactory loggerFactory)
 
         // foreach (var item in check)
         //     Console.WriteLine(item.TimeStamp);
+
+        await Task.CompletedTask;
     }
 }

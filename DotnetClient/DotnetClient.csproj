@@ -13,14 +13,14 @@
 		<Authors>Daniel Przybylski</Authors>
 		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
-		<Version>1.0.5-dev-preview</Version>
+		<Version>1.2.0</Version>
 		<PackageProjectUrl>https://dev.azure.com/SunAuto/Pipelines/_artifacts/feed/SunAuto/NuGet/SunAuto.Logging</PackageProjectUrl>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://bitbucket.org/sunauto/logging/src</RepositoryUrl>
 		<PackageTags>Logging, Azure Storage, File Storage</PackageTags>
-		<PackageReleaseNotes>Full CI/CD only supporting local enviroment file logging.</PackageReleaseNotes>
+		<PackageReleaseNotes>Asynchronous logging to SQL.</PackageReleaseNotes>
 		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
@@ -43,14 +43,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="CsvHelper" Version="33.0.1" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.0" />
-		<PackageReference Include="SunAuto.Support" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.1" />
+		<PackageReference Include="SunAuto.Support" Version="2.4.0" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\Library\Library.csproj" />
+	  <ProjectReference Include="..\..\UniversalLogging\Library\Library.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

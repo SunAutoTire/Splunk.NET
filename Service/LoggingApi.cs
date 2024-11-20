@@ -1,27 +1,63 @@
 using Azure.Data.Tables;
 using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SunAuto.Hateoas;
-using SunAuto.Logging.Api.Models;
-using System.Configuration;
-using System.Drawing.Printing;
+using SunAuto.Logging.Common;
 using System.Net;
 using System.Text.Json;
-using static System.Net.Mime.MediaTypeNames;
-using TableEntry = SunAuto.Logging.Api.Services.Entry;
+ using TableEntry = SunAuto.Logging.Api.Services.Entry;
 
 namespace SunAuto.Logging.Api;
 
-public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFactory loggerFactory,IConfiguration configuration)
+public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFactory loggerFactory)
 {
     readonly TableClient TableClient = tableClient;
     readonly QueueClient QueueClient = queue;
 
-    private readonly IConfiguration _configuration = configuration;
     readonly ILogger<LoggingApi> Logger = loggerFactory.CreateLogger<LoggingApi>();
+
+    //[Function("CreateLoggerItems")]
+    //public async Task<HttpResponseData> CreateBatchAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "")] HttpRequestData req)
+    //{
+    //    Logger.LogInformation("POST Log item {url}.", req.Url);
+
+    //    try
+    //    {
+    //        if (req.Body == null)
+    //            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Post body must be present.");
+
+    //        var receipt = req.Method switch
+    //        {
+    //            "POST" => await HandlePostBatchRequest(req.Body),
+    //            _ => null
+    //        };
+
+    //        return receipt == null
+    //            ? await CreateErrorResponseAsync(req, HttpStatusCode.MethodNotAllowed, "Method not allowed.")
+    //            : await CreateResponseAsync(req, HttpStatusCode.Created, new { Message = "Entry logged." });
+
+    //    }
+    //    catch (ArgumentException ex)
+    //    {
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.NotFound);
+    //    }
+    //    catch (NullReferenceException ex)
+    //    {
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.BadRequest);
+    //    }
+    //    catch (InvalidOperationException ex)
+    //    {
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.Conflict);
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        Logger.LogError(ex, "An unhandled exception occurred during processing.");
+    //        return await Logger.HandleErrorAsync(req, ex, HttpStatusCode.InternalServerError);
+    //    }
+    //}
 
     [Function("CreateLoggerItem")]
     public async Task<HttpResponseData> CreateAsync([HttpTrigger(AuthorizationLevel.Function, "post", Route = "{application:alpha?}/{Level:alpha?}")] HttpRequestData req,
@@ -99,6 +135,8 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         string? application,
         string? next)
     {
+        Logger.LogInformation("Search logs for application {application} between {startDate} and {endDate}.", application, startDate, endDate);
+
         return await HandleDateRangeSearchAsync(req, next, application, startDate, endDate);
     }
 
@@ -109,13 +147,14 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     string? level,
     string? next)
     {
-        //Logger.LogInformation("Search logs for application {application} level {level}.", application, level);
+        Logger.LogInformation("Search logs for application {application} level {level}.", application, level);
 
         return await HandleLevelSearchAsync(req, next, application, level);
     }
 
+    //TODO: THis could be merged w/ endpoint on line 56
     [Function("SearchSingleLoggerItem")]
-    public async Task<HttpResponseData> GetSingleAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
+    public async Task<HttpResponseData> GetOrDeleteAsync([HttpTrigger(AuthorizationLevel.Function, "get", Route = "{application:alpha?}/{rowKey:guid}")] HttpRequestData req,
                                string? application,
                                string? rowKey)
     {
@@ -158,7 +197,6 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
     {
         Logger.LogInformation("Get Log item {url}.", req.Url);
 
-
         try
         {
             return req.Method switch
@@ -195,11 +233,28 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
     private async Task<HttpResponseData> HandlePostRequest(HttpRequestData req, string? application, string? level)
     {
-        if (string.IsNullOrWhiteSpace(application) || string.IsNullOrWhiteSpace(level))
-            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and level must be provided.");
+        if (String.IsNullOrWhiteSpace(application) && String.IsNullOrWhiteSpace(level))
+            await CreateAsync(req.Body);
+        else if (String.IsNullOrWhiteSpace(application) || String.IsNullOrWhiteSpace(level))
+            return await CreateErrorResponseAsync(req, HttpStatusCode.BadRequest, "Application and rowKey must be provided.");
+        else
+            await CreateAsync(application!, level!, req.Body);
 
-        await CreateAsync(application, level, req.Body);
         return await CreateResponseAsync(req, HttpStatusCode.Created, new { Message = "Entry logged." });
+    }
+
+    private async Task CreateAsync(Stream body)
+    {
+        using var reader = new StreamReader(body);
+        var bodystring = await reader.ReadToEndAsync();
+        var entry = JsonSerializer.Deserialize<IEnumerable<Entry>>(bodystring);
+
+        foreach (var item in entry!)
+        {
+            var message = JsonSerializer.Serialize(item);
+
+            await QueueClient.SendMessageAsync(message);
+        }
     }
 
     private async Task<HttpResponseData> HandleDeleteRequest(HttpRequestData req, string? application, string? rowKey)
@@ -252,24 +307,28 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var filter = String.Join(" and ", filters);
 
-        var output = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
+        var output = TableClient.Query<TableEntry>(filter, 25, null, cancellationToken);
 
-        var page = output.Select(i => new Entry
-        {
-            Application = i.PartitionKey,
-            Level = i.Level,
-            Message = i.Message,
-            RowKey = i.RowKey,
-            Timestamp = i.Timestamp,
-            Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
-        }).OrderByDescending(x => x.Timestamp);
+        var page = output
+             .AsPages(next)
+             .First();
 
         var links = new List<Link> { new(req.Url.PathAndQuery) };
 
-        if (!String.IsNullOrWhiteSpace(next))
-            links.Add(new($"{req.Url.LocalPath}?next={next}", "next"));
+        if (!String.IsNullOrWhiteSpace(page.ContinuationToken))
+            links.Add(new($"{req.Url.LocalPath}?next={page.ContinuationToken}", "next"));
 
-        return new Linked<IEnumerable<Entry>>(page, "Entries", links);
+        return new Linked<IEnumerable<Entry>>(page
+            .Values
+            .Select(i => new Entry
+            {
+                Application = i.PartitionKey,
+                Level = i.Level,
+                Message = i.Message,
+                RowKey = i.RowKey,
+                Timestamp = i.Timestamp,
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<string>(i.Body),
+            }), "Entries", links);
     }
 
     private Linked<IEnumerable<Entry>> ListByDateRangeAsync(HttpRequestData req, string? next, string? application, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
@@ -288,24 +347,28 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var filter = String.Join(" and ", filters);
 
-        var output = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
+        var output = TableClient.Query<TableEntry>(filter, 25, null, cancellationToken);
 
-        var page = output.Select(i => new Entry
-        {
-            Application = i.PartitionKey,
-            Level = i.Level,
-            Message = i.Message,
-            RowKey = i.RowKey,
-            Timestamp = i.Timestamp,
-            Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
-        }).OrderByDescending(x => x.Timestamp);
+        var page = output
+             .AsPages(next)
+             .First();
 
         var links = new List<Link> { new(req.Url.PathAndQuery) };
 
-        if (!String.IsNullOrWhiteSpace(next))
-            links.Add(new($"{req.Url.LocalPath}?next={next}", "next"));
+        if (!String.IsNullOrWhiteSpace(page.ContinuationToken))
+            links.Add(new($"{req.Url.LocalPath}?next={page.ContinuationToken}", "next"));
 
-        return new Linked<IEnumerable<Entry>>(page, "Entries", links);
+        return new Linked<IEnumerable<Entry>>(page
+            .Values
+            .Select(i => new Entry
+            {
+                Application = i.PartitionKey,
+                Level = i.Level,
+                Message = i.Message,
+                RowKey = i.RowKey,
+                Timestamp = i.Timestamp,
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<string>(i.Body),
+            }), "Entries", links);
     }
 
     private Linked<IEnumerable<Entry>> ListAsync(HttpRequestData req, string? next, string? application, string? level, DateTime? startDate, DateTime? endDate, CancellationToken cancellationToken)
@@ -330,24 +393,28 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
 
         var filter = String.Join(" and ", filters);
 
-        var output = TableClient.Query<TableEntry>(filter, cancellationToken: cancellationToken);
+        var output = TableClient.Query<TableEntry>(filter, 25, null, cancellationToken);
 
-        var page = output.Select(i => new Entry
-        {
-            Application = i.PartitionKey,
-            Level = i.Level,
-            Message = i.Message,
-            RowKey = i.RowKey,
-            Timestamp = i.Timestamp,
-            Body = i.Body == null ? null : JsonSerializer.Deserialize<object>(i.Body),
-        }).OrderByDescending(x=>x.Timestamp);
+        var page = output
+             .AsPages(next)
+             .First();
 
         var links = new List<Link> { new(req.Url.PathAndQuery) };
 
-        if (!String.IsNullOrWhiteSpace(next))
-            links.Add(new($"{req.Url.LocalPath}?next={next}", "next"));
+        if (!String.IsNullOrWhiteSpace(page.ContinuationToken))
+            links.Add(new($"{req.Url.LocalPath}?next={page.ContinuationToken}", "next"));
 
-        return new Linked<IEnumerable<Entry>>(page, "Entries", links);
+        return new Linked<IEnumerable<Entry>>(page
+            .Values
+            .Select(i => new Entry
+            {
+                Application = i.PartitionKey,
+                Level = i.Level,
+                Message = i.Message,
+                RowKey = i.RowKey,
+                Timestamp = i.Timestamp,
+                Body = i.Body == null ? null : JsonSerializer.Deserialize<string>(i.Body),
+            }), "Entries", links);
     }
 
     private static string? BuildDateRangeFilter(DateTime? startDate, DateTime? endDate)
@@ -386,7 +453,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
             Message = entry.Message,
             RowKey = entry.RowKey,
             Timestamp = entry.Timestamp,
-            Body = entry.Body == null ? null : JsonSerializer.Deserialize<object>(entry.Body),
+            Body = entry.Body == null ? null : JsonSerializer.Deserialize<string>(entry.Body),
         };
     }
 
@@ -414,11 +481,8 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         return response;
     }
 
-    async Task CreateAsync(string? application, string? level, Stream body)
+    async Task CreateAsync(string application, string level, Stream body)
     {
-        if (String.IsNullOrWhiteSpace(application)) throw new ArgumentException("Application must be set in the route.", nameof(application));
-        if (String.IsNullOrWhiteSpace(level)) throw new ArgumentException("Level must be set in the route.", nameof(level));
-
         var reader = new StreamReader(body);
         var bodystring = await reader.ReadToEndAsync();
         var entry = JsonSerializer.Deserialize<TableEntry>(bodystring);
@@ -426,6 +490,7 @@ public class LoggingApi(TableClient tableClient, QueueClient queue, ILoggerFacto
         entry!.Application = application;
 
         var message = JsonSerializer.Serialize(entry);
+        entry.Level = level;
 
         await QueueClient.SendMessageAsync(message);
     }

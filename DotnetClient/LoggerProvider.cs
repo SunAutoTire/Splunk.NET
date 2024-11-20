@@ -4,10 +4,24 @@ using Microsoft.Extensions.Logging;
 namespace SunAuto.Logging.Client;
 
 [ProviderAlias("SunAuto")]
-public sealed class LoggerProvider(IConfiguration configuration) :
+public sealed class LoggerProvider(IStorage storage, IConfiguration configuration) :
     ILoggerProvider
 {
-    public ILogger CreateLogger(string categoryName) => new Logger(configuration);
+    readonly Dictionary<string, ILogger> _loggers = [];
 
-    public void Dispose() { }
+    public ILogger CreateLogger(string categoryName)
+    {
+        var check = _loggers.TryGetValue(categoryName, out ILogger? dictionarylogger);
+
+        if (check)
+            return dictionarylogger!;
+        else
+        {
+            _loggers.Add(categoryName, new Logger(storage, configuration));
+
+            return _loggers[categoryName];
+        }
+    }
+
+    public void Dispose() { }// => storage.Dispose();
 }

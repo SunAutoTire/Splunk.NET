@@ -6,7 +6,7 @@ namespace SunAuto.Logging.Client;
 /// File manager for local development file-based logging.
 /// </summary>
 /// <param name="path">File path of log file.</param>
-public interface IStorage
+public interface IStorage : IDisposable
 {
     /// <summary>
     /// Add a log item.
@@ -18,17 +18,4 @@ public interface IStorage
     /// <param name="exception">Exception to log</param>
     /// <param name="formatter">Formatter for message.</param>
     void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter);
-
-    /// <summary>
-    /// List all items for review by GUI.
-    /// </summary>
-    /// <returns>Collection of items.</returns>
-    IEnumerable<LogItem> List();
-
-    /// <summary>
-    /// Delete item
-    /// </summary>
-    /// <param name="eventId">Event to delete.</param>
-    /// <remarks>Not supported in production environments</remarks>
-    void Delete(EventId eventId);
 }

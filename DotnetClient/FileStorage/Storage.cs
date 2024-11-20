@@ -9,9 +9,9 @@ namespace SunAuto.Logging.Client.FileStorage;
 /// File manager for local development file-based logging.
 /// </summary>
 /// <param name="path">File path of log file.</param>
-public class Storage(string path) : IStorage
+public class Storage() : IStorage
 {
-    private readonly string Path = path;
+    // private readonly string Path = path;
 
     /// <summary>
     /// Add a log item.
@@ -24,50 +24,49 @@ public class Storage(string path) : IStorage
     /// <param name="formatter">Formatter for message.</param>
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
-        if (!string.IsNullOrWhiteSpace(Path))
+        if (!string.IsNullOrWhiteSpace("."))
         {
             var formatted = formatter(state!, exception).Quote();
             var datetime = $"{DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}";
             var eventformatted = $"{eventId.Id}:{eventId.Name}";
             var line = $"{datetime},{logLevel},{eventformatted},{formatted},{exception.Quote()}";
 
-            //var stream=    File.OpenWrite(Path) ;
-            using var writer = new StreamWriter(Path, true);
+            using var writer = new StreamWriter(Path.Combine(".", "SunAuto.log"), true);
             writer.WriteLine(line);
             writer.Flush();
             writer.Close();
         }
     }
 
-    /// <summary>
-    /// Delete item
-    /// </summary>
-    /// <param name="eventId">Event to delete.</param>
-    /// <remarks>Not supported in production environments</remarks>
-    public void Delete(EventId eventId) => throw new NotImplementedException();
+    // /// <summary>
+    // /// Delete item
+    // /// </summary>
+    // /// <param name="eventId">Event to delete.</param>
+    // /// <remarks>Not supported in production environments</remarks>
+    // public void Delete(EventId eventId) => throw new NotImplementedException();
 
-    /// <summary>
-    /// List all items for review by GUI.
-    /// </summary>
-    /// <returns>Collection of items.</returns>
-    public IEnumerable<LogItem> List()
-    {
-        var records = new List<LogItem>();
-        var formatprovider = new DateTimeParseFormatProvider();
-        using var reader = new StreamReader(Path);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+    // /// <summary>
+    // /// List all items for review by GUI.
+    // /// </summary>
+    // /// <returns>Collection of items.</returns>
+    // public IEnumerable<LogItem> List()
+    // {
+    //     var records = new List<LogItem>();
+    //     var formatprovider = new DateTimeParseFormatProvider();
+    //     using var reader = new StreamReader(Path);
+    //     using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-        csv.Context.RegisterClassMap<LogItemMap>();
-        csv.Read();
+    //     csv.Context.RegisterClassMap<LogItemMap>();
+    //     csv.Read();
 
-        while (csv.Read())
-        {
-            var record = new LogItem(DateTime.Parse(csv.GetField(0)!, formatprovider), csv.GetField(1).ToLogLevel(), csv.GetField(2)!.ToEventId(), csv.GetField(3), csv.GetField(4));
-            records.Add(record);
-        }
+    //     while (csv.Read())
+    //     {
+    //         var record = new LogItem(DateTime.Parse(csv.GetField(0)!, formatprovider), csv.GetField(1).ToLogLevel(), csv.GetField(2)!.ToEventId(), csv.GetField(3), csv.GetField(4));
+    //         records.Add(record);
+    //     }
 
-        return [.. records];
-    }
+    //     return [.. records];
+    // }
 
     /// <summary>
     /// Mapping for CSV-based storage.
@@ -124,5 +123,35 @@ public class Storage(string path) : IStorage
         /// <param name="formatType">Format type to check.</param>
         /// <returns>True if input format type is <code>DateTimeFormatInfo</code>.</returns>
         public object? GetFormat(Type? formatType) => formatType == typeof(DateTimeFormatInfo) ? this : null;
+    }
+
+    bool disposedValue;
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!disposedValue)
+        {
+            if (disposing)
+            {
+            }
+
+            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
+            // TODO: set large fields to null
+            disposedValue = true;
+        }
+    }
+
+    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
+    // ~Storage()
+    // {
+    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+    //     Dispose(disposing: false);
+    // }
+
+    public void Dispose()
+    {
+        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 }
