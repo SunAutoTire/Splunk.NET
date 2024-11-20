@@ -1,49 +1,172 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using Azure.Data.Tables;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using SunAuto.Development.Console;
+using SunAuto.Development.Library.Banners;
 using SunAuto.Logging.Client;
+using SunAuto.Logging.Console;
 
-var _ = new Welcome(roll: true);
+var configuration = new ConfigurationBuilder()
+    .AddJsonFile($"appsettings.json")
+    .Build();
 
-//Environment.SetEnvironmentVariable("LoggingEnvironment", "Local");
-Environment.SetEnvironmentVariable("LoggingEnvironment", "Development");
+var cancellationTokenSource = new CancellationTokenSource();
+var cancellationtoken = cancellationTokenSource.Token;
+
+var environment = DetermineEnvironment();
+if (environment.Length < 1) Exit();
 
 var builder = Host.CreateApplicationBuilder(args);
+var services = builder.Services;
 
-builder.Logging.ClearProviders();
-builder.Logging.AddSunAutoLogging();
+AddServices(builder, environment, configuration);
 
 using var host = builder.Build();
-
-var logger = host.Services.GetRequiredService<ILogger<Program>>();
-
-logger.LogDebug(1, "Does this line get hit?");    // Not logged
-logger.LogDebug(1, "Does this line get hit?");    // Not logged
-logger.LogInformation(3, "Nothing to see here."); // Logs in ConsoleColor.DarkGreen
-logger.LogWarning(5, "Warning... that was odd."); // Logs in ConsoleColor.DarkCyan
-logger.LogError(7, "Oops, there was an error.");  // Logs in ConsoleColor.DarkRed
-logger.LogTrace(5, "== 120.");                    // Not logged
-logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe}?", "Maybe not");
-logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
-
-object? nullobject = null;
+string? UserId = null;
 
 try
 {
-    var check1 = nullobject!.ToString();
+    UserId = await AuthenticateAndWelcomeAsync(cancellationtoken);
+
+    var isexit = await ChooseAsync(0, cancellationtoken);
+
+    if (isexit) cancellationTokenSource.Cancel();
+
+    await host.RunAsync(cancellationtoken);
 }
-catch (NullReferenceException ex)
+catch (Exception ex)
 {
-    logger.LogError(ex, "Null reference.");
+    Console.WriteLine(Environment.NewLine + ex.Message + Environment.NewLine);
+    Console.WriteLine("Later!" + Environment.NewLine);
 }
 
-// var storage = new Storage("..\\..\\..\\SunAuto.log");
+async Task<bool> ChooseAsync(short tries = 0, CancellationToken cancellationtoken = default)
+{
+    Console.WriteLine("What are we up for today?" + Environment.NewLine);
+    Console.WriteLine("a - Rename partition key." + Environment.NewLine);
+    Console.WriteLine("b - Generate log entries." + Environment.NewLine);
+    Console.WriteLine("c - Purge old entries." + Environment.NewLine);
+    Console.WriteLine("x - Exit" + Environment.NewLine);
 
-// var check = storage.List();
+    var input = Console.ReadLine();
+    var utilities = host.Services.GetRequiredService<LogUtilities>();
 
-// foreach (var item in check)
-//     Console.WriteLine(item.TimeStamp);
+    switch (input)
+    {
+        case "a":
+            var tasks = new List<Task>
+                {
+                    utilities.RenamePartitionKeysAsync("ABDGTireData", "ABDGTireServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("ABDGTireDataAPI", "ABDGTireServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("CarifyAPI", "CarifyBusinessAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("SatsIntegrationAPI", "SatsIntSatsMainServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("TireData", "TireDataServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("TireDataServices", "TireDataServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("VastOfficeAPI", "VastVastOfficeServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("WebpageResourcesAPI", "WebResourcesServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("VastVastOfficeAPI", "VastVastOfficeServiceAPI", cancellationtoken),
+                    utilities.RenamePartitionKeysAsync("VastVastOfficeServiceApi", "VastVastOfficeServiceAPI", cancellationtoken),
+                };
 
-await host.RunAsync();
+            await Task.WhenAll(tasks);
+
+            break;
+        case "b":
+            var generator = host.Services.GetRequiredService<LogGenerator>();
+            generator.UserId = UserId;
+            generator.Run();
+            break;
+        case "c":
+            await utilities.CleanupOldEntriesAsync(cancellationtoken);
+            break;
+        case "x":
+            //Environment.Exit(0);
+            return true;
+        default:
+            Console.WriteLine();
+            if (tries < 3)
+                Console.WriteLine(Environment.NewLine + "Please choose from the list:" + Environment.NewLine);
+            else
+                Console.WriteLine("Have a nice day 😐");
+
+            Console.WriteLine();
+            await ChooseAsync(++tries, cancellationtoken);
+            break;
+    }
+
+    // THis should be handled a better way to avoid StackOverflow.com
+    return await ChooseAsync(tries, cancellationtoken);
+}
+
+async Task<string?> AuthenticateAndWelcomeAsync(CancellationToken cancellationtoken)
+{
+    var authentication = host.Services.GetService<Authentication>();
+    var welcome = host.Services.GetService<Welcome>();
+
+    var result = await authentication!.LogInAsync();
+    var userId = result?.Account.HomeAccountId.ObjectId;
+    var roll = welcome!.RollAsync(result!);
+    await roll;
+
+    return userId;
+}
+
+string DetermineEnvironment(int tries = 0)
+{
+    Console.WriteLine("In which environment will we be working?" + Environment.NewLine);
+    Console.WriteLine("a - Development" + Environment.NewLine);
+    Console.WriteLine("b - Staging" + Environment.NewLine);
+    Console.WriteLine("c - Production" + Environment.NewLine);
+    Console.WriteLine("x - Exit" + Environment.NewLine);
+
+    var choice = Console.ReadLine();
+
+    switch (choice)
+    {
+        case "a": return "Development";
+        case "b": return "Staging";
+        case "c": return "Production";
+        case "x": return String.Empty;
+        default:
+            Console.WriteLine("Let's choose one of the above, okay?" + Environment.NewLine);
+            if (tries > 3)
+            {
+                Console.WriteLine("Have a nice day 😐");
+                return String.Empty;
+            }
+            return DetermineEnvironment(++tries);
+    }
+}
+
+void AddServices(HostApplicationBuilder builder, string environment, IConfigurationRoot configuration)
+{
+    //builder.Logging.ClearProviders();
+    builder.Logging.AddSunAutoLogging(configuration);
+
+    services.AddLogging();
+    services.AddSingleton<Authentication>();
+    services.AddSingleton<IBanner, BairesDev>();
+    services.AddSingleton<Welcome>();
+
+    services.AddScoped<LogGenerator>();
+    services.AddScoped<LogUtilities>();
+
+    var tableclienturi = environment switch
+    {
+        "Development" => new Uri(configuration["TableSasDev"]!),
+        "Staging" => new Uri(configuration["TableSasStage"]!),
+        "Production" => new Uri(configuration["TableSasProd"]!),
+        _ => throw new ArgumentException("Variable out of range.", nameof(environment)),
+    };
+
+    services.AddScoped(options => new TableClient(tableclienturi));
+}
+
+void Exit()
+{
+    Console.WriteLine(Environment.NewLine + "Later!" + Environment.NewLine);
+
+    Environment.Exit(0);
+}

@@ -399,3 +399,7 @@ FodyWeavers.xsd
 
 # SunAuto.Logging
 *.log
+
+# Azurite
+__azurite_db_*.json
+**/__blobstorage__
