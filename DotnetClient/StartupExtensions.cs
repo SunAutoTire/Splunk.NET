@@ -16,7 +16,7 @@ public static class StartupExtensions
         if (configuration.GetSection(sectionName)["Environment"] == "File")
             builder.Services.AddSingleton<IStorage, FileStorage.Storage>();
         else
-            builder.Services.AddScoped<IStorage, Storage>();
+            builder.Services.AddSingleton<IStorage, Storage>();
 
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
 
