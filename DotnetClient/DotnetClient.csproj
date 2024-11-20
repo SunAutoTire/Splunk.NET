@@ -50,10 +50,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\..\UniversalLogging\Library\Library.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<None Update="LICENSE.txt">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
