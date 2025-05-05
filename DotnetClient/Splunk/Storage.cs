@@ -11,7 +11,7 @@ public class Storage : IStorage
     readonly HttpClient Client = new();
     Task Handler = Task.CompletedTask;
     readonly string Application;
-    readonly string ApiKey;
+    readonly string Token;
     readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         WriteIndented = true,
@@ -23,12 +23,12 @@ public class Storage : IStorage
 
     readonly List<QueueEntry> Queue = [];
 
-    public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
+    public Storage(IConfiguration configuration, string sectionName = "Logging:Splunk")
     {
         var section = configuration.GetSection(sectionName);
 
         Application = section["Application"]!.ToString();
-        ApiKey = section["ApiKey"]!.ToString();
+        Token = section["Token"]!.ToString();
         var baseurl = section["BaseUrl"]!.ToString();
 
         try
@@ -37,6 +37,7 @@ public class Storage : IStorage
             {
                 BaseAddress = new Uri(baseurl),
             };
+            Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Splunk", Token);
         }
         catch (Exception ex)
         {
@@ -85,7 +86,7 @@ public class Storage : IStorage
 
             byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            var response = await Client.PostAsync($"api?code={ApiKey}", byteContent);
+            var response = await Client.PostAsync("services/collector/event", byteContent);
 
             var content = await response.Content.ReadAsStringAsync();
         }
