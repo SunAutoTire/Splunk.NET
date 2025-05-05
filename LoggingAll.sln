@@ -18,6 +18,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetClient", "DotnetClien
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DotnetClientTest", "DotnetClientTest\DotnetClientTest.csproj", "{82CB61CC-1C9A-48B0-AA08-41359F170CAA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Console", "..\Console\Console\Console.csproj", "{9E9C2D41-57DE-4536-DE33-C85F1E54D628}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{82CB61CC-1C9A-48B0-AA08-41359F170CAA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E9C2D41-57DE-4536-DE33-C85F1E54D628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E9C2D41-57DE-4536-DE33-C85F1E54D628}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E9C2D41-57DE-4536-DE33-C85F1E54D628}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E9C2D41-57DE-4536-DE33-C85F1E54D628}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

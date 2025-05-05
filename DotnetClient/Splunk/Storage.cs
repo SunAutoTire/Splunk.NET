@@ -70,13 +70,16 @@ public class Storage : IStorage
 
                     return new Entry
                     {
-                        Application = Application,
-                        Body = serializedex,
-                        Level = i.Loglevel.ToString(),
-                        Message = i.Formatted!,
-                        Timestamp = i.Timestamp,
-                        EventId = i.EventId.Id,
-                        EventName = i.EventId.Name
+                        SourceType = Application,
+                        Event = new Event {
+                            Body = serializedex,
+                            Level = i.Loglevel.ToString(),
+                            Message = i.Formatted!,
+                            Timestamp = i.Timestamp,
+                            EventId = i.EventId.Id,
+                            UserId = null,
+                            EventName = i.EventId.Name
+                        }
                     };
                 });
 

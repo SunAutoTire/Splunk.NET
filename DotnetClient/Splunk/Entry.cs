@@ -2,14 +2,8 @@
 
 namespace SunAuto.Logging.Client.Splunk;
 
-public class Entry : IEntry
+public class Entry
 {
-    public string Application { get; set; } = null!;
-    public string? Body { get; set; }
-    public string Level { get; set; } = null!;
-    public string Message { get; set; } = null!;
-    public Guid Id { get; set; }
-    public DateTime Timestamp { get; set; }
-    public int? EventId { get; set; }
-    public string? EventName { get; set; }
+    public string SourceType { get; set; } = null!;
+    public Event Event { get; set; } = null!;
 }
