@@ -4,6 +4,6 @@ namespace SunAuto.Logging.Client.Splunk;
 
 public class Entry
 {
-    public string SourceType { get; set; } = null!;
-    public Event Event { get; set; } = null!;
+    public Event @event { get; set; } = null!;
+    public string sourcetype { get; set; } = null!;
 }

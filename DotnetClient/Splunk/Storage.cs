@@ -10,8 +10,8 @@ public class Storage : IStorage
 {
     readonly HttpClient Client = new();
     Task Handler = Task.CompletedTask;
-    readonly string Application;
     readonly string Token;
+    readonly string Source;
     readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         WriteIndented = true,
@@ -27,7 +27,7 @@ public class Storage : IStorage
     {
         var section = configuration.GetSection(sectionName);
 
-        Application = section["Application"]!.ToString();
+        Source = section["Source"]!.ToString();
         Token = section["Token"]!.ToString();
         var baseurl = section["BaseUrl"]!.ToString();
 
@@ -70,8 +70,8 @@ public class Storage : IStorage
 
                     return new Entry
                     {
-                        SourceType = Application,
-                        Event = new Event {
+                        @event = new Event
+                        {
                             Body = serializedex,
                             Level = i.Loglevel.ToString(),
                             Message = i.Formatted!,
@@ -79,7 +79,8 @@ public class Storage : IStorage
                             EventId = i.EventId.Id,
                             UserId = null,
                             EventName = i.EventId.Name
-                        }
+                        },
+                        sourcetype = Source
                     };
                 });
 
