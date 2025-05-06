@@ -23,7 +23,7 @@ public class Storage : IStorage
 
     readonly List<QueueEntry> Queue = [];
 
-    public Storage(IConfiguration configuration, string sectionName = "Logging:Splunk")
+    public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
         var section = configuration.GetSection(sectionName);
 
@@ -68,11 +68,14 @@ public class Storage : IStorage
                 {
                     var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
 
+                    using var doc = JsonDocument.Parse(serializedex);
+                    var bodyElement = doc.RootElement.Clone();
+
                     return new Entry
                     {
                         @event = new Event
                         {
-                            Body = serializedex,
+                            Body = bodyElement,
                             Level = i.Loglevel.ToString(),
                             Message = i.Formatted!,
                             Timestamp = i.Timestamp,
@@ -84,13 +87,10 @@ public class Storage : IStorage
                     };
                 });
 
-            var serialized = JsonSerializer.Serialize(entries, JsonSerializerOptions);
-            var buffer = Encoding.UTF8.GetBytes(serialized);
-            var byteContent = new ByteArrayContent(buffer);
+            var serialized = JsonSerializer.Serialize(entries);
+            var json = new StringContent(serialized, Encoding.UTF8, "application/json");
 
-            byteContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            var response = await Client.PostAsync("services/collector/event", byteContent);
+            var response = await Client.PostAsync("services/collector/event", json);
 
             var content = await response.Content.ReadAsStringAsync();
         }

@@ -24,7 +24,7 @@ public static class StartupExtensions
         return builder;
     }
 
-    public static ILoggingBuilder AddSplunkLogging(this ILoggingBuilder builder, IConfiguration configuration, string sectionName = "Logging:Splunk")
+    public static ILoggingBuilder AddSplunkLogging(this ILoggingBuilder builder, IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
         builder.AddConfiguration();
 

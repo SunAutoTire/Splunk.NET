@@ -13,11 +13,11 @@ public class Logger(IStorage storage, IConfiguration configuration) : ILogger
     {
         try
         {
-            return configuration.GetValue<string>("Logging:Splunk:LogLevel:Default").ToLogLevel();
+            return configuration.GetValue<string>("Logging:SunAuto:LogLevel:Default").ToLogLevel();
         }
         catch (ArgumentException ex)
         {
-            var message = typeof(Logger).GetEmbeddedResource("Splunk.Logging.Client.ConfigurationExMessage.txt");
+            var message = typeof(Logger).GetEmbeddedResource("SunAuto.Logging.Client.ConfigurationExMessage.txt");
             throw new InvalidOperationException(message, ex);
         }
     }

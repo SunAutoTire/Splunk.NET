@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace SunAuto.Logging.Client.Splunk;
 public class Event
 {    
-    public string? Body { get; set; }
+    public object? Body { get; set; }
     public string Level { get; set; } = null!;
     public string Message { get; set; } = null!;
     public Guid Id { get; set; }
