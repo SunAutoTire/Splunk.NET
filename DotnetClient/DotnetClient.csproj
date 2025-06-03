@@ -46,6 +46,7 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.1" />
 		<PackageReference Include="SunAuto.Logging.Common" Version="1.2.0" />
 		<PackageReference Include="SunAuto.Support" Version="2.4.1" />
 	</ItemGroup>
