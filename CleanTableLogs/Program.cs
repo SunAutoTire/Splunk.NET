@@ -20,7 +20,7 @@ var host = new HostBuilder()
         services.AddSingleton<TableClient>(provider =>
             new TableClient(new Uri(configuration["Values:TableSas"])));
 
-        services.AddSingleton<LogUtilities>();
+        //services.AddSingleton<LogUtilities>();
     })
     .Build();
 
