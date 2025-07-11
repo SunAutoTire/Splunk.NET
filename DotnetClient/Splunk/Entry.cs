@@ -1,6 +1,4 @@
-﻿using SunAuto.Logging.Common;
-
-namespace SunAuto.Logging.Client.Splunk;
+﻿namespace SunAuto.Logging.Client.Splunk;
 
 public class Entry
 {
