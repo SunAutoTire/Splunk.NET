@@ -1,6 +1,4 @@
-﻿using SunAuto.Logging.Common;
-
-namespace SunAuto.Logging.Client.StorageService;
+﻿namespace SunAuto.Logging.Client.StorageService;
 
 public class Entry : IEntry
 {
