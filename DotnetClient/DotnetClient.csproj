@@ -13,28 +13,23 @@
 		<Authors>Jacob Goudy</Authors>
 		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
-		<Version>2.0.0</Version>
+		<Version>2.0.0-preview</Version>
 		<PackageProjectUrl>https://dev.azure.com/SunAuto/Pipelines/_artifacts/feed/SunAuto/NuGet/SunAuto.Logging</PackageProjectUrl>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://bitbucket.org/sunauto/logging/src</RepositoryUrl>
 		<PackageTags>Logging, Azure Storage, File Storage</PackageTags>
-		<PackageReleaseNotes>Now supporting Splunk!.</PackageReleaseNotes>
-		<PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+		<PackageReleaseNotes>Migrating to opensource on Github!.</PackageReleaseNotes>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Remove="ConfigurationExMessage.txt" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<EmbeddedResource Include="ConfigurationExMessage.txt" />
-		<EmbeddedResource Include="LICENSE.txt" />
-	</ItemGroup>
-
-	<ItemGroup>
+		<None Include="..\LICENSE">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
 		<None Include="..\readme.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -46,14 +41,9 @@
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
 		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="9.0.7" />
-		<PackageReference Include="SunAuto.Support" Version="2.4.3" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Update="LICENSE.txt">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
 		<None Update="readme.md">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>

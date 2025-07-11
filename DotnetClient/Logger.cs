@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using SunAuto.Extensions;
+using System.Runtime.Serialization;
+using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SunAuto.Logging.Client;
 
@@ -17,9 +19,32 @@ public class Logger(IStorage storage, IConfiguration configuration) : ILogger
         }
         catch (ArgumentException ex)
         {
-            var message = typeof(Logger).GetEmbeddedResource("SunAuto.Logging.Client.ConfigurationExMessage.txt");
+            var message = GetLogExceptionMessage();
             throw new InvalidOperationException(message, ex);
         }
+    }
+
+    static string GetLogExceptionMessage()
+    {
+        var output = new StringBuilder();
+
+        output.AppendLine("SunAuto.Logging requires the following JSON to be added to the \"Logging\" object in the appsettings.json");
+        output.AppendLine("e.g.,");
+        output.AppendLine();
+        output.AppendLine("\"SunAuto\": {");
+        output.AppendLine("	\"Application\": <ApplicationName>,");
+        output.AppendLine("	\"Path\": <Logfile Path if using file option>,");
+        output.AppendLine("	\"Environment\": <Local, Development, Staging, or Production>,");
+        output.AppendLine("	\"BaseUrl\": <http://localhost:7235>,");
+        output.AppendLine("	\"ApiKey\": <API Key from Storage Account,");
+        output.AppendLine("	\"LogLevel\": {");
+        output.AppendLine("		\"Default\": <Trace, Debug, etc.>,");
+        output.AppendLine("		\"Microsoft.Hosting\": <Trace, Debug, etc.>");
+        output.AppendLine("	}");
+        output.AppendLine("}");
+
+
+        return output.ToString();
     }
 
     public IDisposable? BeginScope<TState>(TState state) where TState : notnull => default!;

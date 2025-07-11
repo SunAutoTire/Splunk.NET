@@ -27,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\DotnetClient\DotnetClient.csproj" />
+	  <ProjectReference Include="..\DotnetClient\DotnetClient.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
