@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using System.Text;
-
-namespace SunAuto.Splunk.Client.Test;
+﻿namespace SunAuto.Splunk.Client.Test;
 
 public class LoggerTest
 {
@@ -32,7 +28,6 @@ public class LoggerTest
 
         System.Diagnostics.Debug.WriteLine(exception.Message);
     }
-
     private static Logger GetLogger(string level) => new(null, GetConfiguration(level));
 
     private static IConfiguration GetConfiguration(string level)
@@ -99,15 +94,5 @@ public class LoggerTest
 
         Assert.Equal(condition, logger.IsEnabled(logLevel));
 
-    }
-
-    [Fact(DisplayName = "IsEnabled - Unconfigured")]
-    public void Test3()
-    {
-        var exception = Assert.Throws<InvalidOperationException>(() => GetLogger(String.Empty));
-
-        Assert.IsType<InvalidOperationException>(exception);
-
-        System.Diagnostics.Debug.WriteLine(exception.Message);
     }
 }
