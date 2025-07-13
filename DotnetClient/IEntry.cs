@@ -1,4 +1,4 @@
-﻿namespace SunAuto.Logging.Client;
+﻿namespace SunAuto.Splunk.Client;
 
 public interface IEntry
 {

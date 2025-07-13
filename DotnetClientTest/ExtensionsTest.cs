@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging.Client;
+using SunAuto.Splunk.Client;
 
-namespace SunAuto.Logging.Client.Test;
+namespace SunAuto.Splunk.Client.Test;
 
 public class ExtensionsTest
 {
@@ -58,6 +58,120 @@ public class ExtensionsTest
     [InlineData("Fart", typeof(FormatException))]
     [InlineData("Smell:", typeof(FormatException))]
     public void Test3(string value, Type exception)
+    {
+        var thrown = Assert.ThrowsAny<Exception>(() => value.ToEventId());
+
+        Assert.IsType(exception, thrown);
+    }
+
+    [Theory(DisplayName = "ToLogLevel - Sorting & accuracy")]
+    [InlineData("Trace", LogLevel.Trace)]
+    [InlineData("Debug", LogLevel.Debug)]
+    [InlineData("Information", LogLevel.Information)]
+    [InlineData("Warning", LogLevel.Warning)]
+    [InlineData("Error", LogLevel.Error)]
+    [InlineData("Critical", LogLevel.Critical)]
+    [InlineData("None", LogLevel.None)]
+    public void Test4(string value, LogLevel logLevel)
+    {
+        var result = value.ToLogLevel();
+
+        Assert.Equal(logLevel, result);
+    }
+
+    [Theory(DisplayName = "ToLogLevel - Exception handling")]
+    [InlineData(null, typeof(ArgumentException), Valid)]
+    [InlineData("", typeof(ArgumentException), Valid)]
+    [InlineData("  \t", typeof(ArgumentException), Valid)]
+    [InlineData("Fart", typeof(ArgumentOutOfRangeException), Valid)]
+    [InlineData("Smell", typeof(ArgumentOutOfRangeException), Valid)]
+    public void Test5(string? value, Type exception, string messageStart)
+    {
+        var thrown = Assert.ThrowsAny<Exception>(() => value.ToLogLevel());
+
+        Assert.IsType(exception, thrown);
+        Assert.StartsWith(messageStart, thrown.Message);
+    }
+
+    [Theory(DisplayName = "ToEventId - Parsing")]
+    [InlineData("5:", 5, null)]
+    [InlineData("5:Smell", 5, "Smell")]
+    [InlineData("5", 5, null)]
+    public void Test6(string value, int id, string? name)
+    {
+        var result = value.ToEventId();
+
+        Assert.Equal(id, result.Id);
+        Assert.Equal(name, result.Name);
+        //var thrown = Assert.ThrowsAny<Exception>(() => value.ToEventId());
+
+        //Assert.IsType(exception, thrown);
+    }
+
+    [Theory(DisplayName = "ToEventId - Exception")]
+    //[InlineData(null, typeof(NullReferenceException))]
+    [InlineData("", typeof(FormatException))]
+    [InlineData("  \t", typeof(FormatException))]
+    [InlineData("Fart", typeof(FormatException))]
+    [InlineData("Smell:", typeof(FormatException))]
+    public void Test7(string value, Type exception)
+    {
+        var thrown = Assert.ThrowsAny<Exception>(() => value.ToEventId());
+
+        Assert.IsType(exception, thrown);
+    }
+
+    [Theory(DisplayName = "ToLogLevel - Sorting & accuracy")]
+    [InlineData("Trace", LogLevel.Trace)]
+    [InlineData("Debug", LogLevel.Debug)]
+    [InlineData("Information", LogLevel.Information)]
+    [InlineData("Warning", LogLevel.Warning)]
+    [InlineData("Error", LogLevel.Error)]
+    [InlineData("Critical", LogLevel.Critical)]
+    [InlineData("None", LogLevel.None)]
+    public void Test8(string value, LogLevel logLevel)
+    {
+        var result = value.ToLogLevel();
+
+        Assert.Equal(logLevel, result);
+    }
+
+    [Theory(DisplayName = "ToLogLevel - Exception handling")]
+    [InlineData(null, typeof(ArgumentException), Valid)]
+    [InlineData("", typeof(ArgumentException), Valid)]
+    [InlineData("  \t", typeof(ArgumentException), Valid)]
+    [InlineData("Fart", typeof(ArgumentOutOfRangeException), Valid)]
+    [InlineData("Smell", typeof(ArgumentOutOfRangeException), Valid)]
+    public void Test9(string? value, Type exception, string messageStart)
+    {
+        var thrown = Assert.ThrowsAny<Exception>(() => value.ToLogLevel());
+
+        Assert.IsType(exception, thrown);
+        Assert.StartsWith(messageStart, thrown.Message);
+    }
+
+    [Theory(DisplayName = "ToEventId - Parsing")]
+    [InlineData("5:", 5, null)]
+    [InlineData("5:Smell", 5, "Smell")]
+    [InlineData("5", 5, null)]
+    public void Test10(string value, int id, string? name)
+    {
+        var result = value.ToEventId();
+
+        Assert.Equal(id, result.Id);
+        Assert.Equal(name, result.Name);
+        //var thrown = Assert.ThrowsAny<Exception>(() => value.ToEventId());
+
+        //Assert.IsType(exception, thrown);
+    }
+
+    [Theory(DisplayName = "ToEventId - Exception")]
+    //[InlineData(null, typeof(NullReferenceException))]
+    [InlineData("", typeof(FormatException))]
+    [InlineData("  \t", typeof(FormatException))]
+    [InlineData("Fart", typeof(FormatException))]
+    [InlineData("Smell:", typeof(FormatException))]
+    public void Test11(string value, Type exception)
     {
         var thrown = Assert.ThrowsAny<Exception>(() => value.ToEventId());
 

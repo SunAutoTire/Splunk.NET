@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging.Client;
+namespace SunAuto.Splunk.Client;
 
 [ProviderAlias("SunAuto")]
 public sealed class LoggerProvider(IStorage storage, IConfiguration configuration) :

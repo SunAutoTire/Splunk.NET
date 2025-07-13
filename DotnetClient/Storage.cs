@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace SunAuto.Logging.Client.Splunk;
+namespace SunAuto.Splunk.Client;
 
 public class Storage : IStorage
 {

@@ -4,7 +4,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using static System.Net.Mime.MediaTypeNames;
 
-namespace SunAuto.Logging.Client;
+namespace SunAuto.Splunk.Client;
 
 public class Logger(IStorage storage, IConfiguration configuration) : ILogger
 {
