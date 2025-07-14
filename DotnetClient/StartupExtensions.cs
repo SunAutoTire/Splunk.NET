@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using SunAuto.Splunk.Client.Splunk;
+using SunAuto.Splunk.Client;
 
 namespace SunAuto.Splunk.Client;
 

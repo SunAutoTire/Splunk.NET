@@ -1,4 +1,4 @@
-﻿namespace SunAuto.Splunk.Client.Splunk;
+﻿namespace SunAuto.Splunk.Client;
 
 public class Entry
 {

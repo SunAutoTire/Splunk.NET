@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SunAuto.Splunk.Client;
 
-namespace SunAuto.Logging.Client.Test;
+namespace SunAuto.Splunk.Client.Test;
 
 public class ExtensionsTest
 {
@@ -63,5 +63,4 @@ public class ExtensionsTest
 
         Assert.IsType(exception, thrown);
     }
-
 }

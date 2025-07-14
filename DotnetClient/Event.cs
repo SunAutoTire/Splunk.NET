@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SunAuto.Splunk.Client.Splunk;
+namespace SunAuto.Splunk.Client;
 public class Event
 {    
     public object? Body { get; set; }

@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace SunAuto.Splunk.Client.Splunk;
+namespace SunAuto.Splunk.Client;
 
 public class Storage : IStorage
 {
@@ -22,9 +22,15 @@ public class Storage : IStorage
     };
 
     readonly List<QueueEntry> Queue = [];
+    private readonly ILogger<Storage> Logger;
 
     public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug());
+        Logger = loggerFactory.CreateLogger<Storage>();
+        Logger.LogInformation("Hello World! Logging is {Description}.", "fun");
+      
+        
         var section = configuration.GetSection(sectionName);
 
         Source = section["Source"]!.ToString();
@@ -42,6 +48,7 @@ public class Storage : IStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.Message);
+            //Logger.LogCritical(ex, "Storage initialization failed. Check configuration for Splunk logging.");
             // We must handle this in CAR-403 ticket 
 
             //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
