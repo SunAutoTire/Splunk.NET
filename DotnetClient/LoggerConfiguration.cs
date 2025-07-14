@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 
-namespace SunAuto.Logging.Client;
+namespace SunAuto.Splunk.Client;
 
 public class LoggerConfiguration(IConfiguration configuration)
 {

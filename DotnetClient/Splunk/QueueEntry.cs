@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging.Client.Splunk;
+namespace SunAuto.Splunk.Client.Splunk;
 
 public class QueueEntry
 {

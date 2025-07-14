@@ -1,8 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SunAuto.Splunk.Client;
 using System.Text;
 
-namespace SunAuto.Logging.Client.SplunkTest;
+namespace SunAuto.Splunk.Client.Test;
 
 public class LoggerTest
 {

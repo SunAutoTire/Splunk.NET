@@ -2,7 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace SunAuto.Logging.Client.Splunk;
+namespace SunAuto.Splunk.Client.Splunk;
 
 public class ExceptionConverter : JsonConverter<Exception>
 {

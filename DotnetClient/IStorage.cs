@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging.Client;
+namespace SunAuto.Splunk.Client;
 
 /// <summary>
 /// File manager for local development file-based logging.

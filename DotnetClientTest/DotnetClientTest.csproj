@@ -7,8 +7,8 @@
 
 		<IsPackable>false</IsPackable>
 		<IsTestProject>true</IsTestProject>
-		<AssemblyName>SunAuto.Logging.Client.Test</AssemblyName>
-		<RootNamespace>SunAuto.Logging.Client.Test</RootNamespace>
+		<AssemblyName>SunAuto.Splunk.Client.Test</AssemblyName>
+		<RootNamespace>SunAuto.Splunk.Client.Test</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>

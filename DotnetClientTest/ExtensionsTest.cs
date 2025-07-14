@@ -1,5 +1,5 @@
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging.Client;
+using SunAuto.Splunk.Client;
 
 namespace SunAuto.Logging.Client.Test;
 

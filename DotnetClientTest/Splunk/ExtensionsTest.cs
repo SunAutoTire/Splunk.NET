@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using SunAuto.Logging.Client;
 
-namespace SunAuto.Logging.Client.SplunkTest;
+namespace SunAuto.Splunk.Client.Test;
 
 public class ExtensionsTest
 {

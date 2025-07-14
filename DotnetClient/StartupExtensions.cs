@@ -3,9 +3,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using SunAuto.Logging.Client.Splunk;
+using SunAuto.Splunk.Client.Splunk;
 
-namespace SunAuto.Logging.Client;
+namespace SunAuto.Splunk.Client;
 
 public static class StartupExtensions
 {
