@@ -1,4 +1,8 @@
-﻿namespace SunAuto.Splunk.Client.Test;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using System.Text;
+
+namespace SunAuto.Splunk.Client.Test;
 
 public class LoggerTest
 {

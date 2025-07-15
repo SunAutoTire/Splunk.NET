@@ -26,11 +26,11 @@ public class Storage : IStorage
 
     public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
-        using var loggerFactory = LoggerFactory.Create(builder => builder.AddDebug());
+        using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
         Logger = loggerFactory.CreateLogger<Storage>();
         Logger.LogInformation("Hello World! Logging is {Description}.", "fun");
-      
-        
+
+
         var section = configuration.GetSection(sectionName);
 
         Source = section["Source"]!.ToString();
@@ -48,10 +48,7 @@ public class Storage : IStorage
         catch (Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.Message);
-            //Logger.LogCritical(ex, "Storage initialization failed. Check configuration for Splunk logging.");
-            // We must handle this in CAR-403 ticket 
-
-            //logger.LogCritical(9, new Exception("Exceptional!", new Exception("The Inner Light")), "Exceptions {Maybe} or {Possibly}?", "Maybe not", "Possibly");
+            Logger.LogCritical(ex, "Storage initialization failed. Check configuration for Splunk logging.");
         }
     }
 

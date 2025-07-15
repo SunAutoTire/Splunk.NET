@@ -3,7 +3,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Configuration;
-using SunAuto.Splunk.Client;
 
 namespace SunAuto.Splunk.Client;
 
@@ -16,7 +15,6 @@ public static class StartupExtensions
         builder.Services.AddSingleton<IStorage, Storage>();
 
         builder.Services.TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
-
 
         LoggerProviderOptions.RegisterProviderOptions<LoggerConfiguration, LoggerProvider>(builder.Services);
 
