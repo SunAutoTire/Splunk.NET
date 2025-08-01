@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<AssemblyName>SunAuto.Splunk.Client</AssemblyName>
+		<RootNamespace>SunAuto.Splunk.Client</RootNamespace>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Splunk.NET by Sun Auto</Title>
+		<Description>A .NET client (SDK) for logging .NET to Splunk.</Description>
+		<Copyright>Copyright © 2025 Sun Auto Tire &amp; Service</Copyright>
+		<Authors>Jacob Goudy</Authors>
+		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
+		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
+		<PackageProjectUrl>https://www.nuget.org/packages/SunAuto.Splunk.Client</PackageProjectUrl>
+		<Version>2.0.2-preview</Version>
+		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
+		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
+		<PackageReadmeFile>readme.md</PackageReadmeFile>
+		<RepositoryUrl>https://github.com/SunAutoTire/Splunk.NET</RepositoryUrl>
+		<PackageTags>Logging, Azure Storage, File Storage</PackageTags>
+		<PackageReleaseNotes>Migrating to opensource on Github!.</PackageReleaseNotes>
+		<PackageLicenseFile>LICENSE</PackageLicenseFile>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\LICENSE">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+		<None Include="..\readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Configuration" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.7" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="readme.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Update="Sun-Auto-Icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>
