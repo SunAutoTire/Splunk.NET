@@ -14,7 +14,7 @@
 		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
 		<PackageProjectUrl>https://www.nuget.org/packages/SunAuto.Splunk.Client</PackageProjectUrl>
-		<Version>2.0.2-preview</Version>
+		<Version>2.0.2</Version>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
