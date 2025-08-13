@@ -9,7 +9,7 @@ A .NET library in a NuGet package allowing convenient logging to Splunk using de
 
 * Open <https://dev.azure.com/SunAuto/Pipelines/_artifacts/feed/SunAuto/connect> in the browser, and follow the instructions for Visual Studio.
 * Reference the package in your .NET assembly
-* Use package management that is built in w/ Visual Studio making sure that VS is set to see at least the Sun Auto feed, or use the command line: `Install-Package SunAuto.Logging`.
+* Use package management that is built in w/ Visual Studio making sure that VS is set to see at least the Sun Auto feed, or use the command line: `dotnet add package SunAuto.Splunk.Client`.
 
 ### Configure the logger
 
@@ -38,7 +38,7 @@ In your application's settings file (e.g., `appsettings.json`), add the followin
 In the start-up program file, add the following lines:
 
  ```cs
- using SunAuto.Logging.Client;
+ using SunAuto.Splunk.Client;
 
  builder.Logging.AddSplunkLogging(configuration);
 
