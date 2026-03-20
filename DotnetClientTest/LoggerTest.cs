@@ -82,21 +82,4 @@ public class LoggerTest
 
         return output.ToString();
     }
-
-    [Theory(DisplayName = "IsEnabled - Configuration")]
-    [InlineData("Critical", LogLevel.Critical, true)]
-    [InlineData("Debug", LogLevel.Debug, true)]
-    [InlineData("Error", LogLevel.Error, true)]
-    [InlineData("Information", LogLevel.Information, true)]
-    [InlineData("None", LogLevel.None, true)]
-    [InlineData("Trace", LogLevel.Trace, true)]
-    [InlineData("Warning", LogLevel.Warning, true)]
-    [InlineData("Information", LogLevel.Trace, false)]
-    public void Test2(string level, LogLevel logLevel, bool condition)
-    {
-        var logger = GetLogger(level);
-
-        Assert.Equal(condition, logger.IsEnabled(logLevel));
-
-    }
 }

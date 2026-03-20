@@ -28,14 +28,15 @@ public class Storage : IStorage
     {
         using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
         Logger = loggerFactory.CreateLogger<Storage>();
-        Logger.LogInformation("Hello World! Logging is {Description}.", "fun");
-
 
         var section = configuration.GetSection(sectionName);
 
-        Source = section["Source"]!.ToString();
-        Token = section["Token"]!.ToString();
-        var baseurl = section["BaseUrl"]!.ToString();
+        Source = section["Source"]?.ToString()
+            ?? throw new InvalidOperationException($"The \"Source\" property is required in the {sectionName} configuration section.");
+        Token = section["Token"]?.ToString()
+            ?? throw new InvalidOperationException($"The \"Token\" property is required in the {sectionName} configuration section.");
+        var baseurl = section["BaseUrl"]?.ToString()
+            ?? throw new InvalidOperationException($"The \"BaseUrl\" property is required in the {sectionName} configuration section.");
 
         try
         {
