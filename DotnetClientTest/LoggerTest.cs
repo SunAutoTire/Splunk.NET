@@ -32,7 +32,7 @@ public class LoggerTest
 
         System.Diagnostics.Debug.WriteLine(exception.Message);
     }
-    private static Logger GetLogger(string level) => new(null, GetConfiguration(level));
+    private static Logger GetLogger(string level) => new(null!, GetConfiguration(level));
 
     private static IConfiguration GetConfiguration(string level)
     {
