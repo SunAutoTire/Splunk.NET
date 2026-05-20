@@ -6,6 +6,10 @@ using Microsoft.Extensions.Logging;
 
 namespace SunAuto.Splunk.Client;
 
+/// <summary>
+/// Sends log entries to Splunk via the HTTP Event Collector (HEC).
+/// Entries are queued synchronously and flushed asynchronously in batches.
+/// </summary>
 public class Storage : IStorage
 {
     readonly HttpClient Client = new();
@@ -24,6 +28,18 @@ public class Storage : IStorage
     readonly List<QueueEntry> Queue = [];
     private readonly ILogger<Storage> Logger;
 
+    /// <summary>
+    /// Initializes a new instance of <see cref="Storage"/>, reading Splunk connection
+    /// settings from the specified configuration section.
+    /// </summary>
+    /// <param name="configuration">The application configuration.</param>
+    /// <param name="sectionName">
+    /// The configuration section path containing <c>Source</c>, <c>Token</c>, and <c>BaseUrl</c>.
+    /// Defaults to <c>Logging:SunAuto</c>.
+    /// </param>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when <c>Source</c>, <c>Token</c>, or <c>BaseUrl</c> are missing from the configuration section.
+    /// </exception>
     public Storage(IConfiguration configuration, string sectionName = "Logging:SunAuto")
     {
         using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -53,6 +69,9 @@ public class Storage : IStorage
         }
     }
 
+    /// <summary>
+    /// Drains the queue by uploading all pending entries in batches until the queue is empty.
+    /// </summary>
     async Task HandleQueueAsync()
     {
         while (Queue.Count > 0)
@@ -64,6 +83,10 @@ public class Storage : IStorage
         }
     }
 
+    /// <summary>
+    /// Serializes the given queue entries and POSTs them to the Splunk HEC endpoint.
+    /// </summary>
+    /// <param name="items">The entries to upload.</param>
     async Task UploadAsync(QueueEntry[] items)
     {
         try
@@ -105,6 +128,7 @@ public class Storage : IStorage
         }
     }
 
+    /// <inheritdoc/>
     public void Add<TState>(LogLevel logLevel, EventId eventId, TState? state, Exception? exception, Func<TState, Exception?, string> formatter)
     {
         var entry = new QueueEntry
@@ -124,6 +148,10 @@ public class Storage : IStorage
 
     bool disposedValue;
 
+    /// <summary>
+    /// Releases managed resources. Blocks until the upload queue is fully drained.
+    /// </summary>
+    /// <param name="disposing"><see langword="true"/> when called from <see cref="Dispose()"/>.</param>
     protected virtual void Dispose(bool disposing)
     {
         if (!disposedValue)
@@ -135,22 +163,13 @@ public class Storage : IStorage
                 Client?.Dispose();
             }
 
-            // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-            // TODO: set large fields to null
             disposedValue = true;
         }
     }
 
-    // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~Storage()
-    // {
-    //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-    //     Dispose(disposing: false);
-    // }
-
+    /// <inheritdoc/>
     public void Dispose()
     {
-        // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
