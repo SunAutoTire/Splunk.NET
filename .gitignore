@@ -403,3 +403,6 @@ FodyWeavers.xsd
 # Azurite
 __azurite_db_*.json
 **/__blobstorage__
+
+# C# DevKit for Visual Studio Code
+*.iscache
