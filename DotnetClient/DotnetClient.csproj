@@ -20,7 +20,6 @@
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
 		<RepositoryUrl>https://github.com/SunAutoTire/Splunk.NET</RepositoryUrl>
 		<PackageReleaseNotes>Now using .NET 10</PackageReleaseNotes>
-		<PackageReleaseNotes>Migrating to opensource on Github!.</PackageReleaseNotes>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
 	</PropertyGroup>
