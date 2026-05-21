@@ -3,12 +3,12 @@ using Microsoft.Extensions.Logging;
 
 namespace SunAuto.Logging;
 
-internal sealed class SunAutoLogger : ILogger
+internal sealed class Logger : ILogger
 {
     private readonly string _categoryName;
-    private readonly SunAutoLoggerProvider _provider;
+    private readonly LoggerProvider _provider;
 
-    internal SunAutoLogger(string categoryName, SunAutoLoggerProvider provider)
+    internal Logger(string categoryName, LoggerProvider provider)
     {
         _categoryName = categoryName;
         _provider = provider;

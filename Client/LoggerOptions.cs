@@ -5,7 +5,7 @@ namespace SunAuto.Logging;
 /// <summary>
 /// Configuration options for the SunAuto logging provider.
 /// </summary>
-public sealed class SunAutoLoggerOptions
+public sealed class LoggerOptions
 {
     /// <summary>
     /// Minimum log level to emit. Defaults to <see cref="LogLevel.Information"/>.
@@ -29,7 +29,24 @@ public sealed class SunAutoLoggerOptions
 
     /// <summary>
     /// Custom sink that receives formatted log entries.
-    /// When null, output is written to <see cref="Console.Out"/>.
+    /// When null and Splunk options are not set, output goes to <see cref="Console.Out"/>.
     /// </summary>
     public Action<string>? Sink { get; set; }
+
+    /// <summary>
+    /// Base URL of the Splunk HTTP Event Collector (e.g. <c>https://splunk-host:8088/</c>).
+    /// When set together with <see cref="SplunkToken"/> and <see cref="SplunkSource"/>,
+    /// log entries are posted to Splunk automatically.
+    /// </summary>
+    public string? SplunkBaseUrl { get; set; }
+
+    /// <summary>
+    /// Splunk HEC token used for authentication.
+    /// </summary>
+    public string? SplunkToken { get; set; }
+
+    /// <summary>
+    /// Splunk sourcetype assigned to every event.
+    /// </summary>
+    public string? SplunkSource { get; set; }
 }

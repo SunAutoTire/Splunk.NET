@@ -8,7 +8,7 @@ namespace SunAuto.Logging;
 /// <summary>
 /// Extension methods for registering the SunAuto logging provider with <see cref="ILoggingBuilder"/>.
 /// </summary>
-public static class SunAutoLoggingBuilderExtensions
+public static class LoggingBuilderExtensions
 {
     /// <summary>
     /// Adds the SunAuto logging provider using settings from the <c>Logging:SunAuto</c>
@@ -20,10 +20,11 @@ public static class SunAutoLoggingBuilderExtensions
 
         builder.AddConfiguration();
 
-        builder.Services.TryAddEnumerable(
-            ServiceDescriptor.Singleton<ILoggerProvider, SunAutoLoggerProvider>());
+        builder
+            .Services
+            .TryAddEnumerable(ServiceDescriptor.Singleton<ILoggerProvider, LoggerProvider>());
 
-        LoggerProviderOptions.RegisterProviderOptions<SunAutoLoggerOptions, SunAutoLoggerProvider>(
+        LoggerProviderOptions.RegisterProviderOptions<LoggerOptions, LoggerProvider>(
             builder.Services);
 
         return builder;
@@ -34,7 +35,7 @@ public static class SunAutoLoggingBuilderExtensions
     /// </summary>
     public static ILoggingBuilder AddSunAutoLogging(
         this ILoggingBuilder builder,
-        Action<SunAutoLoggerOptions> configure)
+        Action<LoggerOptions> configure)
     {
         if (builder is null) throw new ArgumentNullException(nameof(builder));
         if (configure is null) throw new ArgumentNullException(nameof(configure));
