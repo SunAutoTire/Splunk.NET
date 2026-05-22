@@ -76,6 +76,26 @@
 			"command": "host start",
 			"isBackground": true,
 			"problemMatcher": "$func-dotnet-watch"
+		},
+		{
+			"type": "dotnet",
+			"task": "build /home/danielprzybylski/Source/SunAutoTire/Splunk.NET/Sample/Sample.csproj",
+			"file": "/home/danielprzybylski/Source/SunAutoTire/Splunk.NET/Sample/Sample.csproj",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "dotnet: build /home/danielprzybylski/Source/SunAutoTire/Splunk.NET/Sample/Sample.csproj"
+		},
+		{
+			"label": "build-sample",
+			"type": "process",
+			"command": "dotnet",
+			"args": [
+				"build",
+				"${workspaceFolder}/Sample/Sample.csproj",
+				"/property:GenerateFullPaths=true",
+				"/consoleloggerparameters:NoSummary"
+			],
+			"problemMatcher": "$msCompile"
 		}
 	]
 }
