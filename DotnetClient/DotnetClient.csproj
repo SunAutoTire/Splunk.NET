@@ -4,6 +4,7 @@
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<AssemblyName>SunAuto.Splunk.Client</AssemblyName>
 		<RootNamespace>SunAuto.Splunk.Client</RootNamespace>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -14,7 +15,7 @@
 		<Company>Sun Auto Tire &amp; Service, Inc.</Company>
 		<Owners>Sun Auto Tire &amp; Service, Inc.</Owners>
 		<PackageProjectUrl>https://www.nuget.org/packages/SunAuto.Splunk.Client</PackageProjectUrl>
-		<Version>3.0.0-preview</Version>
+		<Version>2.0.2</Version>
 		<PackageIcon>Sun-Auto-Icon.png</PackageIcon>
 		<PackageIconUrl>https://white-meadow-0b97e2410.4.azurestaticapps.net/Sun-Auto-Icon.png</PackageIconUrl>
 		<PackageReadmeFile>readme.md</PackageReadmeFile>
