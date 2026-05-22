@@ -1,11 +1,18 @@
 {
     "version": "0.2.0",
     "configurations": [
+        
         {
-            "name": "Attach to .NET Functions",
+            "name": "Sample (Development)",
             "type": "coreclr",
-            "request": "attach",
-            "processId": "${command:azureFunctions.pickProcess}"
+            "request": "launch",
+            "preLaunchTask": "build-sample",
+            "program": "${workspaceFolder}/Sample/bin/Debug/net10.0/Sample.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Sample",
+            "launchSettingsFilePath": "${workspaceFolder}/Sample/Properties/launchSettings.json",
+            "launchSettingsProfile": "Sample",
+            "console": "integratedTerminal"
         }
     ]
 }
