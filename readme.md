@@ -1,7 +1,12 @@
 
 # Sun Auto Splunk.NET
 
-A .NET library in a NuGet package allowing convenient logging to Splunk using dependency injection and Microsoft Logging Extensions.
+A collection of .NET libraries for logging to Splunk via dependency injection and Microsoft Logging Extensions.
+
+| Package                 | Project         | Description                                                   |
+|-------------------------|-----------------|---------------------------------------------------------------|
+| `SunAuto.Logging`       | `Client/`       | `ILoggerProvider` for MEL with optional Splunk HEC forwarding |
+| `SunAuto.Splunk.Client` | `DotnetClient/` | Standalone Splunk HEC client                                  |
 
 ## Get Started
 
@@ -72,6 +77,7 @@ Please make sure to update tests as appropriate.
 ## License
 
 [MIT](https://choosealicense.com/licenses/mit/)
+
 ## References
 
 * [Logging in C# and .NET](https://learn.microsoft.com/en-us/dotnet/core/extensions/logging?tabs=command-line)

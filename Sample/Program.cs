@@ -1,18 +1,13 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SunAuto.Logging;
+using SunAuto.Logging.Client;
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureLogging(logging =>
     {
         logging.ClearProviders();
-        logging.AddSunAutoLogging(options =>
-        {
-            options.MinimumLevel     = LogLevel.Debug;
-            options.IncludeScopes    = true;
-            options.IncludeTimestamp = true;
-        });
+        logging.AddSunAutoLogging();
     })
     .ConfigureServices(services =>
     {

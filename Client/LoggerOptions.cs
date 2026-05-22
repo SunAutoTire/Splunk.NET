@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 /// <summary>
 /// Configuration options for the SunAuto logging provider.
@@ -34,19 +34,29 @@ public sealed class LoggerOptions
     public Action<string>? Sink { get; set; }
 
     /// <summary>
-    /// Base URL of the Splunk HTTP Event Collector (e.g. <c>https://splunk-host:8088/</c>).
-    /// When set together with <see cref="SplunkToken"/> and <see cref="SplunkSource"/>,
+    /// Splunk HEC connection settings. When all three sub-properties are set,
     /// log entries are posted to Splunk automatically.
     /// </summary>
-    public string? SplunkBaseUrl { get; set; }
+    public SplunkOptions? Splunk { get; set; }
 
     /// <summary>
-    /// Splunk HEC token used for authentication.
+    /// Splunk HTTP Event Collector connection settings.
     /// </summary>
-    public string? SplunkToken { get; set; }
+    public sealed class SplunkOptions
+    {
+        /// <summary>
+        /// Base URL of the Splunk HEC endpoint (e.g. <c>https://splunk-host:8088/</c>).
+        /// </summary>
+        public string? BaseUrl { get; set; }
 
-    /// <summary>
-    /// Splunk sourcetype assigned to every event.
-    /// </summary>
-    public string? SplunkSource { get; set; }
+        /// <summary>
+        /// HEC token used for authentication.
+        /// </summary>
+        public string? Token { get; set; }
+
+        /// <summary>
+        /// Splunk sourcetype assigned to every event.
+        /// </summary>
+        public string? Source { get; set; }
+    }
 }

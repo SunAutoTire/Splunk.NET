@@ -1,7 +1,7 @@
 using System.Text;
 using Microsoft.Extensions.Logging;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 internal sealed class Logger : ILogger
 {
@@ -75,9 +75,10 @@ internal sealed class Logger : ILogger
         }
 
         var line = sb.ToString();
+        var sink = options.Sink ?? _provider.SplunkWrite;
 
-        if (options.Sink is not null)
-            options.Sink(line);
+        if (sink is not null)
+            sink(line);
         else
             Console.WriteLine(line);
     }

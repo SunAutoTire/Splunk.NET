@@ -2,7 +2,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 internal sealed class SplunkSink : IDisposable
 {

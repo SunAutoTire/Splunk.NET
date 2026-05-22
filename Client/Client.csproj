@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
+		<AssemblyName>SunAuto.Logging.Client</AssemblyName>
+		<RootNamespace>SunAuto.Logging.Client</RootNamespace>
 
     <!-- NuGet package metadata -->
     <PackageId>SunAuto.Logging</PackageId>

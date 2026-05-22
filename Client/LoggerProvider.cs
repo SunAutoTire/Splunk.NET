@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace SunAuto.Logging;
+namespace SunAuto.Logging.Client;
 
 /// <summary>
 /// A Microsoft.Extensions.Logging provider that routes log entries through a
@@ -31,17 +31,19 @@ public sealed class LoggerProvider : ILoggerProvider, ISupportExternalScope
         });
     }
 
+    internal Action<string>? SplunkWrite => _splunkSink is null ? null : _splunkSink.Write;
+
     private void ApplySplunkSink(LoggerOptions opts)
     {
-        if (opts.Sink is not null ||
-            opts.SplunkBaseUrl is null ||
-            opts.SplunkToken is null ||
-            opts.SplunkSource is null)
+        _splunkSink?.Dispose();
+        _splunkSink = null;
+
+        if (opts.Splunk?.BaseUrl is null ||
+            opts.Splunk.Token is null ||
+            opts.Splunk.Source is null)
             return;
 
-        _splunkSink?.Dispose();
-        _splunkSink = new SplunkSink(opts.SplunkBaseUrl, opts.SplunkToken, opts.SplunkSource);
-        opts.Sink = _splunkSink.Write;
+        _splunkSink = new SplunkSink(opts.Splunk.BaseUrl, opts.Splunk.Token, opts.Splunk.Source);
     }
 
     public ILogger CreateLogger(string categoryName) => _loggers.GetOrAdd(categoryName, name => new Logger(name, this));
