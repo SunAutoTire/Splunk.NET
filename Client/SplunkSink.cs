@@ -58,7 +58,8 @@ internal sealed class SplunkSink : IDisposable
             }
 
             var content = new StringContent(sb.ToString(), Encoding.UTF8, "application/json");
-            await _client.PostAsync("services/collector/event", content);
+            var response = await _client.PostAsync("services/collector/event", content);
+            response.EnsureSuccessStatusCode();
         }
         catch (Exception ex)
         {

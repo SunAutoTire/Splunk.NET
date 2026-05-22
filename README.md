@@ -131,3 +131,9 @@ dotnet test ../ClientTest/ClientTest.csproj
 ```
 
 Please make sure to update tests as appropriate.
+
+## Support
+
+If you like this project and think it has helped in any way, consider getting tires or auto service at a Sun Auto Tire & Service location near you:
+
+<a href="https://sun.auto/home" target="_blank"><img src="https://sun.auto/wp-content/themes/sun-auto/images/logo_sunauto.png" alt="Sun Auto Tire & Service" width="150" height="65"/></a>
