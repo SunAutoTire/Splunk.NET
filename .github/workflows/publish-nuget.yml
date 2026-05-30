@@ -41,7 +41,10 @@ jobs:
       - name: Exchange OIDC Token for NuGet API Key
         id: nuget-token
         run: |
-          RESPONSE=$(curl -sS -X POST "https://api.nuget.org/v1/trustedpublisher/token" \
+          TOKEN_ENDPOINT=$(curl -sS "https://api.nuget.org/v3/index.json" | \
+            jq -r '.resources[] | select(.["@type"] | startswith("TokenEndpointAuthentication")) | .["@id"]')
+          echo "Token endpoint: $TOKEN_ENDPOINT"
+          RESPONSE=$(curl -sS -X POST "$TOKEN_ENDPOINT" \
             -H "Content-Type: application/json" \
             -d "{\"oidcToken\": \"${{ steps.oidc.outputs.token }}\"}")
           echo "Raw response: $RESPONSE"
