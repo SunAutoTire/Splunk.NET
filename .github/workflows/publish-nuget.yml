@@ -31,5 +31,12 @@ jobs:
       - name: Pack
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
+      - name: Get OIDC Token
+        id: oidc
+        run: |
+          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org" | jq -r '.value')
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
       - name: Publish to NuGet.org
-        run: dotnet nuget push ./artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --api-key oidc
+        run: dotnet nuget push ./artifacts/SunAuto.Logging.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.oidc.outputs.token }}
