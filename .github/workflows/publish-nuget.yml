@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # Fixed: v6 doesn't exist
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -32,6 +32,4 @@ jobs:
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
       - name: Publish to NuGet.org
-        uses: nuget/publish-action@v0.3.0  # Fixed: correct action for Trusted Publisher
-        with:
-          packages-path: ./artifacts/*.nupkg
+        run: dotnet nuget push ./artifacts/*.nupkg --source https://api.nuget.org/v3/index.json --api-key oidc
