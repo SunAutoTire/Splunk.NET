@@ -38,5 +38,13 @@ jobs:
             "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org" | jq -r '.value')
           echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
+      - name: Exchange OIDC Token for NuGet API Key
+        id: nuget-token
+        run: |
+          API_KEY=$(curl -sS -X POST "https://www.nuget.org/api/v1/trustedpublisher/token" \
+            -H "Content-Type: application/json" \
+            -d "{\"oidcToken\": \"${{ steps.oidc.outputs.token }}\"}" | jq -r '.apiKey')
+          echo "api-key=$API_KEY" >> $GITHUB_OUTPUT
+
       - name: Publish to NuGet.org
-        run: dotnet nuget push ./artifacts/SunAuto.Logging.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.oidc.outputs.token }}
+        run: dotnet nuget push ./artifacts/SunAuto.Logging.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-token.outputs.api-key }}
