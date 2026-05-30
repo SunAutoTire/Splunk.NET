@@ -11,10 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      id-token: write  # Required for OIDC / Trusted Publisher
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4  # Fixed: v6 doesn't exist
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -31,7 +32,6 @@ jobs:
         run: dotnet pack --configuration Release --no-build --output ./artifacts
 
       - name: Publish to NuGet.org
-        uses: NuGet/actions@v1
+        uses: nuget/publish-action@v0.3.0  # Fixed: correct action for Trusted Publisher
         with:
-          command: push
-          packages-to-push: ./artifacts/*.nupkg
+          packages-path: ./artifacts/*.nupkg
