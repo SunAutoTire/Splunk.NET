@@ -41,15 +41,8 @@ jobs:
       - name: Exchange OIDC Token for NuGet API Key
         id: nuget-token
         run: |
-          TOKEN_ENDPOINT=$(curl -sS "https://api.nuget.org/v3/index.json" | \
-            jq -r '.resources[] | select(.["@type"] | startswith("TokenEndpointAuthentication")) | .["@id"]')
-          echo "Token endpoint: $TOKEN_ENDPOINT"
-          RESPONSE=$(curl -sS -X POST "$TOKEN_ENDPOINT" \
-            -H "Content-Type: application/json" \
-            -d "{\"oidcToken\": \"${{ steps.oidc.outputs.token }}\"}")
-          echo "Raw response: $RESPONSE"
-          API_KEY=$(echo "$RESPONSE" | jq -r '.apiKey')
-          echo "api-key=$API_KEY" >> $GITHUB_OUTPUT
+          echo "Available resource types:"
+          curl -sS "https://api.nuget.org/v3/index.json" | jq -r '.resources[] | .["@type"]'
 
       - name: Publish to NuGet.org
         run: dotnet nuget push ./artifacts/SunAuto.Logging.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-token.outputs.api-key }}
