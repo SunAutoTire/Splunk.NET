@@ -41,7 +41,7 @@ jobs:
       - name: Exchange OIDC Token for NuGet API Key
         id: nuget-token
         run: |
-          API_KEY=$(curl -sS -X POST "https://www.nuget.org/api/v1/trustedpublisher/token" \
+          API_KEY=$(curl -sS -X POST "https://api.nuget.org/v1/trustedpublisher/token" \
             -H "Content-Type: application/json" \
             -d "{\"oidcToken\": \"${{ steps.oidc.outputs.token }}\"}" | jq -r '.apiKey')
           echo "api-key=$API_KEY" >> $GITHUB_OUTPUT
