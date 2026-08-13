@@ -31,66 +31,33 @@ internal sealed class Logger : ILogger
             return;
 
         var options = _provider.Options;
-        var sb = new StringBuilder();
 
-        if (options.IncludeTimestamp)
+        var entry = new QueueEntry
         {
-            sb.Append('[');
-            sb.Append(DateTime.UtcNow.ToString(options.TimestampFormat));
-            sb.Append("] ");
-        }
+            Loglevel = logLevel,
+            EventId = eventId,
+            State = state,
+            Exception = exception,
+            Formatted = formatter(state!, exception),
+            Timestamp = DateTime.UtcNow
+        };
 
-        sb.Append(GetLevelLabel(logLevel));
-        sb.Append(' ');
-        sb.Append(_categoryName);
-
-        if (eventId.Id != 0 || eventId.Name is not null)
-        {
-            sb.Append('[');
-            if (eventId.Name is not null)
-                sb.Append(eventId.Name);
-            else
-                sb.Append(eventId.Id);
-            sb.Append(']');
-        }
-
-        sb.Append(": ");
-        sb.Append(formatter(state, exception));
-
-        if (options.IncludeScopes && _provider.ScopeProvider is not null)
-        {
-            _provider.ScopeProvider.ForEachScope(
-                (scope, builder) =>
-                {
-                    builder.Append(" => ");
-                    builder.Append(scope);
-                },
-                sb);
-        }
-
-        if (exception is not null)
-        {
-            sb.AppendLine();
-            sb.Append(exception);
-        }
-
-        var line = sb.ToString();
         var sink = options.Sink ?? _provider.SplunkWrite;
 
         if (sink is not null)
-            sink(line);
+            sink(entry);
         else
-            Console.WriteLine(line);
+            Console.WriteLine(entry);
     }
 
     private static string GetLevelLabel(LogLevel level) => level switch
     {
-        LogLevel.Trace       => "trce",
-        LogLevel.Debug       => "dbug",
+        LogLevel.Trace => "trce",
+        LogLevel.Debug => "dbug",
         LogLevel.Information => "info",
-        LogLevel.Warning     => "warn",
-        LogLevel.Error       => "fail",
-        LogLevel.Critical    => "crit",
-        _                    => "    "
+        LogLevel.Warning => "warn",
+        LogLevel.Error => "fail",
+        LogLevel.Critical => "crit",
+        _ => "    "
     };
 }

@@ -8,10 +8,18 @@ internal sealed class SplunkSink : IDisposable
 {
     private readonly HttpClient _client;
     private readonly string _source;
-    private readonly List<string> _queue = [];
+    private readonly List<QueueEntry> _queue = [];
     private Task _handler = Task.CompletedTask;
     private readonly object _lock = new();
     private bool _disposed;
+    readonly JsonSerializerOptions JsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+        Converters =
+        {
+            new ExceptionConverter()
+        }
+    };
 
     internal SplunkSink(string baseUrl, string token, string source)
     {
@@ -20,7 +28,7 @@ internal sealed class SplunkSink : IDisposable
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Splunk", token);
     }
 
-    internal void Write(string line)
+    internal void Write(QueueEntry line)
     {
         lock (_lock)
         {
@@ -35,35 +43,55 @@ internal sealed class SplunkSink : IDisposable
     {
         while (true)
         {
-            string[] batch;
+            QueueEntry[] batch;
             lock (_lock)
             {
                 if (_queue.Count == 0) break;
-                batch = [.. _queue];
+                batch = _queue.ToArray();
                 _queue.Clear();
             }
             await PostAsync(batch);
         }
     }
 
-    private async Task PostAsync(string[] lines)
+    private async Task PostAsync(QueueEntry[] items)
     {
         try
         {
-            var sb = new StringBuilder();
-            foreach (var line in lines)
-            {
-                sb.Append(JsonSerializer.Serialize(new { @event = line, sourcetype = _source }));
-                sb.Append('\n');
-            }
+            var entries = items
+                .Select(i =>
+                {
+                    var serializedex = JsonSerializer.Serialize(i.Exception, JsonSerializerOptions);
 
-            var content = new StringContent(sb.ToString(), Encoding.UTF8, "application/json");
-            var response = await _client.PostAsync("services/collector/event", content);
-            response.EnsureSuccessStatusCode();
+                    using var doc = JsonDocument.Parse(serializedex);
+                    var bodyElement = doc.RootElement.Clone();
+
+                    return new Entry
+                    {
+                        @event = new Event
+                        {
+                            Body = bodyElement,
+                            Level = i.Loglevel.ToString(),
+                            Message = i.Formatted!,
+                            Timestamp = i.Timestamp,
+                            EventId = i.EventId.Id,
+                            UserId = null,
+                            EventName = i.EventId.Name
+                        },
+                        sourcetype = _source
+                    };
+                });
+
+            var serialized = JsonSerializer.Serialize(entries);
+            var json = new StringContent(serialized, Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync("services/collector/event", json);
+
+            var content = await response.Content.ReadAsStringAsync();
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"SplunkSink post failed: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine(ex.Message);
         }
     }
 

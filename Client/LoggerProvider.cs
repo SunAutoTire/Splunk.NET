@@ -31,7 +31,7 @@ public sealed class LoggerProvider : ILoggerProvider, ISupportExternalScope
         });
     }
 
-    internal Action<string>? SplunkWrite => _splunkSink is null ? null : _splunkSink.Write;
+    internal Action<QueueEntry>? SplunkWrite => _splunkSink is null ? null : _splunkSink.Write;
 
     private void ApplySplunkSink(LoggerOptions opts)
     {
