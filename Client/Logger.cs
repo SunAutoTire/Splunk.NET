@@ -39,7 +39,7 @@ internal sealed class Logger : ILogger
             State = state,
             Exception = exception,
             Formatted = formatter(state!, exception),
-            Timestamp = DateTime.UtcNow
+            Timestamp = DateTime.UtcNow,
         };
 
         var sink = options.Sink ?? _provider.SplunkWrite;

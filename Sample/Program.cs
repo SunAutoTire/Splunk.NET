@@ -17,32 +17,47 @@ var host = Host.CreateDefaultBuilder(args)
 
 await host.RunAsync();
 
-sealed class SampleWorker(ILogger<SampleWorker> logger) : BackgroundService
+
+sealed class SampleWorker(ILogger<SampleWorker> logger, IHostApplicationLifetime lifetime) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Worker started");
-
-        using (logger.BeginScope("ProcessOrder {OrderId}", 1042))
+        try
         {
-            logger.LogDebug("Fetching order details");
-            logger.LogInformation("Order authorised");
+            logger.LogInformation("Worker started");
 
-            try
+            using (logger.BeginScope("ProcessOrder {OrderId}", 1042))
             {
-                throw new InvalidOperationException("Payment gateway timeout");
+                logger.LogDebug("Fetching order details");
+                logger.LogInformation("Order authorised");
+
+                try
+                {
+                    throw new InvalidOperationException("Payment gateway timeout");
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Failed to charge customer for order {OrderId}", 1042);
+
+                    var innerEx = new InvalidOperationException("Boy this is really messed up", new ApplicationException("Something went wrong"));
+
+                    logger.LogError(innerEx, "Really Failed to charge customer for order {OrderId}", 1042);
+                }
             }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to charge customer for order {OrderId}", 1042);
-            }
+
+            logger.LogWarning("Queue depth is high, consider scaling");
+            logger.LogInformation("Worker finished — shutting down");
+
+            await Task.Delay(200, stoppingToken);
+
+            lifetime.StopApplication();   // instead of Environment.Exit(0)
+
         }
-
-        logger.LogWarning("Queue depth is high, consider scaling");
-        logger.LogInformation("Worker finished — shutting down");
-
-        await Task.Delay(200, stoppingToken);
-
-        Environment.Exit(0);
+        catch (Exception ex)
+        {
+            logger.LogCritical(ex, "Unhandled exception");
+            Environment.ExitCode = 1;
+            lifetime.StopApplication();
+        }
     }
 }

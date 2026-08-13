@@ -32,10 +32,17 @@ internal sealed class SplunkSink : IDisposable
     {
         lock (_lock)
         {
-            if (_disposed) return;
-            _queue.Add(line);
-            if (_handler.IsCompleted || _handler.IsFaulted || _handler.IsCanceled)
-                _handler = FlushAsync();
+            try
+            {
+                if (_disposed) return;
+                _queue.Add(line);
+                if (_handler.IsCompleted || _handler.IsFaulted || _handler.IsCanceled)
+                    _handler = FlushAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.Message);
+            }
         }
     }
 
@@ -50,7 +57,14 @@ internal sealed class SplunkSink : IDisposable
                 batch = _queue.ToArray();
                 _queue.Clear();
             }
-            await PostAsync(batch);
+            try
+            {
+                await PostAsync(batch);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
         }
     }
 
@@ -88,13 +102,22 @@ internal sealed class SplunkSink : IDisposable
             var response = await _client.PostAsync("services/collector/event", json);
 
             var content = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+
+                ReportError($"Splunk HEC returned {(int)response.StatusCode}: {content}");
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex.Message);
+            ReportError($"Splunk HEC post failed: {ex}");
         }
     }
 
+    private void ReportError(string message)
+    {
+        Console.Error.WriteLine($"[SunAuto.Logging] {message}");
+        // OnError?.Invoke(message);   // optional hook, e.g. surfaced via LoggerOptions
+    }
+    
     public void Dispose()
     {
         lock (_lock)
