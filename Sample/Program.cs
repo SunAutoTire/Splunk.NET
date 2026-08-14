@@ -43,6 +43,12 @@ sealed class SampleWorker(ILogger<SampleWorker> logger, IHostApplicationLifetime
 
                     logger.LogError(innerEx, "Really Failed to charge customer for order {OrderId}", 1042);
                 }
+
+                for (int i = 0; i < 100; i++)
+                {
+                    logger.LogInformation("Processing item {ItemId}", i);
+                    await Task.Delay(100, stoppingToken);
+                }
             }
 
             logger.LogWarning("Queue depth is high, consider scaling");

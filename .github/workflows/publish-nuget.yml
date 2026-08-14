@@ -1,26 +1,28 @@
-name: Publish NuGet package
+name: Build, Test and Publish
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
   workflow_dispatch:
 
 jobs:
-  publish:
+  # Runs on every push and pull request. Needs no secrets and no external setup.
+  build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write  # Required for OIDC / Trusted Publisher
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # The 10.x SDK builds every target framework in this repo. It compiles the net8.0, net9.0
+      # and netstandard2.1 targets against reference packages restored from NuGet, so older SDKs
+      # do not need to be installed.
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
       - name: Restore
         run: dotnet restore
@@ -28,21 +30,52 @@ jobs:
       - name: Build
         run: dotnet build --configuration Release --no-restore
 
+      - name: Test
+        run: dotnet test --configuration Release --no-build --verbosity normal
+
       - name: Pack
-        run: dotnet pack --configuration Release --no-build --output ./artifacts
+        run: dotnet pack Client/Client.csproj --configuration Release --no-build --output ./artifacts
 
-      - name: Get OIDC Token
-        id: oidc
-        run: |
-          TOKEN=$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
-            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nuget.org" | jq -r '.value')
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: ./artifacts/*
+          if-no-files-found: error
 
-      - name: Exchange OIDC Token for NuGet API Key
-        id: nuget-token
+  # Only runs for v* tags, and only after build has gone green.
+  publish:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nupkg
+          path: ./artifacts
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      # Fail early with a readable message rather than letting nuget push report a vague 401.
+      - name: Check publishing secret is configured
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
         run: |
-          echo "Available resource types:"
-          curl -sS "https://api.nuget.org/v3/index.json" | jq -r '.resources[] | .["@type"]'
+          if [ -z "$NUGET_API_KEY" ]; then
+            echo "::error::Secret NUGET_API_KEY is not set. Create an API key at https://www.nuget.org/account/apikeys and add it under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
 
       - name: Publish to NuGet.org
-        run: dotnet nuget push ./artifacts/SunAuto.Logging.*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ steps.nuget-token.outputs.api-key }}
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+        run: >
+          dotnet nuget push ./artifacts/*.nupkg
+          --source https://api.nuget.org/v3/index.json
+          --api-key "$NUGET_API_KEY"
+          --skip-duplicate
