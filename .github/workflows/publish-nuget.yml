@@ -6,6 +6,12 @@ on:
     tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Run publish job'
+        required: true
+        type: boolean
+        default: false
 
 permissions:
   contents: read
