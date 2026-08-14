@@ -31,7 +31,7 @@ public sealed class LoggerOptions
     /// Custom sink that receives formatted log entries.
     /// When null and Splunk options are not set, output goes to <see cref="Console.Out"/>.
     /// </summary>
-    public Action<string>? Sink { get; set; }
+    public Action<QueueEntry>? Sink { get; set; }
 
     /// <summary>
     /// Splunk HEC connection settings. When all three sub-properties are set,
