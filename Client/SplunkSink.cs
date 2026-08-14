@@ -15,7 +15,7 @@ internal sealed class SplunkSink : IDisposable
     private bool _disposed;
     readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
-        WriteIndented = true,
+        WriteIndented = false,
         Converters =
         {
             new ExceptionConverter()
