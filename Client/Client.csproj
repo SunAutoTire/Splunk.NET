@@ -5,12 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <LangVersion>latest</LangVersion>
-		<AssemblyName>SunAuto.Logging.Client</AssemblyName>
-		<RootNamespace>SunAuto.Logging.Client</RootNamespace>
+    <AssemblyName>SunAuto.Logging.Client</AssemblyName>
+    <RootNamespace>SunAuto.Logging.Client</RootNamespace>
 
     <!-- NuGet package metadata -->
     <PackageId>SunAuto.Logging</PackageId>
-    <Version>1.1.1</Version>
+    <Version>2.0.0</Version>
     <Authors>Daniel Przybylski</Authors>
     <Company>Sun Auto Tire &amp; Service</Company>
     <Description>A standard Microsoft.Extensions.Logging provider for using Splunk HEC.</Description>
@@ -18,7 +18,8 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageIcon>Sun-Auto-Icon.png</PackageIcon>
-    <RepositoryType>git</RepositoryType><releaseNotes>Better JSON-based event entry for Splunk.</releaseNotes>
+    <RepositoryType>git</RepositoryType>
+    <releaseNotes>Re-released as 2.0.0.</releaseNotes>
 
     <!-- Pack settings -->
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
