@@ -69,12 +69,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
+      - name: Install NuGet credential provider
+        run: wget -O - https://aka.ms/install-artifacts-credprovider.sh | bash
+      
       - name: Publish to NuGet.org
         run: >
           dotnet nuget push "./artifacts/*.nupkg"
           --source https://api.nuget.org/v3/index.json
           --skip-duplicate
-        env:
-          NUGET_PLUGIN_HANDSHAKE_VERSION: "1.0"
-          NUGET_PLUGIN_REQUEST_TIMEOUT: "5"
-          NUGET_CREDENTIALPROVIDER_SESSIONTOKENCACHE_ENABLED: "true"
