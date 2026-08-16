@@ -34,6 +34,14 @@ public sealed class LoggerOptions
     public Action<QueueEntry>? Sink { get; set; }
 
     /// <summary>
+    /// Resolves the object ID of the user associated with a log entry. Invoked on the caller's
+    /// thread while the entry is being created, so ambient request state is still available;
+    /// the sink posts entries from a background pump, where it no longer would be.
+    /// Returns null when there is no authenticated user.
+    /// </summary>
+    public Func<Guid?>? UserIdResolver { get; set; }
+
+    /// <summary>
     /// Splunk HEC connection settings. When all three sub-properties are set,
     /// log entries are posted to Splunk automatically.
     /// </summary>

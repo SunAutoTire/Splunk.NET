@@ -112,7 +112,7 @@ internal sealed class SplunkSink : IDisposable
                         Message = i.Formatted!,
                         Timestamp = i.Timestamp,
                         EventId = i.EventId.Id,
-                        UserId = null,
+                        UserId = i.UserId,
                         EventName = i.EventId.Name
                     },
                     SourceType = _source

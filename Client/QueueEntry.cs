@@ -33,6 +33,12 @@ public class QueueEntry
     public Exception? Exception { get; set; }
 
     /// <summary>
+    /// The object ID of the user associated with the log entry, captured when the entry was created.
+    /// It can be null if no <see cref="LoggerOptions.UserIdResolver"/> is configured or no user is authenticated.
+    /// </summary>
+    public Guid? UserId { get; set; }
+
+    /// <summary>
     /// The timestamp indicating when the log entry was created. This property is set to the current UTC time when the QueueEntry instance is created and can be used to track when the log event occurred.
     /// </summary>
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
