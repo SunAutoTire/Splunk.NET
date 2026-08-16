@@ -65,6 +65,7 @@ internal sealed class Logger : ILogger
             Exception = exception,
             Formatted = formatter(state!, exception),
             Timestamp = DateTime.UtcNow,
+            UserId = options.UserIdResolver?.Invoke(),
         };
 
         var sink = options.Sink ?? _provider.SplunkWrite;

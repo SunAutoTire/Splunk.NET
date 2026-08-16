@@ -135,6 +135,58 @@ public class SplunkPayloadTests
     }
 
     [Fact]
+    public void User_id_from_the_resolver_reaches_the_event()
+    {
+        using var hec = new FakeHec();
+        var user = Guid.NewGuid();
+
+        using (var provider = CreateProvider(hec, o => o.UserIdResolver = () => user))
+            provider.CreateLogger("Test").LogInformation("hello");
+
+        var payload = Assert.Single(hec.ParsedEvents()).GetProperty("event");
+
+        Assert.Equal(user, payload.GetProperty("UserId").GetGuid());
+    }
+
+    [Fact]
+    public void User_id_is_null_when_no_resolver_is_configured()
+    {
+        using var hec = new FakeHec();
+
+        using (var provider = CreateProvider(hec))
+            provider.CreateLogger("Test").LogInformation("hello");
+
+        var payload = Assert.Single(hec.ParsedEvents()).GetProperty("event");
+
+        Assert.Equal(JsonValueKind.Null, payload.GetProperty("UserId").ValueKind);
+    }
+
+    /// <summary>
+    /// The resolver has to run while the entry is being created, not when the sink posts it: the
+    /// pump batches entries and runs detached from the request that produced them, so a single
+    /// batch can legitimately carry entries for different users.
+    /// </summary>
+    [Fact]
+    public void Each_entry_captures_the_user_current_at_the_time_it_was_logged()
+    {
+        using var hec = new FakeHec();
+        var users = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() };
+        var current = 0;
+
+        using (var provider = CreateProvider(hec, o => o.UserIdResolver = () => users[current]))
+        {
+            var log = provider.CreateLogger("Test");
+            for (; current < users.Length; current++) log.LogInformation("entry {I}", current);
+        }
+
+        var logged = hec.ParsedEvents()
+            .Select(e => e.GetProperty("event").GetProperty("UserId").GetGuid())
+            .ToArray();
+
+        Assert.Equal(users, logged);
+    }
+
+    [Fact]
     public void Sink_delegate_takes_precedence_over_splunk()
     {
         using var hec = new FakeHec();
