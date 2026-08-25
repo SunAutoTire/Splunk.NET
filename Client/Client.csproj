@@ -16,7 +16,7 @@
     <Description>A standard Microsoft.Extensions.Logging provider for using Splunk HEC.</Description>
     <PackageTags>logging;sunautoo;microsoft-extensions-logging;iloggerprovider</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageIcon>Sun-Auto-Icon.png</PackageIcon>
     <RepositoryType>git</RepositoryType>
     <releaseNotes>Re-released as 2.0.0.</releaseNotes>
