@@ -9,14 +9,13 @@ writes to a custom sink delegate, a Splunk HTTP Event Collector (HEC), or the co
 `README.md` is packed into the nupkg as the package readme, so it is user-facing documentation.
 Keep it in sync with behaviour changes.
 
-This repo is checked out as a git submodule of the `InfrastructureData` superproject, which
-consumes the **published package**, not this source. Changing code here affects nothing
-downstream until a new version is published and the consumer's version is bumped.
+Downstream consumers reference the **published package**, not this source. Changing code here
+affects nothing downstream until a new version is published and the consumer's version is bumped.
 
 | Project | Notes |
 |---|---|
 | `Client/` | The library. Multi-targets `net10.0;net9.0;net8.0;netstandard2.1`. Assembly/namespace `SunAuto.Logging.Client`, but the PackageId is `SunAuto.Logging`. `GeneratePackageOnBuild` is on, so every build also produces a `.nupkg`. |
-| `ClientTest/` | xunit tests (net10.0). |
+| `ClientTest/` | xunit v3 tests (net10.0), run under VSTest via `xunit.runner.visualstudio` 4.x. Don't re-add the `xunit` 2.x package: it makes every `[Fact]` ambiguous (CS0433). |
 | `Sample/` | Generic Host console app that exercises the provider. It configures everything through `appsettings.json` and user secrets (`UserSecretsId` is set) for the HEC token. |
 | `DotnetClient/`, `DotnetClientTest/` | Stale leftovers holding only `bin/obj/.lscache`, with no source. Ignore them. |
 
@@ -33,10 +32,6 @@ dotnet run   --project Sample/Sample.csproj
 dotnet pack  Client/Client.csproj -c Release -o ./artifacts
 ```
 
-**The test project currently fails to compile.** `ClientTest.csproj` references both `xunit` 2.9.3
-and `xunit.v3`, so every `[Fact]` is ambiguous (CS0433). Commit `df88fc2` added v3 but did not
-remove v2. Removing the `xunit` 2.x reference is the likely fix.
-
 ## Release
 
 `.github/workflows/publish-nuget.yml` builds, tests, and packs on pushes to `main` and on PRs.
@@ -45,8 +40,9 @@ It publishes to **nuget.org** (OIDC trusted publishing, `production` environment
 comes from `<Version>` in `Client/Client.csproj` and must be bumped by hand together with
 `<releaseNotes>`. The tag does not set it. Day-to-day work happens on `dev`, which is then merged to `main`.
 
-The workflow installs only the .NET 8 SDK, but the solution is `.slnx` and the test and sample
-projects target net10.0. Check this if CI fails to build.
+The build job installs the .NET 10 SDK, which builds every target framework and is needed for the
+`.slnx` solution and the net10.0 test and sample projects. The publish job only runs
+`dotnet nuget push`, so it stays on .NET 8.
 
 ## Architecture
 
